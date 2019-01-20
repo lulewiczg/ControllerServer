@@ -52,7 +52,7 @@ public class Main {
                 if (args.length == 2) {
                     settings.setPort(Integer.parseInt(args[1]));
                 }
-                server.start(settings.getPort(), settings.getPassword(), false);
+                server.start(new Settings(settings.getPort(), settings.getPassword(), true, false, true));
             }
         } else {
             configureLogger(true);

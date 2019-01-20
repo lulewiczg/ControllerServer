@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -17,11 +16,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.github.lulewiczg.controller.actions.Action;
-import com.github.lulewiczg.controller.actions.LoginAction;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
+import com.github.lulewiczg.controller.exception.ActionException;
 import com.github.lulewiczg.controller.exception.DisconnectException;
+import com.github.lulewiczg.controller.exception.HandledException;
 import com.github.lulewiczg.controller.exception.LoginException;
+import com.github.lulewiczg.controller.exception.ServerExitException;
 
 /**
  * Server implementation.
@@ -34,16 +35,14 @@ public class ControllerServer {
     private static final int ERROR_THRESHOLD = 5;
     private ServerState status = ServerState.SHUTDOWN;
     private static ControllerServer instance;
-    private boolean restartOnError = false;
     private ObjectOutputStream output;
     private ObjectInputStream input;
     private Thread thread;
     private ServerSocket server;
     private int errorCount;
     private Socket socket;
-    private int port;
-    private String password;
-    private boolean testMode;
+    private Settings config;
+    private Object lock = new Object();
 
     private ControllerServer() {
         // Do nothing
@@ -65,15 +64,11 @@ public class ControllerServer {
      * Handle server error.
      */
     private void onError() {
-        _stop();
-        if (restartOnError) {
-            try {
-                _start();
-            } catch (IOException e) {
-                log.error("Error during error handling.");
-                log.catching(Level.DEBUG, e);
-            }
+        stop();
+        if (config.isRestartOnError()) {
+            start(config);
         }
+        throw new ServerExitException();
     }
 
     /**
@@ -86,82 +81,65 @@ public class ControllerServer {
      * @param testMode
      *            test mode
      */
-    public void start(int port, String password, boolean testMode) {
-        this.port = port;
-        this.password = password;
-        this.testMode = testMode;
-        if (testMode) {
+    public void start(Settings config) {
+        this.config = config;
+        if (config.isTestMode()) {
             Action.setTestMode();
         } else {
             Action.setNormalMode();
         }
         thread = new Thread(() -> {
             try {
-                _start();
+                setupSocket();
+            } catch (IOException e) {
+                log.error("Failed to setup socket");
+                log.catching(Level.DEBUG, e);
+                onError();
+            }
+            try {
                 listen();
-            } catch (InterruptedException e) {
-                log.catching(Level.DEBUG, e);
-            } catch (DisconnectException e) {
-                log.info("Disconnected");
-                log.catching(Level.DEBUG, e);
-                onError();
-            } catch (LoginException e) {
-                StringBuilder str = new StringBuilder();
-                str.append("User ").append(e.getWho()).append(", from ").append(e.getWhere())
-                        .append(" tried to login with invalid password!");
-                log.info(str.toString());
-                log.catching(Level.DEBUG, e);
-                onError();
-            } catch (SocketException e) {
-                if (getStatus() == ServerState.SHUTDOWN) {
-                    log.catching(Level.TRACE, e);
-                } else {
-                    log.info("Socket error");
-                    log.catching(Level.DEBUG, e);
-                    onError();
-                }
+            } catch (HandledException | ServerExitException e) {
+                // Do nothing, exception handled
             } catch (Exception e) {
+                log.error(e.getMessage());
                 log.catching(Level.DEBUG, e);
                 onError();
             }
         });
-        thread.start();
+        synchronized (lock) {
+            thread.start();
+        }
     }
 
     /**
      * Stops server.
      */
     public void stop() {
-        _stop();
+        synchronized (lock) {
+            if (server != null && !server.isClosed()) {
+                close(server);
+                close(input);
+                close(output);
+                close(socket);
+            }
+            setStatus(ServerState.SHUTDOWN);
+            log.info("Server stopped");
+        }
     }
 
     /**
-     * Starts server.
+     * Sets up socket.
      *
      * @throws IOException
      *             the IOException
      */
-    private void _start() throws IOException {
-        server = new ServerSocket(port);
+    private void setupSocket() throws IOException {
+        server = new ServerSocket(config.getPort());
         setStatus(ServerState.WAITING);
-        log.info("Waiting for connection on port " + port + "...");
+        log.info(String.format("Waiting for connection on port %s...", config.getPort()));
         socket = server.accept();
         socket.setReuseAddress(false);
         socket.setKeepAlive(true);
-    }
-
-    /**
-     * Stops server.
-     */
-    private void _stop() {
-        if (server != null && !server.isClosed()) {
-            close(server);
-            close(input);
-            close(output);
-            close(socket);
-        }
-        setStatus(ServerState.SHUTDOWN);
-        log.info("Server stopped");
     }
 
     /**
@@ -185,18 +163,16 @@ public class ControllerServer {
      */
     public void restart() {
         stop();
-        start(port, password, testMode);
+        start(config);
     }
 
     /**
-     * Listens for connection/
+     * Listens for connection.
      *
-     * @throws InterruptedException
-     *             the InterruptedException
-     * @throws IOException
-     *             the IOException
+     * @throws Exception
+     *             the Exception
      */
-    private void listen() throws InterruptedException, IOException {
+    private void listen() throws Exception {
         InputStream inputStream = socket.getInputStream();
         OutputStream outputStream = socket.getOutputStream();
         while (!socket.isConnected() && inputStream.available() == 0) {
@@ -205,66 +181,74 @@ public class ControllerServer {
         log.info("Trying to connect...");
         input = new ObjectInputStream(inputStream);
         output = new ObjectOutputStream(outputStream);
-        estabilish();
         Response res = null;
         errorCount = 0;
-        setStatus(ServerState.CONNECTED);
-        while (!socket.isClosed() && getStatus() == ServerState.CONNECTED) {
+        while (!socket.isClosed() && getStatus() != ServerState.SHUTDOWN) {
             try {
-                Action a = (Action) input.readObject();
-                log.debug(a);
-                a.doAction();
-                res = new Response(Status.OK);
-            } catch (SocketException | EOFException e) {
-                Thread.sleep(1000);
-                errorCount++;
-                log.catching(Level.DEBUG, e);
-                isError();
-                setStatus(ServerState.CONNECTION_ERROR);
-                continue;
-            } catch (DisconnectException e) {
-                sendResponse(output, new Response(Status.OK));
-                throw e;
+                res = handleAction(input.readObject());
+                sendResponse(output, res);
             } catch (Exception e) {
-                log.catching(e);
-                res = new Response(Status.NOT_OK, e);
+                res = handleException(e);
             }
-            sendResponse(output, res);
             errorCount = 0;
         }
     }
 
     /**
-     * Tries to connect with client.
+     * Handles exception
      *
-     * @throws IOException
-     *             the IOException
+     * @param e
+     * @throws Exception
+     *             the Exception
      */
-    private void estabilish() throws IOException {
-        LoginAction login;
-        try {
-            Object action = input.readObject();
-            if (action instanceof LoginAction) {
-                login = (LoginAction) action;
-                login.setServerPassword(password);
-                login.doAction();
-                output.writeObject(new Response(Status.OK));
-            } else {
-                Response response = new Response(Status.NOT_OK);// TODO
-                ConnectException exception = new ConnectException("Not login action");
-                response.setException(exception);
-                output.writeObject(response);
-                throw exception;
+    private Response handleException(Exception e) throws Exception {
+        log.catching(Level.DEBUG, e);
+        Status status = Status.NOT_OK;
+        errorCount++;
+        boolean handled = false;
+        if (e instanceof SocketException || e instanceof EOFException) {
+            isError();
+            setStatus(ServerState.CONNECTION_ERROR);
+            handled = true;
+        } else if (e instanceof DisconnectException) {
+            log.info("Disconnected");
+            sendResponse(output, new Response(Status.OK));
+            onError();
+        } else if (e instanceof SocketException) {
+            if (getStatus() != ServerState.SHUTDOWN) {
+                log.info("Socket error");
+                isError();
             }
-        } catch (ClassNotFoundException e) {
-            log.catching(Level.DEBUG, e);
-            throw new ConnectException();
-        } catch (LoginException e) {
-            Response r = new Response(Status.INVALID_PASSWORD);
-            output.writeObject(r);
+            handled = true;
+        } else if (e instanceof LoginException) {
+            LoginException le = (LoginException) e;
+            log.info(String.format("User %s from %s tried to login with invalid password", le.getWho(), le.getWhere()));
+            handled = true;
+            status = Status.INVALID_PASSWORD;
+        } else if (e instanceof ActionException) {
+            handled = true;
+        }
+        log.error(e.getMessage());
+        sendResponse(output, new Response(status, e));
+        if (handled) {
+            throw new HandledException(e);
+        } else {
             throw e;
         }
-        log.info("Connected: " + login.getInfo() + ", " + login.getIp());
+    }
+
+    /**
+     * Handlers client's action
+     *
+     * @param action
+     *            action
+     * @return action result
+     * @throws ActionException
+     *             the ActionException
+     */
+    private Response handleAction(Object action) throws ActionException {
+        log.debug(action);
+        return ((Action) action).run(this);
     }
 
     /**
@@ -306,11 +290,7 @@ public class ControllerServer {
         return status;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    private synchronized void setStatus(ServerState state) {
+    public synchronized void setStatus(ServerState state) {
         if (status == state) {
             return;
         }
@@ -318,8 +298,8 @@ public class ControllerServer {
         this.status = state;
     }
 
-    public void setRestartOnError(boolean restartOnError) {
-        this.restartOnError = restartOnError;
+    public String getPassword() {
+        return config.getPassword();
     }
 
 }

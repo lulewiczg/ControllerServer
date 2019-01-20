@@ -99,9 +99,8 @@ public class ServerWindow extends JFrame implements ActionListener {
         });
         revalidate();
         if (settings.isAutostart()) {
-            server.start(settings.getPort(), settings.getPassword());
+            server.start(settings);
         }
-        server.setRestartOnError(settings.isRestartOnError());
     }
 
     private void quit() {
@@ -254,7 +253,7 @@ public class ServerWindow extends JFrame implements ActionListener {
                 invalidValue(INVALID_PASSWORD);
             }
         } else if (e.getSource().equals(start)) {
-            server.start(settings.getPort(), settings.getPassword());
+            server.start(settings);
         } else if (e.getSource().equals(stop)) {
             server.stop();
         } else if (e.getSource().equals(levels)) {
@@ -270,7 +269,6 @@ public class ServerWindow extends JFrame implements ActionListener {
         } else if (e.getSource().equals(restart)) {
             boolean selected = restart.isSelected();
             settings.setRestartOnError(selected);
-            server.setRestartOnError(selected);
         }
     }
 

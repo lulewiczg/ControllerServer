@@ -3,6 +3,11 @@ package com.github.lulewiczg.controller.actions;
 import java.awt.MouseInfo;
 import java.awt.Point;
 
+import com.github.lulewiczg.controller.common.Response;
+import com.github.lulewiczg.controller.common.Status;
+import com.github.lulewiczg.controller.exception.ActionException;
+import com.github.lulewiczg.controller.server.ControllerServer;
+
 public class MouseMoveAction extends Action {
 
     private static final long serialVersionUID = 1L;
@@ -15,9 +20,10 @@ public class MouseMoveAction extends Action {
     }
 
     @Override
-    public void doAction() {
+    protected Response doAction(ControllerServer server) throws ActionException {
         Point p = MouseInfo.getPointerInfo().getLocation();
         robot.mouseMove((int) (p.x + dx), (int) (p.y + dy));
+        return new Response(Status.OK);
     }
 
     @Override

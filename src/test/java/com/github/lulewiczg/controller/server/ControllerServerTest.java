@@ -17,7 +17,7 @@ import com.github.lulewiczg.controller.actions.MouseButtonPressAction;
 import com.github.lulewiczg.controller.client.Client;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
-import com.github.lulewiczg.controller.exception.LoginException;
+import com.github.lulewiczg.controller.exception.ActionException;
 
 /**
  * Tests controller server.
@@ -53,16 +53,38 @@ public class ControllerServerTest {
     }
 
     @Test
+    @DisplayName("Server not restart after shutodwn")
+    public void testServerShutdownAfterStop() throws Exception {
+        server.start(new Settings(PORT, PASSWORD, true, false, true));
+        Client client = new Client(PORT);
+        client.login(PASSWORD);
+        client.logout();
+        Thread.sleep(200);
+        assertEquals(ServerState.SHUTDOWN, server.getStatus());
+    }
+
+    @Test
+    @DisplayName("Server losts connection to client")
+    public void testServerConnectionLost() throws Exception {
+        server.start(new Settings(PORT, PASSWORD, true, false, true));
+        Client client = new Client(PORT);
+        client.login(PASSWORD);
+        client.close();
+        Thread.sleep(200);
+        assertEquals(ServerState.CONNECTION_ERROR, server.getStatus());
+    }
+
+    @Test
     @DisplayName("Connect to server in down state")
     public void testConnectToDownServer() throws Exception {
         assertThrows(ConnectException.class, () -> new Client(PORT));
-        assertEquals(ServerState.CONNECTION_ERROR, server.getStatus());
+        assertEquals(ServerState.SHUTDOWN, server.getStatus());
     }
 
     @Test
     @DisplayName("Connect to server in up state")
     public void testLoginToUpServer() throws Exception {
-        server.start(PORT, PASSWORD, true);
+        startServer();
         Response response = new Client(PORT).login(PASSWORD);
         assertOK(response);
     }
@@ -70,7 +92,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Connect to server wiith invalid password")
     public void testLoginWithInvalidPassword() throws Exception {
-        server.start(PORT, PASSWORD, true);
+        startServer();
         Response response = new Client(PORT).login("4321");
         assertEquals(Status.INVALID_PASSWORD, response.getStatus());
     }
@@ -78,35 +100,35 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Log in when already logged in")
     public void testLoginWhenLoggedIn() throws Exception {
-        server.start(PORT, PASSWORD, true);
+        startServer();
         Client client = new Client(PORT);
         client.login(PASSWORD);
         Response response = client.login(PASSWORD);
-        assertError(response, LoginException.class);
+        assertError(response, null);
         assertEquals(ServerState.CONNECTED, server.getStatus());
     }
 
     @Test
     @DisplayName("Disconnects when not connected")
     public void testDisconnectWhenNotConnected() throws Exception {
-        server.start(PORT, PASSWORD, true);
+        startServer();
         Client client = new Client(PORT);
         Response response = client.logout();
-        assertError(response, ConnectException.class);
-        assertEquals(ServerState.SHUTDOWN, server.getStatus());
+        assertError(response, null);
+        assertEquals(ServerState.WAITING, server.getStatus());
     }
 
     @Test
     @DisplayName("Relog")
     public void testRelogin() throws Exception {
-        server.start(PORT, PASSWORD, true);
+        startServer();
         Client client = new Client(PORT);
         Response response = client.login(PASSWORD);
         assertOK(response);
         Response response2 = client.logout();
         Thread.sleep(200);
         assertEquals(Status.OK, response2.getStatus());
-        assertEquals(ServerState.SHUTDOWN, server.getStatus());
+        assertEquals(ServerState.WAITING, server.getStatus());
         Response response3 = new Client(PORT).login(PASSWORD);
         assertOK(response3);
     }
@@ -114,36 +136,37 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Connects to server using invalid port")
     public void testConnectToInvalidPort() throws Exception {
-        server.start(PORT, PASSWORD, true);
+        startServer();
         assertThrows(ConnectException.class, () -> new Client(4321));
     }
 
     @Test
     @DisplayName("Sends action without login")
     public void testSendActionWithoutLogin() throws Exception {
-        server.start(PORT, PASSWORD, true);
+        startServer();
         Client client = new Client(PORT);
         Response response = client.doAction(new MouseButtonPressAction(1));
-        assertError(response, ConnectException.class);
-        assertEquals(ServerState.CONNECTION_ERROR, server.getStatus());
+        assertError(response, null);
+        assertEquals(ServerState.WAITING, server.getStatus());
     }
 
     @Test
     @DisplayName("Sends action after logout")
     public void testSendActionAfterLogout() throws Exception {
-        server.start(PORT, PASSWORD, true);
+        startServer();
         Client client = new Client(PORT);
         client.login(PASSWORD);
         client.logout();
-        Response response = client.doAction(new MouseButtonPressAction(1));
-        assertError(response, ConnectException.class);
-        assertEquals(ServerState.CONNECTION_ERROR, server.getStatus());
+        Thread.sleep(200);
+        Response response = new Client(PORT).doAction(new MouseButtonPressAction(1));
+        assertError(response, null);
+        assertEquals(ServerState.WAITING, server.getStatus());
     }
 
     @Test
     @DisplayName("Sends action")
     public void testSendAction() throws Exception {
-        server.start(PORT, PASSWORD, true);
+        startServer();
         Client client = new Client(PORT);
         client.login(PASSWORD);
         Response response = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON1_DOWN_MASK));
@@ -153,15 +176,21 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Sends multiple actions")
     public void testSendMultipleAction() throws Exception {
-        server.start(PORT, PASSWORD, true);
+        startServer();
         Client client = new Client(PORT);
         client.login(PASSWORD);
         for (int i = 0; i < 10; i++) {
             Response response = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON1_DOWN_MASK));
+            Thread.sleep(20);
             assertOK(response);
             Response response2 = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON2_DOWN_MASK));
+            Thread.sleep(20);
             assertOK(response2);
         }
+    }
+
+    private void startServer() {
+        server.start(new Settings(PORT, PASSWORD, true, true, true));
     }
 
     /**
@@ -175,7 +204,10 @@ public class ControllerServerTest {
     private void assertError(Response response, Class<? extends Exception> e) {
         assertEquals(Status.NOT_OK, response.getStatus());
         assertNotNull(response.getException());
-        assertEquals(e, response.getException().getClass());
+        assertEquals(ActionException.class, response.getException().getClass());
+        if (e != null) {
+            assertEquals(e, response.getException().getCause().getClass());
+        }
     }
 
     /**

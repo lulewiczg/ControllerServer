@@ -1,5 +1,10 @@
 package com.github.lulewiczg.controller.actions;
 
+import com.github.lulewiczg.controller.common.Response;
+import com.github.lulewiczg.controller.common.Status;
+import com.github.lulewiczg.controller.exception.ActionException;
+import com.github.lulewiczg.controller.server.ControllerServer;
+
 public class MouseButtonPressAction extends MouseButtonAction {
 
     private static final long serialVersionUID = 1L;
@@ -13,8 +18,9 @@ public class MouseButtonPressAction extends MouseButtonAction {
     }
 
     @Override
-    public void doAction() {
+    protected Response doAction(ControllerServer server) throws ActionException {
         robot.mousePress(key);
+        return new Response(Status.OK);
     }
 
 }

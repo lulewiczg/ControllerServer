@@ -76,4 +76,15 @@ public class Client {
         return (Response) in.readObject();
     }
 
+    /**
+     * Closes connection.
+     *
+     * @throws IOException
+     *             the IOException
+     */
+    public void close() throws IOException {
+        in.close();
+        out.close();
+        socket.close();
+    }
 }

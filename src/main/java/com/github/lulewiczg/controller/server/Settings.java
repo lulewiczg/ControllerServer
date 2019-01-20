@@ -34,6 +34,7 @@ public class Settings implements Serializable {
     private Level level = Level.ERROR;
     private boolean autostart = false;
     private boolean restartOnError = false;
+    private transient boolean testMode = false;
 
     /**
      * Generates password.
@@ -135,6 +136,25 @@ public class Settings implements Serializable {
 
     public Level getLevel() {
         return level;
+    }
+
+    public boolean isTestMode() {
+        return testMode;
+    }
+
+    public void setTestMode(boolean testMode) {
+        this.testMode = testMode;
+    }
+
+    public Settings() {
+    }
+
+    public Settings(int port, String password, boolean autostart, boolean restartOnError, boolean testMode) {
+        this.port = port;
+        this.password = password;
+        this.autostart = autostart;
+        this.restartOnError = restartOnError;
+        this.testMode = testMode;
     }
 
 }

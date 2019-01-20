@@ -5,6 +5,11 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 
+import com.github.lulewiczg.controller.common.Response;
+import com.github.lulewiczg.controller.common.Status;
+import com.github.lulewiczg.controller.exception.ActionException;
+import com.github.lulewiczg.controller.server.ControllerServer;
+
 public class TextAction extends Action {
 
     private static final long serialVersionUID = 1L;
@@ -16,7 +21,7 @@ public class TextAction extends Action {
     }
 
     @Override
-    public void doAction() {
+    protected Response doAction(ControllerServer server) throws ActionException {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         StringSelection stringSelection = new StringSelection(text);
         clipboard.setContents(stringSelection, null);
@@ -25,6 +30,7 @@ public class TextAction extends Action {
         robot.keyPress(KeyEvent.VK_V);
         robot.keyRelease(KeyEvent.VK_V);
         robot.keyRelease(KeyEvent.VK_CONTROL);
+        return new Response(Status.OK);
     }
 
     @Override
