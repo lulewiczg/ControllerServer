@@ -32,9 +32,9 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
+import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ServerState;
 import com.github.lulewiczg.controller.server.Settings;
-import com.github.lulewiczg.controller.server.ControllerServer;
 
 /**
  * GUI for server.
@@ -99,7 +99,7 @@ public class ServerWindow extends JFrame implements ActionListener {
         });
         revalidate();
         if (settings.isAutostart()) {
-            server.start(settings.getPort());
+            server.start(settings.getPort(), settings.getPassword());
         }
         server.setRestartOnError(settings.isRestartOnError());
     }
@@ -254,7 +254,7 @@ public class ServerWindow extends JFrame implements ActionListener {
                 invalidValue(INVALID_PASSWORD);
             }
         } else if (e.getSource().equals(start)) {
-            server.start(settings.getPort());
+            server.start(settings.getPort(), settings.getPassword());
         } else if (e.getSource().equals(stop)) {
             server.stop();
         } else if (e.getSource().equals(levels)) {

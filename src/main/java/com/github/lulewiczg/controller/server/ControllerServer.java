@@ -42,6 +42,12 @@ public class ControllerServer {
     private int errorCount;
     private Socket socket;
     private int port;
+    private String password;
+    private boolean testMode;
+
+    private ControllerServer() {
+        // Do nothing
+    }
 
     /**
      * Gets server instance.
@@ -75,9 +81,20 @@ public class ControllerServer {
      *
      * @param port
      *            port
+     * @param password
+     *            password
+     * @param testMode
+     *            test mode
      */
-    public void start(int port) {
+    public void start(int port, String password, boolean testMode) {
         this.port = port;
+        this.password = password;
+        this.testMode = testMode;
+        if (testMode) {
+            Action.setTestMode();
+        } else {
+            Action.setNormalMode();
+        }
         thread = new Thread(() -> {
             try {
                 _start();
@@ -137,7 +154,7 @@ public class ControllerServer {
      * Stops server.
      */
     private void _stop() {
-        if (!server.isClosed()) {
+        if (server != null && !server.isClosed()) {
             close(server);
             close(input);
             close(output);
@@ -168,7 +185,7 @@ public class ControllerServer {
      */
     public void restart() {
         stop();
-        start(port);
+        start(port, password, testMode);
     }
 
     /**
@@ -226,11 +243,19 @@ public class ControllerServer {
     private void estabilish() throws IOException {
         LoginAction login;
         try {
-            login = (LoginAction) input.readObject();
-            login.setServerPassword(Settings.getSettings().getPassword());
-            login.doAction();
-            Response r = new Response(Status.SERVER_OK);
-            output.writeObject(r);
+            Object action = input.readObject();
+            if (action instanceof LoginAction) {
+                login = (LoginAction) action;
+                login.setServerPassword(password);
+                login.doAction();
+                output.writeObject(new Response(Status.OK));
+            } else {
+                Response response = new Response(Status.NOT_OK);// TODO
+                ConnectException exception = new ConnectException("Not login action");
+                response.setException(exception);
+                output.writeObject(response);
+                throw exception;
+            }
         } catch (ClassNotFoundException e) {
             log.catching(Level.DEBUG, e);
             throw new ConnectException();
@@ -296,4 +321,5 @@ public class ControllerServer {
     public void setRestartOnError(boolean restartOnError) {
         this.restartOnError = restartOnError;
     }
+
 }

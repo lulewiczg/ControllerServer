@@ -17,46 +17,46 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
 
 public class Main {
 
-	private static final String CONSOLE = "console";
+    private static final String CONSOLE = "console";
 
-	private static void configureLogger(boolean window) {
-		LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-		Configuration config = ctx.getConfiguration();
-		PatternLayout layout = PatternLayout.createLayout("[%d{dd.MM.YY HH:mm:ss}] [%p] - %m%ex%n", null, null, null,
-				Charset.defaultCharset(), false, false, null, null);
-		Appender appender;
-		if (window) {
-			appender = JTextAreaAppender.createAppender("SWING_APPENDER", 0, false, layout, null);
-		} else {
-			appender = ConsoleAppender.createDefaultAppenderForLayout(layout);
-		}
-		appender.start();
-		AppenderRef ref = AppenderRef.createAppenderRef("CONSOLE_APPENDER", null, null);
+    private static void configureLogger(boolean window) {
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        Configuration config = ctx.getConfiguration();
+        PatternLayout layout = PatternLayout.createLayout("[%d{dd.MM.YY HH:mm:ss}] [%p] - %m%ex%n", null, null, null,
+                Charset.defaultCharset(), false, false, null, null);
+        Appender appender;
+        if (window) {
+            appender = JTextAreaAppender.createAppender("SWING_APPENDER", 0, false, layout, null);
+        } else {
+            appender = ConsoleAppender.createDefaultAppenderForLayout(layout);
+        }
+        appender.start();
+        AppenderRef ref = AppenderRef.createAppenderRef("CONSOLE_APPENDER", null, null);
 
-		AppenderRef[] refs = new AppenderRef[] { ref };
-		LoggerConfig loggerConfig = LoggerConfig.createLogger("false", Level.INFO, "CONSOLE_LOGGER", "", refs, null, config,
-				null);
-		loggerConfig.addAppender(appender, null, null);
+        AppenderRef[] refs = new AppenderRef[] { ref };
+        LoggerConfig loggerConfig = LoggerConfig.createLogger("false", Level.INFO, "CONSOLE_LOGGER", "", refs, null, config,
+                null);
+        loggerConfig.addAppender(appender, null, null);
 
-		config.addAppender(appender);
-		config.addLogger("", loggerConfig);
-		ctx.updateLoggers(config);
-	}
+        config.addAppender(appender);
+        config.addLogger("", loggerConfig);
+        ctx.updateLoggers(config);
+    }
 
-	public static void main(String... args) {
-		Settings settings = Settings.loadSettigs();
-		if (args.length >= 1) {
-			configureLogger(false);
-			if (args[0].equals(CONSOLE)) {
-				ControllerServer server = ControllerServer.getInstance();
-				if (args.length == 2) {
-					settings.setPort(Integer.parseInt(args[1]));
-				}
-				server.start(settings.getPort());
-			}
-		} else {
-			configureLogger(true);
-			new ServerWindow();
-		}
-	}
+    public static void main(String... args) {
+        Settings settings = Settings.loadSettigs();
+        if (args.length >= 1) {
+            configureLogger(false);
+            if (args[0].equals(CONSOLE)) {
+                ControllerServer server = ControllerServer.getInstance();
+                if (args.length == 2) {
+                    settings.setPort(Integer.parseInt(args[1]));
+                }
+                server.start(settings.getPort(), settings.getPassword(), false);
+            }
+        } else {
+            configureLogger(true);
+            new ServerWindow();
+        }
+    }
 }

@@ -4,6 +4,8 @@ import java.awt.AWTException;
 import java.awt.Robot;
 import java.io.Serializable;
 
+import com.github.lulewiczg.controller.common.FakeRobot;
+
 public abstract class Action implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -12,14 +14,6 @@ public abstract class Action implements Serializable {
 
     public abstract void doAction();
 
-    static {
-        try {
-            robot = new Robot();
-        } catch (AWTException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
@@ -27,4 +21,25 @@ public abstract class Action implements Serializable {
         return str.toString();
     }
 
+    /**
+     * Sets actions to test mode.
+     */
+    public static void setTestMode() {
+        try {
+            robot = new FakeRobot();
+        } catch (AWTException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Sets actions to normal mode.
+     */
+    public static void setNormalMode() {
+        try {
+            robot = new Robot();
+        } catch (AWTException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
