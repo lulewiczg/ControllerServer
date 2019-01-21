@@ -1,14 +1,20 @@
-package com.github.lulewiczg.controller.actions;
+package com.github.lulewiczg.controller.actions.impl;
 
 import java.awt.MouseInfo;
 import java.awt.Point;
 
+import com.github.lulewiczg.controller.actions.LoginRequiredAction;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
 import com.github.lulewiczg.controller.server.ControllerServer;
 
-public class MouseMoveAction extends Action {
+/**
+ * Action for mouse move event.
+ *
+ * @author Grzegurz
+ */
+public class MouseMoveAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
     private double dx;
@@ -19,6 +25,9 @@ public class MouseMoveAction extends Action {
         this.dy = dy;
     }
 
+    /**
+     * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)
+     */
     @Override
     protected Response doAction(ControllerServer server) throws ActionException {
         Point p = MouseInfo.getPointerInfo().getLocation();

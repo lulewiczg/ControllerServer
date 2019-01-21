@@ -1,6 +1,11 @@
 package com.github.lulewiczg.controller.actions;
 
-public abstract class MouseButtonAction extends Action {
+/**
+ * Abstract action for mouse button event.
+ *
+ * @author Grzegurz
+ */
+public abstract class MouseButtonAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
     protected int key;

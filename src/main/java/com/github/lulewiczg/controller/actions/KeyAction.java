@@ -1,12 +1,16 @@
 package com.github.lulewiczg.controller.actions;
 
-public abstract class KeyAction extends Action {
+/**
+ * Abstract action for key event.
+ *
+ * @author Grzegurz
+ */
+public abstract class KeyAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
     protected char c;
 
     public KeyAction(char c) {
-        super();
         this.c = c;
     }
 

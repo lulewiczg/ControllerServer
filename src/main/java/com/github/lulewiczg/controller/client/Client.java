@@ -8,8 +8,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import com.github.lulewiczg.controller.actions.Action;
-import com.github.lulewiczg.controller.actions.DisconnectAction;
-import com.github.lulewiczg.controller.actions.LoginAction;
+import com.github.lulewiczg.controller.actions.impl.DisconnectAction;
+import com.github.lulewiczg.controller.actions.impl.LoginAction;
 import com.github.lulewiczg.controller.common.Response;
 
 /**

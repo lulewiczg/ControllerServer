@@ -14,6 +14,11 @@ import com.github.lulewiczg.controller.exception.ActionException;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ServerState;
 
+/**
+ * Abstract action to execute on server.
+ *
+ * @author Grzegurz
+ */
 public abstract class Action implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -23,11 +28,28 @@ public abstract class Action implements Serializable {
     protected static Robot robot;
     protected EnumSet<ServerState> states;// TODO
 
-    protected abstract Response doAction(ControllerServer server) throws ActionException;
-
     public Action() {
         this.states = EnumSet.of(ServerState.CONNECTED);
     }
+
+    /**
+     * Executes action.
+     *
+     * @param server
+     *            server
+     * @return action result
+     * @throws ActionException
+     *             the ActionException
+     */
+    protected abstract Response doAction(ControllerServer server) throws ActionException;
+
+    /**
+     * Throws exception when action can not be run.
+     *
+     * @throws ActionException
+     *             the ActionException
+     */
+    protected abstract void doThrowException() throws ActionException;
 
     /**
      * Checks server state and runs action
@@ -42,7 +64,8 @@ public abstract class Action implements Serializable {
         if (states.contains(server.getStatus())) {
             return doAction(server);
         } else {
-            throw new ActionException("Invalid state for action");
+            doThrowException();
+            return null;
         }
     }
 
@@ -74,4 +97,5 @@ public abstract class Action implements Serializable {
             throw new RuntimeException(e);
         }
     }
+
 }

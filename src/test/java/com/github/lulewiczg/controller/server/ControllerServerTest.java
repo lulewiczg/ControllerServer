@@ -16,11 +16,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
-import com.github.lulewiczg.controller.actions.MouseButtonPressAction;
+import com.github.lulewiczg.controller.actions.impl.MouseButtonPressAction;
 import com.github.lulewiczg.controller.client.Client;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
+import com.github.lulewiczg.controller.exception.AlreadyLoggedInAction;
+import com.github.lulewiczg.controller.exception.AuthorizationException;
 
 /**
  * Tests controller server.
@@ -123,7 +125,7 @@ public class ControllerServerTest {
         client = new Client(PORT);
         client.login(PASSWORD);
         Response response = client.login(PASSWORD);
-        assertError(response, null);
+        assertError(response, AlreadyLoggedInAction.class);
         assertEquals(ServerState.CONNECTED, server.getStatus());
     }
 
@@ -133,7 +135,7 @@ public class ControllerServerTest {
         startServer();
         client = new Client(PORT);
         Response response = client.logout();
-        assertError(response, null);
+        assertError(response, ActionException.class);
         assertEquals(ServerState.WAITING, server.getStatus());
     }
 
@@ -166,7 +168,7 @@ public class ControllerServerTest {
         startServer();
         client = new Client(PORT);
         Response response = client.doAction(new MouseButtonPressAction(1));
-        assertError(response, null);
+        assertError(response, AuthorizationException.class);
         assertEquals(ServerState.WAITING, server.getStatus());
     }
 
@@ -180,7 +182,7 @@ public class ControllerServerTest {
         Thread.sleep(200);
         client2 = new Client(PORT);
         Response response = client2.doAction(new MouseButtonPressAction(1));
-        assertError(response, null);
+        assertError(response, AuthorizationException.class);
         assertEquals(ServerState.WAITING, server.getStatus());
     }
 
@@ -210,7 +212,7 @@ public class ControllerServerTest {
         }
     }
 
-    // @Test
+    @Test
     @DisplayName("Two clients connect")
     public void testConnectTwoClients() throws Exception {
         startServer();
@@ -244,10 +246,7 @@ public class ControllerServerTest {
     private void assertError(Response response, Class<? extends Exception> e) {
         assertEquals(Status.NOT_OK, response.getStatus());
         assertNotNull(response.getException());
-        assertEquals(ActionException.class, response.getException().getClass());
-        if (e != null) {
-            assertEquals(e, response.getException().getCause().getClass());
-        }
+        assertEquals(e, response.getException().getClass());
     }
 
     /**

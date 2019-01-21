@@ -1,16 +1,22 @@
-package com.github.lulewiczg.controller.actions;
+package com.github.lulewiczg.controller.actions.impl;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 
+import com.github.lulewiczg.controller.actions.LoginRequiredAction;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
 import com.github.lulewiczg.controller.server.ControllerServer;
 
-public class TextAction extends Action {
+/**
+ * Action for sending text.
+ *
+ * @author Grzegurz
+ */
+public class TextAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
 
@@ -20,6 +26,9 @@ public class TextAction extends Action {
         this.text = text;
     }
 
+    /**
+     * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)
+     */
     @Override
     protected Response doAction(ControllerServer server) throws ActionException {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
