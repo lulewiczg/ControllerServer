@@ -64,7 +64,9 @@ public class ControllerServer {
      * Handle server error.
      */
     private void onError() {
+        errorCount++;
         stop();
+        shouldFail();
         if (config.isRestartOnError()) {
             start(config);
         }
@@ -100,6 +102,7 @@ public class ControllerServer {
                 listen();
             } catch (HandledException | ServerExitException e) {
                 // Do nothing, exception handled
+                log.catching(Level.TRACE, e);
             } catch (Exception e) {
                 log.error(e.getMessage());
                 log.catching(Level.DEBUG, e);
@@ -207,7 +210,7 @@ public class ControllerServer {
         errorCount++;
         boolean handled = false;
         if (e instanceof SocketException || e instanceof EOFException) {
-            isError();
+            shouldFail();
             setStatus(ServerState.CONNECTION_ERROR);
             handled = true;
         } else if (e instanceof DisconnectException) {
@@ -217,7 +220,7 @@ public class ControllerServer {
         } else if (e instanceof SocketException) {
             if (getStatus() != ServerState.SHUTDOWN) {
                 log.info("Socket error");
-                isError();
+                shouldFail();
             }
             handled = true;
         } else if (e instanceof LoginException) {
@@ -254,9 +257,10 @@ public class ControllerServer {
     /**
      * Checks if error threshold was exceeded.
      *
-     * @return false if not exceeded
+     * @return
+     *
      */
-    private boolean isError() {
+    private boolean shouldFail() {
         if (errorCount <= ERROR_THRESHOLD) {
             return false;
         }
@@ -273,7 +277,7 @@ public class ControllerServer {
      */
     private void sendResponse(ObjectOutputStream output, Response res) {
         boolean error = false;
-        while (!error && !isError()) {
+        while (!error) {
             try {
                 output.writeObject(res);
                 output.flush();

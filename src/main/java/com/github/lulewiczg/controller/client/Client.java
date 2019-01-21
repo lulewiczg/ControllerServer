@@ -1,5 +1,6 @@
 package com.github.lulewiczg.controller.client;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,7 +17,7 @@ import com.github.lulewiczg.controller.common.Response;
  *
  * @author Grzegurz
  */
-public class Client {
+public class Client implements Closeable {
 
     private Socket socket;
     private ObjectOutputStream out;
@@ -82,6 +83,7 @@ public class Client {
      * @throws IOException
      *             the IOException
      */
+    @Override
     public void close() throws IOException {
         in.close();
         out.close();
