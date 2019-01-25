@@ -253,7 +253,6 @@ public class ControllerServer {
         boolean handled = false;
         boolean logException = true;
         if (e instanceof SocketException || e instanceof EOFException) {
-            // onError();
             setStatus(ServerState.CONNECTION_ERROR);
             handled = true;
             log.error("Connection lost");
@@ -262,13 +261,6 @@ public class ControllerServer {
             log.info("Disconnected");
             status = Status.OK;
             setStatus(ServerState.SHUTDOWN);
-            // onError();
-        } else if (e instanceof SocketException) {
-            if (getStatus() != ServerState.SHUTDOWN) {
-                log.info("Socket error");
-                shouldFail();
-            }
-            handled = true;
         } else if (e instanceof LoginException) {
             LoginException le = (LoginException) e;
             log.info(String.format("User %s from %s tried to login with invalid password", le.getWho(), le.getWhere()));

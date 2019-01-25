@@ -9,6 +9,7 @@ import java.awt.event.InputEvent;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.time.Duration;
+import java.time.Instant;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -204,14 +205,15 @@ public class ControllerServerTest {
         startServer(true);
         client = new Client(PORT);
         client.login(PASSWORD);
-        for (int i = 0; i < 10; i++) {
+        Instant then = Instant.now();
+        for (int i = 0; i < 10000; i++) {
             Response response = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON1_DOWN_MASK));
-            Thread.sleep(20);
             assertOK(response);
             Response response2 = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON2_DOWN_MASK));
-            Thread.sleep(20);
             assertOK(response2);
         }
+        System.out.println(
+                "--------> Time needed for 20000 actions: " + Duration.between(then, Instant.now()).getNano() / 1000000.0);
     }
 
     @Test
