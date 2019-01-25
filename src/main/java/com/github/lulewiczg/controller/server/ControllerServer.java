@@ -129,7 +129,7 @@ public class ControllerServer {
     /**
      * Stops server.
      */
-    public void stop() {
+    private void stopServer() {
         acquire(semaphore);
         if (status != ServerState.CONNECTION_ERROR) {
             setStatus(ServerState.SHUTDOWN);
@@ -145,11 +145,19 @@ public class ControllerServer {
     }
 
     /**
+     * Forces server to stop.
+     */
+    public void stop() {
+        errorCount = ERROR_THRESHOLD + 1;
+        stopServer();
+    }
+
+    /**
      * Handle fatal server error that can not be recovered.
      */
     private void onFatalError() {
         errorCount++;
-        stop();
+        stopServer();
         shouldFail();
         if (config.isRestartOnError() && getStatus() != ServerState.CONNECTED) {
             start(config);
@@ -181,7 +189,7 @@ public class ControllerServer {
         InputStream inputStream = socket.getInputStream();
         OutputStream outputStream = socket.getOutputStream();
         while (!socket.isConnected() && inputStream.available() == 0) {
-            Thread.sleep(1000);
+            Thread.sleep(500);
         }
         log.info("Trying to connect...");
         input = new ObjectInputStream(inputStream);
@@ -213,18 +221,19 @@ public class ControllerServer {
         boolean handled = false;
         boolean logException = true;
         if (e instanceof SocketException || e instanceof EOFException) {
-            setStatus(ServerState.CONNECTION_ERROR);
             handled = true;
             log.error("Connection lost");
             logException = false;
+            setStatus(ServerState.CONNECTION_ERROR);
         } else if (e instanceof DisconnectException) {
+            handled = true;
             log.info("Disconnected");
             status = Status.OK;
             setStatus(ServerState.SHUTDOWN);
         } else if (e instanceof LoginException) {
+            handled = true;
             LoginException le = (LoginException) e;
             log.info(String.format("User %s from %s tried to login with invalid password", le.getWho(), le.getWhere()));
-            handled = true;
             status = Status.INVALID_PASSWORD;
         } else if (e instanceof ActionException) {
             handled = true;

@@ -88,6 +88,14 @@ public class ControllerServerTest {
     }
 
     @Test
+    @DisplayName("Server is stopped after stop")
+    public void testServerStateAfterStop() throws Exception {
+        startServer(false);
+        server.stop();
+        waitForState(ServerState.SHUTDOWN);
+    }
+
+    @Test
     @DisplayName("Server losts connection to client")
     public void testServerConnectionLost() throws Exception {
         startServer(false);
