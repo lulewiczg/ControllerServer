@@ -1,15 +1,10 @@
 package com.github.lulewiczg.controller.server;
 
-import java.io.Closeable;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -19,12 +14,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.github.lulewiczg.controller.actions.Action;
-import com.github.lulewiczg.controller.common.Response;
-import com.github.lulewiczg.controller.common.Status;
-import com.github.lulewiczg.controller.exception.ActionException;
-import com.github.lulewiczg.controller.exception.DisconnectException;
+import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
+import com.github.lulewiczg.controller.actions.processor.EmptyActionProcessor;
+import com.github.lulewiczg.controller.common.Common;
 import com.github.lulewiczg.controller.exception.HandledException;
-import com.github.lulewiczg.controller.exception.LoginException;
 
 /**
  * Server implementation.
@@ -34,13 +27,10 @@ import com.github.lulewiczg.controller.exception.LoginException;
 public class ControllerServer {
 
     private static final Logger log = LogManager.getLogger();
-    private static final int ERROR_THRESHOLD = 5;
     private ServerState status = ServerState.SHUTDOWN;
     private static ControllerServer instance;
-    private ObjectOutputStream output;
-    private ObjectInputStream input;
     private ServerSocket server;
-    private int errorCount;
+    private ActionProcessor processor;
     private Socket socket;
     private Settings config;
     private ExecutorService exec = Executors.newSingleThreadExecutor();
@@ -67,10 +57,12 @@ public class ControllerServer {
      */
     private void doServer() {
         acquire(listenerSemaphore);
+        processor = new EmptyActionProcessor();
         try {
             setupConnection();
             doActions();
         } finally {
+            processor = new EmptyActionProcessor();
             release(listenerSemaphore);
         }
     }
@@ -131,14 +123,11 @@ public class ControllerServer {
      */
     private void stopServer() {
         acquire(semaphore);
-        if (status != ServerState.CONNECTION_ERROR) {
-            setStatus(ServerState.SHUTDOWN);
-        }
+        setStatus(ServerState.SHUTDOWN);
         if (server != null && !server.isClosed()) {
-            close(server);
-            close(input);
-            close(output);
-            close(socket);
+            Common.close(server);
+            Common.close(processor);
+            Common.close(socket);
         }
         log.info("Server stopped");
         release(semaphore);
@@ -148,7 +137,7 @@ public class ControllerServer {
      * Forces server to stop.
      */
     public void stop() {
-        errorCount = ERROR_THRESHOLD + 1;
+        processor.setErrorCount(Common.ERROR_THRESHOLD + 1);
         stopServer();
     }
 
@@ -156,7 +145,7 @@ public class ControllerServer {
      * Handle fatal server error that can not be recovered.
      */
     private void onFatalError() {
-        errorCount++;
+        processor.errInc();
         stopServer();
         shouldFail();
         if (config.isRestartOnError() && getStatus() != ServerState.CONNECTED) {
@@ -192,75 +181,10 @@ public class ControllerServer {
             Thread.sleep(500);
         }
         log.info("Trying to connect...");
-        input = new ObjectInputStream(inputStream);
-        output = new ObjectOutputStream(outputStream);
-        errorCount = 0;
+        processor = config.getSerialier().getSerializer(inputStream, outputStream);
         while (!socket.isClosed() && getStatus() != ServerState.SHUTDOWN) {
-            try {
-                Response res = handleAction(input.readObject());
-                sendResponse(output, res);
-            } catch (Exception e) {
-                handleException(e);
-            }
-            errorCount = 0;
+            processor.processAction(this);
         }
-    }
-
-    /**
-     * Handles exception
-     *
-     * @param e
-     *            exception to handle
-     * @throws Exception
-     *             the Exception
-     */
-    private void handleException(Exception e) throws Exception {
-        log.catching(Level.DEBUG, e);
-        Status status = Status.NOT_OK;
-        errorCount++;
-        boolean handled = false;
-        boolean logException = true;
-        if (e instanceof SocketException || e instanceof EOFException) {
-            handled = true;
-            log.error("Connection lost");
-            logException = false;
-            setStatus(ServerState.CONNECTION_ERROR);
-        } else if (e instanceof DisconnectException) {
-            handled = true;
-            log.info("Disconnected");
-            status = Status.OK;
-            setStatus(ServerState.SHUTDOWN);
-        } else if (e instanceof LoginException) {
-            handled = true;
-            LoginException le = (LoginException) e;
-            log.info(String.format("User %s from %s tried to login with invalid password", le.getWho(), le.getWhere()));
-            status = Status.INVALID_PASSWORD;
-        } else if (e instanceof ActionException) {
-            handled = true;
-        }
-        if (logException) {
-            log.error(e.getMessage());
-        }
-        sendResponse(output, new Response(status, e));
-        if (handled) {
-            throw new HandledException(e);
-        } else {
-            throw e;
-        }
-    }
-
-    /**
-     * Handlers client's action
-     *
-     * @param action
-     *            action
-     * @return action result
-     * @throws ActionException
-     *             the ActionException
-     */
-    private Response handleAction(Object action) throws ActionException {
-        log.debug(action);
-        return ((Action) action).run(this);
     }
 
     /**
@@ -269,33 +193,10 @@ public class ControllerServer {
      * @return false if shouldn't
      */
     private boolean shouldFail() {
-        if (config.isRestartOnError() && errorCount <= ERROR_THRESHOLD) {
+        if (config.isRestartOnError() && processor.getErrorCount() <= Common.ERROR_THRESHOLD) {
             return false;
         }
         throw new RuntimeException("Connection lost");
-    }
-
-    /**
-     * Sends response to client.
-     *
-     * @param output
-     *            output
-     * @param res
-     *            response
-     */
-    private void sendResponse(ObjectOutputStream output, Response res) {
-        boolean error = false;
-        while (!error) {
-            try {
-                output.writeObject(res);
-                output.flush();
-                return;
-            } catch (IOException e) {
-                log.catching(Level.DEBUG, e);
-                error = true;
-                errorCount++;
-            }
-        }
     }
 
     /**
@@ -320,22 +221,6 @@ public class ControllerServer {
      */
     private void release(Semaphore semaphore) {
         semaphore.release();
-    }
-
-    /**
-     * Closes resources.
-     *
-     * @param c
-     *            resource
-     */
-    private void close(Closeable c) {
-        if (c != null) {
-            try {
-                c.close();
-            } catch (IOException e) {
-                log.catching(Level.DEBUG, e);
-            }
-        }
     }
 
     public void setStatus(ServerState state) {

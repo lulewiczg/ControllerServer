@@ -6,7 +6,7 @@ package com.github.lulewiczg.controller.server;
  * @author Grzegurz
  */
 public enum ServerState {
-    CONNECTED("Connected"), WAITING("Wating"), SHUTDOWN("Shutdown"), CONNECTION_ERROR("Connection error");
+    CONNECTED("Connected"), WAITING("Wating"), SHUTDOWN("Shutdown");
 
     private String msg;
 

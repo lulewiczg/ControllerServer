@@ -62,10 +62,6 @@ public class ControllerServerTest {
     @AfterEach
     public void after() throws InterruptedException, IOException {
         server.stop();
-        if (server.getStatus() == ServerState.CONNECTION_ERROR) {
-            startServer(false);
-            server.stop();
-        }
         waitForState(ServerState.SHUTDOWN);
         if (client != null) {
             client.close();
@@ -102,7 +98,7 @@ public class ControllerServerTest {
         client = new Client(PORT);
         client.login(PASSWORD);
         client.close();
-        waitForState(ServerState.CONNECTION_ERROR);
+        waitForState(ServerState.SHUTDOWN);
     }
 
     @Test

@@ -22,10 +22,8 @@ import com.github.lulewiczg.controller.server.ServerState;
 public abstract class Action implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    protected static final Logger log = LogManager.getLogger();
-
-    protected static Robot robot;
+    protected static transient final Logger log = LogManager.getLogger();
+    protected static transient Robot robot;
     protected EnumSet<ServerState> states;// TODO
 
     public Action() {

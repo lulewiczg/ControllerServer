@@ -14,6 +14,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.github.lulewiczg.controller.common.SerializerType;
+
 /**
  * Holds server settings.
  *
@@ -26,7 +28,6 @@ public class Settings implements Serializable {
     private static final String PASSWORD_FORMAT = "%03d";
     private static final int PASSWORD_MAX = 999999;
     public static final Logger log = LogManager.getLogger();
-
     private static Settings settings;
 
     private int port = 5555;
@@ -34,6 +35,8 @@ public class Settings implements Serializable {
     private Level level = Level.ERROR;
     private boolean autostart = false;
     private boolean restartOnError = false;
+    private SerializerType serialier = SerializerType.OBJECT_STREAM;
+
     private transient boolean testMode = false;
 
     /**
@@ -155,6 +158,14 @@ public class Settings implements Serializable {
         this.autostart = autostart;
         this.restartOnError = restartOnError;
         this.testMode = testMode;
+    }
+
+    public SerializerType getSerialier() {
+        return serialier;
+    }
+
+    public void setSerialier(SerializerType serialier) {
+        this.serialier = serialier;
     }
 
 }
