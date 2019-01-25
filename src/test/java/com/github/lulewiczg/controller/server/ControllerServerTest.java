@@ -61,6 +61,11 @@ public class ControllerServerTest {
     @AfterEach
     public void after() throws InterruptedException, IOException {
         server.stop();
+        if (server.getStatus() == ServerState.CONNECTION_ERROR) {
+            startServer(false);
+            server.stop();
+        }
+        waitForState(ServerState.SHUTDOWN);
         if (client != null) {
             client.close();
         }
@@ -72,38 +77,36 @@ public class ControllerServerTest {
     }
 
     @Test
-    @DisplayName("Server not restart after shutodwn")
+    @DisplayName("Server not restart after shutdown")
     public void testServerShutdownAfterStop() throws Exception {
-        server.start(new Settings(PORT, PASSWORD, true, false, true));
+        startServer(false);
         client = new Client(PORT);
         client.login(PASSWORD);
         client.logout();
-        Thread.sleep(200);
-        assertEquals(ServerState.SHUTDOWN, server.getStatus());
+        waitForState(ServerState.SHUTDOWN);
     }
 
     @Test
     @DisplayName("Server losts connection to client")
     public void testServerConnectionLost() throws Exception {
-        server.start(new Settings(PORT, PASSWORD, true, false, true));
+        startServer(false);
         client = new Client(PORT);
         client.login(PASSWORD);
         client.close();
-        Thread.sleep(200);
-        assertEquals(ServerState.CONNECTION_ERROR, server.getStatus());
+        waitForState(ServerState.CONNECTION_ERROR);
     }
 
     @Test
     @DisplayName("Connect to server in down state")
     public void testConnectToDownServer() throws Exception {
         assertThrows(ConnectException.class, () -> new Client(PORT));
-        assertEquals(ServerState.SHUTDOWN, server.getStatus());
+        waitForState(ServerState.SHUTDOWN);
     }
 
     @Test
     @DisplayName("Connect to server in up state")
     public void testLoginToUpServer() throws Exception {
-        startServer();
+        startServer(true);
         client = new Client(PORT);
         Response response = client.login(PASSWORD);
         assertOK(response);
@@ -112,7 +115,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Connect to server wiith invalid password")
     public void testLoginWithInvalidPassword() throws Exception {
-        startServer();
+        startServer(true);
         client = new Client(PORT);
         Response response = client.login("4321");
         assertEquals(Status.INVALID_PASSWORD, response.getStatus());
@@ -121,35 +124,34 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Log in when already logged in")
     public void testLoginWhenLoggedIn() throws Exception {
-        startServer();
+        startServer(true);
         client = new Client(PORT);
         client.login(PASSWORD);
         Response response = client.login(PASSWORD);
         assertError(response, AlreadyLoggedInAction.class);
-        assertEquals(ServerState.CONNECTED, server.getStatus());
+        waitForState(ServerState.WAITING);
     }
 
     @Test
     @DisplayName("Disconnects when not connected")
     public void testDisconnectWhenNotConnected() throws Exception {
-        startServer();
+        startServer(true);
         client = new Client(PORT);
         Response response = client.logout();
         assertError(response, ActionException.class);
-        assertEquals(ServerState.WAITING, server.getStatus());
+        waitForState(ServerState.WAITING);
     }
 
     @Test
     @DisplayName("Relog")
     public void testRelogin() throws Exception {
-        startServer();
+        startServer(true);
         client = new Client(PORT);
         Response response = client.login(PASSWORD);
         assertOK(response);
         Response response2 = client.logout();
-        Thread.sleep(200);
         assertEquals(Status.OK, response2.getStatus());
-        assertEquals(ServerState.WAITING, server.getStatus());
+        waitForState(ServerState.WAITING);
         client2 = new Client(PORT);
         Response response3 = client2.login(PASSWORD);
         assertOK(response3);
@@ -158,38 +160,38 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Connects to server using invalid port")
     public void testConnectToInvalidPort() throws Exception {
-        startServer();
+        startServer(true);
         assertThrows(ConnectException.class, () -> client = new Client(4321));
     }
 
     @Test
     @DisplayName("Sends action without login")
     public void testSendActionWithoutLogin() throws Exception {
-        startServer();
+        startServer(true);
         client = new Client(PORT);
         Response response = client.doAction(new MouseButtonPressAction(1));
         assertError(response, AuthorizationException.class);
-        assertEquals(ServerState.WAITING, server.getStatus());
+        waitForState(ServerState.WAITING);
     }
 
     @Test
     @DisplayName("Sends action after logout")
     public void testSendActionAfterLogout() throws Exception {
-        startServer();
+        startServer(true);
         client = new Client(PORT);
         client.login(PASSWORD);
         client.logout();
-        Thread.sleep(200);
+        waitForState(ServerState.WAITING);
         client2 = new Client(PORT);
         Response response = client2.doAction(new MouseButtonPressAction(1));
         assertError(response, AuthorizationException.class);
-        assertEquals(ServerState.WAITING, server.getStatus());
+        waitForState(ServerState.WAITING);
     }
 
     @Test
     @DisplayName("Sends action")
     public void testSendAction() throws Exception {
-        startServer();
+        startServer(true);
         client = new Client(PORT);
         client.login(PASSWORD);
         Response response = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON1_DOWN_MASK));
@@ -198,8 +200,8 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("Sends multiple actions")
-    public void testSendMultipleAction() throws Exception {
-        startServer();
+    public void testSendMultipleActions() throws Exception {
+        startServer(true);
         client = new Client(PORT);
         client.login(PASSWORD);
         for (int i = 0; i < 10; i++) {
@@ -215,7 +217,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Two clients connect")
     public void testConnectTwoClients() throws Exception {
-        startServer();
+        startServer(true);
         client = new Client(PORT);
         client.login(PASSWORD);
         assertThrows(AssertionFailedError.class, () -> assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
@@ -224,15 +226,43 @@ public class ControllerServerTest {
         }));
     }
 
+    @Test
+    @DisplayName("Reconnect after connection lose")
+    public void testServerStateAfterConnectionLost() throws Exception {
+        startServer(true);
+        client = new Client(PORT);
+        client.login(PASSWORD);
+        client.close();
+        assertTimeoutPreemptively(Duration.ofMillis(200), () -> {
+            client2 = new Client(PORT);
+            Response login = client2.login(PASSWORD);
+            assertEquals(Status.OK, login.getStatus());
+        });
+    }
+
     /**
      * Starts server with default settings.
      *
      * @throws InterruptedException
      *             the InterruptedException
      */
-    private void startServer() throws InterruptedException {
-        server.start(new Settings(PORT, PASSWORD, true, true, true));
-        Thread.sleep(200);
+    private void startServer(boolean restartAfterError) throws InterruptedException {
+        server.start(new Settings(PORT, PASSWORD, true, restartAfterError, true));
+        waitForState(ServerState.WAITING);
+    }
+
+    /**
+     * Waits for server to change state.
+     *
+     * @param state
+     *            target state
+     * @throws InterruptedException
+     */
+    private void waitForState(ServerState state) throws InterruptedException {
+        for (int i = 0; i < 5 && server.getStatus() != state; i++) {
+            Thread.sleep(100);
+        }
+        assertEquals(state, server.getStatus(), "Invalid server state");
     }
 
     /**

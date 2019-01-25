@@ -10,6 +10,9 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +25,6 @@ import com.github.lulewiczg.controller.exception.ActionException;
 import com.github.lulewiczg.controller.exception.DisconnectException;
 import com.github.lulewiczg.controller.exception.HandledException;
 import com.github.lulewiczg.controller.exception.LoginException;
-import com.github.lulewiczg.controller.exception.ServerExitException;
 
 /**
  * Server implementation.
@@ -37,15 +39,15 @@ public class ControllerServer {
     private static ControllerServer instance;
     private ObjectOutputStream output;
     private ObjectInputStream input;
-    private Thread thread;
     private ServerSocket server;
     private int errorCount;
     private Socket socket;
     private Settings config;
-    private Object lock = new Object();
+    private ExecutorService exec = Executors.newSingleThreadExecutor();
+    private Semaphore semaphore = new Semaphore(1, true);
+    private Semaphore listenerSemaphore = new Semaphore(1, true);
 
     private ControllerServer() {
-        // Do nothing
     }
 
     /**
@@ -61,16 +63,15 @@ public class ControllerServer {
     }
 
     /**
-     * Handle server error.
+     * Handle fatal server error that can not be recovered.
      */
-    private void onError() {
+    private void onFatalError() {
         errorCount++;
         stop();
         shouldFail();
-        if (config.isRestartOnError()) {
+        if (config.isRestartOnError() && getStatus() != ServerState.CONNECTED) {
             start(config);
         }
-        throw new ServerExitException();
     }
 
     /**
@@ -84,33 +85,80 @@ public class ControllerServer {
      *            test mode
      */
     public void start(Settings config) {
+        acquire(semaphore);
         this.config = config;
         if (config.isTestMode()) {
             Action.setTestMode();
         } else {
             Action.setNormalMode();
         }
-        thread = new Thread(() -> {
-            try {
-                setupSocket();
-            } catch (IOException e) {
-                log.error("Failed to setup socket");
-                log.catching(Level.DEBUG, e);
-                onError();
-            }
-            try {
-                listen();
-            } catch (HandledException | ServerExitException e) {
-                // Do nothing, exception handled
-                log.catching(Level.TRACE, e);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                log.catching(Level.DEBUG, e);
-                onError();
-            }
-        });
-        synchronized (lock) {
-            thread.start();
+        exec.submit(this::doServer);
+        release(semaphore);
+    }
+
+    /**
+     * Acquires lock.
+     *
+     * @param semaphore
+     *            semaphore to lock
+     */
+    private void acquire(Semaphore semaphore) {
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Releases lock.
+     *
+     * @param semaphore
+     *            to release
+     */
+    private void release(Semaphore semaphore) {
+        semaphore.release();
+    }
+
+    /**
+     * Listens for connections.
+     */
+    private void doServer() {
+        acquire(listenerSemaphore);
+        try {
+            setupConnection();
+            doActions();
+        } finally {
+            release(listenerSemaphore);
+        }
+    }
+
+    /*
+     * Listens for actions and executes them.
+     */
+    private void doActions() {
+        try {
+            listen();
+        } catch (HandledException e) {
+            log.catching(Level.TRACE, e);
+            onFatalError();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            log.catching(Level.DEBUG, e);
+            onFatalError();
+        }
+    }
+
+    /**
+     * Sets up connection with client.
+     */
+    private void setupConnection() {
+        try {
+            setupSocket();
+        } catch (IOException e) {
+            log.error("Failed to setup socket");
+            log.catching(Level.DEBUG, e);
+            onFatalError();
         }
     }
 
@@ -118,16 +166,18 @@ public class ControllerServer {
      * Stops server.
      */
     public void stop() {
-        synchronized (lock) {
-            if (server != null && !server.isClosed()) {
-                close(server);
-                close(input);
-                close(output);
-                close(socket);
-            }
+        acquire(semaphore);
+        if (status != ServerState.CONNECTION_ERROR) {
             setStatus(ServerState.SHUTDOWN);
-            log.info("Server stopped");
         }
+        if (server != null && !server.isClosed()) {
+            close(server);
+            close(input);
+            close(output);
+            close(socket);
+        }
+        log.info("Server stopped");
+        release(semaphore);
     }
 
     /**
@@ -159,14 +209,6 @@ public class ControllerServer {
                 log.catching(Level.DEBUG, e);
             }
         }
-    }
-
-    /**
-     * Restart server.
-     */
-    public void restart() {
-        stop();
-        start(config);
     }
 
     /**
@@ -209,14 +251,18 @@ public class ControllerServer {
         Status status = Status.NOT_OK;
         errorCount++;
         boolean handled = false;
+        boolean logException = true;
         if (e instanceof SocketException || e instanceof EOFException) {
-            shouldFail();
+            // onError();
             setStatus(ServerState.CONNECTION_ERROR);
             handled = true;
+            log.error("Connection lost");
+            logException = false;
         } else if (e instanceof DisconnectException) {
             log.info("Disconnected");
-            sendResponse(output, new Response(Status.OK));
-            onError();
+            status = Status.OK;
+            setStatus(ServerState.SHUTDOWN);
+            // onError();
         } else if (e instanceof SocketException) {
             if (getStatus() != ServerState.SHUTDOWN) {
                 log.info("Socket error");
@@ -231,7 +277,9 @@ public class ControllerServer {
         } else if (e instanceof ActionException) {
             handled = true;
         }
-        log.error(e.getMessage());
+        if (logException) {
+            log.error(e.getMessage());
+        }
         sendResponse(output, new Response(status, e));
         if (handled) {
             throw new HandledException(e);
@@ -261,7 +309,7 @@ public class ControllerServer {
      *
      */
     private boolean shouldFail() {
-        if (errorCount <= ERROR_THRESHOLD) {
+        if (config.isRestartOnError() && errorCount <= ERROR_THRESHOLD) {
             return false;
         }
         throw new RuntimeException("Connection lost");
@@ -290,11 +338,11 @@ public class ControllerServer {
         }
     }
 
-    public synchronized ServerState getStatus() {
+    public ServerState getStatus() {
         return status;
     }
 
-    public synchronized void setStatus(ServerState state) {
+    public void setStatus(ServerState state) {
         if (status == state) {
             return;
         }

@@ -15,15 +15,26 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 import com.github.lulewiczg.controller.ui.JTextAreaAppender;
 import com.github.lulewiczg.controller.ui.ServerWindow;
 
+/**
+ * Runs server program.
+ *
+ * @author Grzegurz
+ */
 public class Main {
 
     private static final String CONSOLE = "console";
 
+    /**
+     * Configures loggers.
+     *
+     * @param window
+     *            is in window
+     */
     private static void configureLogger(boolean window) {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
-        PatternLayout layout = PatternLayout.createLayout("[%d{dd.MM.YY HH:mm:ss}] [%p] - %m%ex%n", null, null, null,
-                Charset.defaultCharset(), false, false, null, null);
+        PatternLayout layout = PatternLayout.newBuilder().withPattern("[%d{dd.MM.YYYY HH:mm:ss}] [%p] - %m%ex%n")
+                .withCharset(Charset.defaultCharset()).build();
         Appender appender;
         if (window) {
             appender = JTextAreaAppender.createAppender("SWING_APPENDER", 0, false, layout, null);
@@ -34,8 +45,7 @@ public class Main {
         AppenderRef ref = AppenderRef.createAppenderRef("CONSOLE_APPENDER", null, null);
 
         AppenderRef[] refs = new AppenderRef[] { ref };
-        LoggerConfig loggerConfig = LoggerConfig.createLogger("false", Level.INFO, "CONSOLE_LOGGER", "", refs, null, config,
-                null);
+        LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.INFO, "CONSOLE_LOGGER", "", refs, null, config, null);
         loggerConfig.addAppender(appender, null, null);
 
         config.addAppender(appender);
@@ -43,6 +53,11 @@ public class Main {
         ctx.updateLoggers(config);
     }
 
+    /**
+     * Runs server either in windowed or in console mode.
+     *
+     * @param args
+     */
     public static void main(String... args) {
         Settings settings = Settings.loadSettigs();
         if (args.length >= 1) {
