@@ -63,64 +63,6 @@ public class ControllerServer {
     }
 
     /**
-     * Handle fatal server error that can not be recovered.
-     */
-    private void onFatalError() {
-        errorCount++;
-        stop();
-        shouldFail();
-        if (config.isRestartOnError() && getStatus() != ServerState.CONNECTED) {
-            start(config);
-        }
-    }
-
-    /**
-     * Starts server on given port.
-     *
-     * @param port
-     *            port
-     * @param password
-     *            password
-     * @param testMode
-     *            test mode
-     */
-    public void start(Settings config) {
-        acquire(semaphore);
-        this.config = config;
-        if (config.isTestMode()) {
-            Action.setTestMode();
-        } else {
-            Action.setNormalMode();
-        }
-        exec.submit(this::doServer);
-        release(semaphore);
-    }
-
-    /**
-     * Acquires lock.
-     *
-     * @param semaphore
-     *            semaphore to lock
-     */
-    private void acquire(Semaphore semaphore) {
-        try {
-            semaphore.acquire();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Releases lock.
-     *
-     * @param semaphore
-     *            to release
-     */
-    private void release(Semaphore semaphore) {
-        semaphore.release();
-    }
-
-    /**
      * Listens for connections.
      */
     private void doServer() {
@@ -163,6 +105,28 @@ public class ControllerServer {
     }
 
     /**
+     * Starts server on given port.
+     *
+     * @param port
+     *            port
+     * @param password
+     *            password
+     * @param testMode
+     *            test mode
+     */
+    public void start(Settings config) {
+        acquire(semaphore);
+        this.config = config;
+        if (config.isTestMode()) {
+            Action.setTestMode();
+        } else {
+            Action.setNormalMode();
+        }
+        exec.submit(this::doServer);
+        release(semaphore);
+    }
+
+    /**
      * Stops server.
      */
     public void stop() {
@@ -181,6 +145,18 @@ public class ControllerServer {
     }
 
     /**
+     * Handle fatal server error that can not be recovered.
+     */
+    private void onFatalError() {
+        errorCount++;
+        stop();
+        shouldFail();
+        if (config.isRestartOnError() && getStatus() != ServerState.CONNECTED) {
+            start(config);
+        }
+    }
+
+    /**
      * Sets up socket.
      *
      * @throws IOException
@@ -193,22 +169,6 @@ public class ControllerServer {
         socket = server.accept();
         socket.setReuseAddress(false);
         socket.setKeepAlive(true);
-    }
-
-    /**
-     * Closes resources.
-     *
-     * @param c
-     *            resource
-     */
-    private void close(Closeable c) {
-        if (c != null) {
-            try {
-                c.close();
-            } catch (IOException e) {
-                log.catching(Level.DEBUG, e);
-            }
-        }
     }
 
     /**
@@ -226,14 +186,13 @@ public class ControllerServer {
         log.info("Trying to connect...");
         input = new ObjectInputStream(inputStream);
         output = new ObjectOutputStream(outputStream);
-        Response res = null;
         errorCount = 0;
         while (!socket.isClosed() && getStatus() != ServerState.SHUTDOWN) {
             try {
-                res = handleAction(input.readObject());
+                Response res = handleAction(input.readObject());
                 sendResponse(output, res);
             } catch (Exception e) {
-                res = handleException(e);
+                handleException(e);
             }
             errorCount = 0;
         }
@@ -243,10 +202,11 @@ public class ControllerServer {
      * Handles exception
      *
      * @param e
+     *            exception to handle
      * @throws Exception
      *             the Exception
      */
-    private Response handleException(Exception e) throws Exception {
+    private void handleException(Exception e) throws Exception {
         log.catching(Level.DEBUG, e);
         Status status = Status.NOT_OK;
         errorCount++;
@@ -297,8 +257,7 @@ public class ControllerServer {
     /**
      * Checks if error threshold was exceeded.
      *
-     * @return
-     *
+     * @return false if shouldn't
      */
     private boolean shouldFail() {
         if (config.isRestartOnError() && errorCount <= ERROR_THRESHOLD) {
@@ -330,20 +289,59 @@ public class ControllerServer {
         }
     }
 
-    public ServerState getStatus() {
-        return status;
+    /**
+     * Acquires lock.
+     *
+     * @param semaphore
+     *            semaphore to lock
+     */
+    private void acquire(Semaphore semaphore) {
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Releases lock.
+     *
+     * @param semaphore
+     *            to release
+     */
+    private void release(Semaphore semaphore) {
+        semaphore.release();
+    }
+
+    /**
+     * Closes resources.
+     *
+     * @param c
+     *            resource
+     */
+    private void close(Closeable c) {
+        if (c != null) {
+            try {
+                c.close();
+            } catch (IOException e) {
+                log.catching(Level.DEBUG, e);
+            }
+        }
     }
 
     public void setStatus(ServerState state) {
-        if (status == state) {
-            return;
+        if (status != state) {
+            log.debug(String.format("Status changed from %s to %s.", status, state));
         }
-        log.debug(String.format("Status changed from %s to %s.", status, state));
         this.status = state;
     }
 
     public String getPassword() {
         return config.getPassword();
+    }
+
+    public ServerState getStatus() {
+        return status;
     }
 
 }
