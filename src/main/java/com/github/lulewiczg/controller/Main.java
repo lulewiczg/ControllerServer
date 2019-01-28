@@ -1,4 +1,4 @@
-package com.github.lulewiczg.controller.server;
+package com.github.lulewiczg.controller;
 
 import java.nio.charset.Charset;
 
@@ -12,6 +12,8 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
+import com.github.lulewiczg.controller.server.ControllerServer;
+import com.github.lulewiczg.controller.server.Settings;
 import com.github.lulewiczg.controller.ui.JTextAreaAppender;
 import com.github.lulewiczg.controller.ui.ServerWindow;
 

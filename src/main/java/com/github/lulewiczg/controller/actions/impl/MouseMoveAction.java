@@ -1,6 +1,7 @@
 package com.github.lulewiczg.controller.actions.impl;
 
 import com.github.lulewiczg.controller.actions.LoginRequiredAction;
+import com.github.lulewiczg.controller.common.FakeRobot;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
@@ -29,8 +30,11 @@ public class MouseMoveAction extends LoginRequiredAction {
      */
     @Override
     protected Response doAction(ControllerServer server) throws ActionException {
-        POINT p = new POINT();
+        if (robot instanceof FakeRobot) {
+            return new Response(Status.OK);
+        }
         // Java Robot is buggy
+        POINT p = new POINT();
         User32.INSTANCE.GetCursorPos(p);
         User32.INSTANCE.SetCursorPos((long) (p.x + dx), (long) (p.y + dy));
         return new Response(Status.OK);
