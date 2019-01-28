@@ -24,10 +24,14 @@ public abstract class Action implements Serializable {
     private static final long serialVersionUID = 1L;
     protected static transient final Logger log = LogManager.getLogger();
     protected static transient Robot robot;
-    protected EnumSet<ServerState> states;// TODO
 
-    public Action() {
-        this.states = EnumSet.of(ServerState.CONNECTED);
+    /**
+     * Returns proper server states for this action.
+     *
+     * @return proper states
+     */
+    protected EnumSet<ServerState> getProperStates() {
+        return EnumSet.of(ServerState.CONNECTED);
     }
 
     /**
@@ -59,7 +63,7 @@ public abstract class Action implements Serializable {
      *             the ActionException
      */
     public Response run(ControllerServer server) throws ActionException {
-        if (states.contains(server.getStatus())) {
+        if (getProperStates().contains(server.getStatus())) {
             return doAction(server);
         } else {
             doThrowException();

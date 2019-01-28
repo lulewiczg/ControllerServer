@@ -23,15 +23,18 @@ public class LoginAction extends Action {
     private String info;
     private String ip;
 
-    public LoginAction() {
-        this.states = EnumSet.of(ServerState.WAITING);
-    }
-
     public LoginAction(String password, String info, String ip) {
         this.password = password;
         this.info = info;
         this.ip = ip;
-        this.states = EnumSet.of(ServerState.WAITING);
+    }
+
+    /**
+     * @see com.github.lulewiczg.controller.actions.Action#getProperStates()
+     */
+    @Override
+    protected EnumSet<ServerState> getProperStates() {
+        return EnumSet.of(ServerState.WAITING);
     }
 
     /**

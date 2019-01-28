@@ -1,13 +1,12 @@
 package com.github.lulewiczg.controller.actions.impl;
 
-import java.awt.MouseInfo;
-import java.awt.Point;
-
 import com.github.lulewiczg.controller.actions.LoginRequiredAction;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
 import com.github.lulewiczg.controller.server.ControllerServer;
+import com.sun.jna.platform.win32.User32;
+import com.sun.jna.platform.win32.WinDef.POINT;
 
 /**
  * Action for mouse move event.
@@ -30,8 +29,10 @@ public class MouseMoveAction extends LoginRequiredAction {
      */
     @Override
     protected Response doAction(ControllerServer server) throws ActionException {
-        Point p = MouseInfo.getPointerInfo().getLocation();
-        robot.mouseMove((int) (p.x + dx), (int) (p.y + dy));
+        POINT p = new POINT();
+        // Java Robot is buggy
+        User32.INSTANCE.GetCursorPos(p);
+        User32.INSTANCE.SetCursorPos((long) (p.x + dx), (long) (p.y + dy));
         return new Response(Status.OK);
     }
 
