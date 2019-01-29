@@ -1,7 +1,5 @@
 package com.github.lulewiczg.controller.actions.impl;
 
-import java.awt.event.KeyEvent;
-
 import com.github.lulewiczg.controller.actions.KeyAction;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
@@ -18,8 +16,8 @@ public class KeyReleaseAction extends KeyAction {
 
     private static final long serialVersionUID = 1L;
 
-    public KeyReleaseAction(char c) {
-        super(c);
+    public KeyReleaseAction(int key) {
+        super(key);
     }
 
     /**
@@ -27,7 +25,6 @@ public class KeyReleaseAction extends KeyAction {
      */
     @Override
     protected Response doAction(ControllerServer server) throws ActionException {
-        int key = KeyEvent.getExtendedKeyCodeForChar(c);
         robot.keyRelease(key);
         return new Response(Status.OK);
     }
