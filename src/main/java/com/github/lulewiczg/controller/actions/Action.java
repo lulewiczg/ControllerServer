@@ -22,7 +22,7 @@ import com.github.lulewiczg.controller.server.ServerState;
 public abstract class Action implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    protected static transient final Logger log = LogManager.getLogger();
+    protected static transient final Logger log = LogManager.getLogger(Action.class);
     protected static transient Robot robot;
 
     /**

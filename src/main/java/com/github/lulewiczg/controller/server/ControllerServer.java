@@ -26,7 +26,7 @@ import com.github.lulewiczg.controller.exception.HandledException;
  */
 public class ControllerServer {
 
-    private static final Logger log = LogManager.getLogger();
+    private static final Logger log = LogManager.getLogger(ControllerServer.class);
     private ServerState status = ServerState.SHUTDOWN;
     private static ControllerServer instance;
     private ServerSocket server;

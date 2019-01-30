@@ -46,7 +46,7 @@ public class ServerWindow extends JFrame implements ActionListener {
     private static final String INVALID_PASSWORD = "Invalid password!";
     private static final String INVALID_PORT = "Invalid port!";
     private static final String CONTROLLER_SERVER = "Controller server";
-    private static final Logger log = LogManager.getLogger();
+    private static final Logger log = LogManager.getLogger(ServerWindow.class);
     private static final int SLEEP = 1000;
     private static final long serialVersionUID = 2687314377956367316L;
     private ControllerServer server;

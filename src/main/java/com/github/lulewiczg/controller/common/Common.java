@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
  * @author Grzegurz
  */
 public class Common {
-    private static final Logger log = LogManager.getLogger();
+    private static final Logger log = LogManager.getLogger(Common.class);
     public static final int ERROR_THRESHOLD = 5;
 
     /**

@@ -27,7 +27,7 @@ public class Settings implements Serializable {
     private static final long serialVersionUID = 7010493017533238086L;
     private static final String PASSWORD_FORMAT = "%03d";
     private static final int PASSWORD_MAX = 999999;
-    public static final Logger log = LogManager.getLogger();
+    public static final Logger log = LogManager.getLogger(Settings.class);
     private static Settings settings;
 
     private int port = 5555;
