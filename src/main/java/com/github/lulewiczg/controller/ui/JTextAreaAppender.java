@@ -34,6 +34,21 @@ public class JTextAreaAppender extends AbstractAppender {
         this.maxLines = maxLines;
     }
 
+    /**
+     * Creates appender for JTextArea.
+     *
+     * @param name
+     *            plugin name
+     * @param maxLines
+     *            max lines
+     * @param ignoreExceptions
+     *            ignore exceptions
+     * @param layout
+     *            layout
+     * @param filter
+     *            filter
+     * @return appender
+     */
     @PluginFactory
     public static JTextAreaAppender createAppender(@PluginAttribute("name") String name,
             @PluginAttribute("maxLines") int maxLines, @PluginAttribute("ignoreExceptions") boolean ignoreExceptions,
@@ -67,21 +82,19 @@ public class JTextAreaAppender extends AbstractAppender {
         SwingUtilities.invokeLater(() -> {
             for (JTextArea ta : jTextAreaList) {
                 try {
-                    if (ta != null) {
-                        if (ta.getText().length() == 0) {
-                            ta.setText(message);
-                        } else {
-                            ta.append("\n" + message);
-                            if (maxLines > 0 & ta.getLineCount() > maxLines + 1) {
-                                int endIdx = ta.getDocument().getText(0, ta.getDocument().getLength()).indexOf("\n", 0);
-                                ta.getDocument().remove(0, endIdx + 1);
-                            }
+                    if (ta.getText().length() == 0) {
+                        ta.setText(message);
+                    } else {
+                        ta.append("\n" + message);
+                        if (maxLines > 0 & ta.getLineCount() > maxLines + 1) {
+                            int endIdx = ta.getDocument().getText(0, ta.getDocument().getLength()).indexOf("\n", 0);
+                            ta.getDocument().remove(0, endIdx + 1);
                         }
-                        String content = ta.getText();
-                        ta.setText(content.substring(0, content.length() - 1));
                     }
+                    String content = ta.getText();
+                    ta.setText(content.substring(0, content.length() - 1));
                 } catch (BadLocationException e) {
-                    System.out.println("Unable to append log to text area: " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
         });

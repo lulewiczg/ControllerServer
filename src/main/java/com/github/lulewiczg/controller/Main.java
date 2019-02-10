@@ -41,7 +41,7 @@ public class Main {
         consoleAppender.start();
         AppenderRef ref = AppenderRef.createAppenderRef("CONSOLE_APPENDER", null, null);
         AppenderRef[] refs = new AppenderRef[] { ref };
-        LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.ALL, "CONSOLE_LOGGER", "", refs, null, config, null);
+        LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.ALL, "LOGGER", "", refs, null, config, null);
         loggerConfig.addAppender(consoleAppender, null, null);
         if (window) {
             JTextAreaAppender windowAppender = JTextAreaAppender.createAppender("SWING_APPENDER", 0, false, layout, null);
