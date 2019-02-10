@@ -37,20 +37,19 @@ public class Main {
         Configuration config = ctx.getConfiguration();
         PatternLayout layout = PatternLayout.newBuilder().withPattern("[%d{dd.MM.YYYY HH:mm:ss}] [%p] - %m%ex%n")
                 .withCharset(Charset.defaultCharset()).build();
-        Appender appender;
-        if (window) {
-            appender = JTextAreaAppender.createAppender("SWING_APPENDER", 0, false, layout, null);
-        } else {
-            appender = ConsoleAppender.createDefaultAppenderForLayout(layout);
-        }
-        appender.start();
+        Appender consoleAppender = ConsoleAppender.createDefaultAppenderForLayout(layout);
+        consoleAppender.start();
         AppenderRef ref = AppenderRef.createAppenderRef("CONSOLE_APPENDER", null, null);
-
         AppenderRef[] refs = new AppenderRef[] { ref };
-        LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.INFO, "CONSOLE_LOGGER", "", refs, null, config, null);
-        loggerConfig.addAppender(appender, null, null);
-
-        config.addAppender(appender);
+        LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.ALL, "CONSOLE_LOGGER", "", refs, null, config, null);
+        loggerConfig.addAppender(consoleAppender, null, null);
+        if (window) {
+            JTextAreaAppender windowAppender = JTextAreaAppender.createAppender("SWING_APPENDER", 0, false, layout, null);
+            windowAppender.start();
+            loggerConfig.addAppender(windowAppender, null, null);
+            config.addAppender(windowAppender);
+        }
+        config.addAppender(consoleAppender);
         config.addLogger("", loggerConfig);
         ctx.updateLoggers(config);
     }
