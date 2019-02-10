@@ -63,6 +63,7 @@ public class ServerWindow extends JFrame {
     private JCheckBox autostart;
     private JCheckBox restart;
     private JTextField passwordInput;
+    private JTextArea logsArea;
 
     public ServerWindow() {
         settings = Settings.getSettings();
@@ -145,7 +146,13 @@ public class ServerWindow extends JFrame {
      */
     private JPanel createLogPanel() {
         JPanel panel = new JPanel(new BorderLayout());
+        JPanel buttons = new JPanel(new GridLayout(1, 2));
+        panel.add(buttons, BorderLayout.NORTH);
         panel.setBorder(BorderFactory.createTitledBorder("Logs"));
+        JButton clearLogsBtn = new JButton("Clear logs");
+        clearLogsBtn.addActionListener(buildListener(e -> logsArea.setText("")));
+        buttons.add(clearLogsBtn);
+
         Level[] values = Level.values();
         Arrays.sort(values);
         levels = new JComboBox<>(values);
@@ -160,14 +167,14 @@ public class ServerWindow extends JFrame {
         }));
         levels.setSelectedItem(settings.getLevel());
         levels.setMaximumSize(new Dimension(50, 20));
-        panel.add(levels, BorderLayout.NORTH);
+        buttons.add(levels);
 
-        JTextArea textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setOpaque(false);
-        textArea.setFont(new Font("Arial", 0, 11));
-        JScrollPane scrollPanel = new JScrollPane(textArea);
-        JTextAreaAppender.addTextArea(textArea);
+        logsArea = new JTextArea();
+        logsArea.setEditable(false);
+        logsArea.setOpaque(false);
+        logsArea.setFont(new Font("Arial", 0, 11));
+        JScrollPane scrollPanel = new JScrollPane(logsArea);
+        JTextAreaAppender.addTextArea(logsArea);
         panel.add(scrollPanel);
 
         return panel;
