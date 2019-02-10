@@ -162,14 +162,16 @@ public class ServerWindow extends JFrame implements ActionListener {
         JPanel panel = new JPanel(new GridLayout(6, 3));
         panel.setBorder(BorderFactory.createTitledBorder("Server settings"));
         JLabel ip = new JLabel("IP");
-        String hostAddress = "Error";
+        String[] localIps = new String[] { "Unknown" };
         try {
-            hostAddress = InetAddress.getLocalHost().getHostAddress();
+            InetAddress[] ips = InetAddress.getAllByName(InetAddress.getLocalHost().getHostName());
+            localIps = Arrays.stream(ips).map(InetAddress::getHostAddress).sorted().toArray(String[]::new);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        JTextField ipInput = new JTextField(hostAddress);
+        JComboBox<String> ipInput = new JComboBox<>(localIps);
         ipInput.setEditable(false);
+        ipInput.setEnabled(false);
         panel.add(ip);
         panel.add(ipInput);
 
