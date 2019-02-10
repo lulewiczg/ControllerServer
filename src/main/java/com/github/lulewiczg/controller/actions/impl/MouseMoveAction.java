@@ -17,10 +17,10 @@ import com.sun.jna.platform.win32.WinDef.POINT;
 public class MouseMoveAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
-    private double dx;
-    private double dy;
+    private long dx;
+    private long dy;
 
-    public MouseMoveAction(double dx, double dy) {
+    public MouseMoveAction(long dx, long dy) {
         this.dx = dx;
         this.dy = dy;
     }
@@ -36,7 +36,7 @@ public class MouseMoveAction extends LoginRequiredAction {
         // Java Robot is buggy
         POINT p = new POINT();
         User32.INSTANCE.GetCursorPos(p);
-        User32.INSTANCE.SetCursorPos((long) (p.x + dx), (long) (p.y + dy));
+        User32.INSTANCE.SetCursorPos(p.x + dx, p.y + dy);
         return new Response(Status.OK);
     }
 
