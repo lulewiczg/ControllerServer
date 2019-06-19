@@ -1,5 +1,6 @@
 package com.github.lulewiczg.controller.actions.processor;
 
+import java.awt.Robot;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
@@ -8,8 +9,10 @@ import java.net.SocketException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.lulewiczg.controller.actions.Action;
+import com.github.lulewiczg.controller.actions.MouseMovingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
@@ -27,6 +30,12 @@ import com.github.lulewiczg.controller.server.ServerState;
 public abstract class ActionProcessor implements Closeable {
     protected static final Logger log = LogManager.getLogger();
     protected int errorCount;
+
+    @Autowired
+    private MouseMovingService mouseService;
+
+    @Autowired
+    private Robot robot;
 
     /**
      * Writes response to output stream.
@@ -54,7 +63,7 @@ public abstract class ActionProcessor implements Closeable {
         Action action = getNext();
         log.debug(action);
         try {
-            Response res = action.run(server);
+            Response res = action.run(server, this);
             sendResponse(res);
         } catch (Exception e) {
             handleException(server, e);
@@ -137,5 +146,13 @@ public abstract class ActionProcessor implements Closeable {
 
     public void errInc() {
         errorCount++;
+    }
+
+    public MouseMovingService getMouseService() {
+        return mouseService;
+    }
+
+    public Robot getRobot() {
+        return robot;
     }
 }

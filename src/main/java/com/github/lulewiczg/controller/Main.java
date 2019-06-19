@@ -1,5 +1,7 @@
 package com.github.lulewiczg.controller;
 
+import java.awt.AWTException;
+import java.awt.Robot;
 import java.nio.charset.Charset;
 
 import org.apache.logging.log4j.LogManager;
@@ -7,9 +9,11 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.annotation.Bean;
 
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.Settings;
@@ -25,6 +29,17 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
 public class Main implements CommandLineRunner {
 
     private static final String CONSOLE = "console";
+
+    @Autowired
+    private ControllerServer server;
+
+    @Autowired
+    private ServerWindow window;
+
+    @Bean
+    public Robot robot() throws AWTException {
+        return new Robot();
+    }
 
     /**
      * Configures loggers.
@@ -63,15 +78,14 @@ public class Main implements CommandLineRunner {
         if (args.length >= 1) {
             configureLogger(false);
             if (args[0].equals(CONSOLE)) {
-                ControllerServer server = ControllerServer.getInstance();
                 if (args.length == 2) {
                     settings.setPort(Integer.parseInt(args[1]));
                 }
-                server.start(new Settings(settings.getPort(), settings.getPassword(), true, false, true));
+                server.start(new Settings(settings.getPort(), settings.getPassword(), true, false));
             }
         } else {
             configureLogger(true);
-            new ServerWindow();
+            window.run();
         }
     }
 }

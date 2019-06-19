@@ -12,12 +12,19 @@ import java.time.Duration;
 import java.time.Instant;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.opentest4j.AssertionFailedError;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.github.lulewiczg.controller.TestConfiguration;
 import com.github.lulewiczg.controller.actions.impl.MouseButtonPressAction;
+import com.github.lulewiczg.controller.actions.processor.ObjectStreamActionProcessor;
 import com.github.lulewiczg.controller.client.Client;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
@@ -31,26 +38,19 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
  * @author Grzegurz
  *
  */
+@ActiveProfiles("test")
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = { TestConfiguration.class, ObjectStreamActionProcessor.class })
+@EnableAutoConfiguration
 public class ControllerServerTest {
     private static final int PORT = 5555;
     private static final String PASSWORD = "1234";
 
-    private static ControllerServer server;
     private Client client;
     private Client client2;
 
-    /**
-     * Prepares test data.
-     *
-     * @throws IOException
-     *             the IOException
-     * @throws InterruptedException
-     *             the InterruptedException
-     */
-    @BeforeAll
-    public static void before() throws IOException, InterruptedException {
-        server = ControllerServer.getInstance();
-    }
+    @Autowired
+    private ControllerServer server;
 
     /**
      * Stops server after test.
@@ -253,7 +253,7 @@ public class ControllerServerTest {
      *             the InterruptedException
      */
     private void startServer(boolean restartAfterError) throws InterruptedException {
-        server.start(new Settings(PORT, PASSWORD, true, restartAfterError, true));
+        server.start(new Settings(PORT, PASSWORD, true, restartAfterError));
         waitForState(ServerState.WAITING);
     }
 

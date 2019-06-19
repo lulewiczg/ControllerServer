@@ -12,8 +12,10 @@ import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
 
-import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.EmptyActionProcessor;
 import com.github.lulewiczg.controller.common.Common;
@@ -24,33 +26,23 @@ import com.github.lulewiczg.controller.exception.HandledException;
  *
  * @author Grzegurz
  */
+@Service
 public class ControllerServer {
 
     private static final Logger log = LogManager.getLogger(ControllerServer.class);
     private ServerState status = ServerState.SHUTDOWN;
-    private static ControllerServer instance;
     private ServerSocket server;
-    private ActionProcessor processor;
     private Socket socket;
     private Settings config;
     private ExecutorService exec = Executors.newSingleThreadExecutor();
     private Semaphore semaphore = new Semaphore(1, true);
     private Semaphore listenerSemaphore = new Semaphore(1, true);
 
-    private ControllerServer() {
-    }
+    @Autowired
+    private ApplicationContext context;
 
-    /**
-     * Gets server instance.
-     *
-     * @return instance
-     */
-    public static synchronized ControllerServer getInstance() {
-        if (instance == null) {
-            instance = new ControllerServer();
-        }
-        return instance;
-    }
+    // context.getBean
+    private ActionProcessor processor;
 
     /**
      * Listens for connections.
@@ -109,11 +101,6 @@ public class ControllerServer {
     public void start(Settings config) {
         acquire(semaphore);
         this.config = config;
-        if (config.isTestMode()) {
-            Action.setTestMode();
-        } else {
-            Action.setNormalMode();
-        }
         exec.submit(this::doServer);
         release(semaphore);
     }
@@ -181,7 +168,7 @@ public class ControllerServer {
             Thread.sleep(500);
         }
         log.info("Trying to connect...");
-        processor = config.getSerialier().getSerializer(inputStream, outputStream);
+        processor = context.getBean(ActionProcessor.class, inputStream, outputStream);
         while (!socket.isClosed() && getStatus() != ServerState.SHUTDOWN) {
             processor.processAction(this);
         }

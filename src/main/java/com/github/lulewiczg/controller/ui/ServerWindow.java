@@ -32,6 +32,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ServerState;
@@ -42,6 +44,7 @@ import com.github.lulewiczg.controller.server.Settings;
  *
  * @author Grzegurz
  */
+@Component
 public class ServerWindow extends JFrame {
 
     private static final String INVALID_PASSWORD = "Invalid password!";
@@ -50,6 +53,7 @@ public class ServerWindow extends JFrame {
     private static final Logger log = LogManager.getLogger(ServerWindow.class);
     private static final int SLEEP = 1000;
     private static final long serialVersionUID = 2687314377956367316L;
+    @Autowired
     private ControllerServer server;
     private JButton stop;
     private JButton start;
@@ -65,12 +69,11 @@ public class ServerWindow extends JFrame {
     private JTextField passwordInput;
     private JTextArea logsArea;
 
-    public ServerWindow() {
+    public void run() {
         settings = Settings.getSettings();
         ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
         loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
-        server = ControllerServer.getInstance();
         setTitle(CONTROLLER_SERVER);
         setSize(400, 600);
         try {

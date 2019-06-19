@@ -37,8 +37,6 @@ public class Settings implements Serializable {
     private boolean restartOnError = false;
     private SerializerType serialier = SerializerType.OBJECT_STREAM;
 
-    private transient boolean testMode = false;
-
     /**
      * Generates password.
      */
@@ -141,23 +139,14 @@ public class Settings implements Serializable {
         return level;
     }
 
-    public boolean isTestMode() {
-        return testMode;
-    }
-
-    public void setTestMode(boolean testMode) {
-        this.testMode = testMode;
-    }
-
     public Settings() {
     }
 
-    public Settings(int port, String password, boolean autostart, boolean restartOnError, boolean testMode) {
+    public Settings(int port, String password, boolean autostart, boolean restartOnError) {
         this.port = port;
         this.password = password;
         this.autostart = autostart;
         this.restartOnError = restartOnError;
-        this.testMode = testMode;
     }
 
     public SerializerType getSerialier() {
