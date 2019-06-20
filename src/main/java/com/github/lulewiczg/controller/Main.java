@@ -2,6 +2,8 @@ package com.github.lulewiczg.controller;
 
 import java.awt.AWTException;
 import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.nio.charset.Charset;
 
 import org.apache.logging.log4j.LogManager;
@@ -39,6 +41,11 @@ public class Main implements CommandLineRunner {
     @Bean
     public Robot robot() throws AWTException {
         return new Robot();
+    }
+
+    @Bean
+    public Clipboard clipboard() {
+        return Toolkit.getDefaultToolkit().getSystemClipboard();
     }
 
     /**

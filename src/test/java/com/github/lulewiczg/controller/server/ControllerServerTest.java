@@ -1,29 +1,49 @@
 package com.github.lulewiczg.controller.server;
 
+import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import java.awt.Robot;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 import org.opentest4j.AssertionFailedError;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.lulewiczg.controller.TestConfiguration;
+import com.github.lulewiczg.controller.actions.MouseMovingService;
+import com.github.lulewiczg.controller.actions.impl.KeyPressAction;
+import com.github.lulewiczg.controller.actions.impl.KeyReleaseAction;
 import com.github.lulewiczg.controller.actions.impl.MouseButtonPressAction;
+import com.github.lulewiczg.controller.actions.impl.MouseButtonReleaseAction;
+import com.github.lulewiczg.controller.actions.impl.MouseMoveAction;
+import com.github.lulewiczg.controller.actions.impl.MouseScrollAction;
+import com.github.lulewiczg.controller.actions.impl.TextAction;
 import com.github.lulewiczg.controller.actions.processor.ObjectStreamActionProcessor;
 import com.github.lulewiczg.controller.client.Client;
 import com.github.lulewiczg.controller.common.Response;
@@ -43,14 +63,24 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
 @SpringBootTest(classes = { TestConfiguration.class, ObjectStreamActionProcessor.class })
 @EnableAutoConfiguration
 public class ControllerServerTest {
+    private static final String TEST_TXT = "test txt";
     private static final int PORT = 5555;
     private static final String PASSWORD = "1234";
 
     private Client client;
     private Client client2;
 
-    @Autowired
+    @SpyBean
     private ControllerServer server;
+
+    @MockBean
+    private Robot robot;
+
+    @MockBean
+    private MouseMovingService mouseMovingService;
+
+    @MockBean
+    private Clipboard clipboard;
 
     /**
      * Stops server after test.
@@ -77,9 +107,13 @@ public class ControllerServerTest {
     @DisplayName("Server not restart after shutdown")
     public void testServerShutdownAfterStop() throws Exception {
         startServer(false);
-        client = new Client(PORT);
+        client = new Client(PORT);// TODO add option to slow down state changes
         client.login(PASSWORD);
         client.logout();
+
+        Mockito.verify(server).setStatus(ServerState.CONNECTED);
+        // TODO logout
+
         waitForState(ServerState.SHUTDOWN);
     }
 
@@ -246,6 +280,107 @@ public class ControllerServerTest {
         });
     }
 
+    @Test
+    @DisplayName("Key action")
+    public void testKeyAction() throws Exception {
+        startServer(true);
+        client = new Client(PORT);
+        client.login(PASSWORD);
+        List<Response> responses = new ArrayList<>();
+        responses.add(client.doAction(new KeyPressAction(1)));
+        responses.add(client.doAction(new KeyPressAction(2)));
+        responses.add(client.doAction(new KeyReleaseAction(1)));
+        responses.add(client.doAction(new KeyReleaseAction(2)));
+
+        responses.forEach(i -> assertOK(i));
+        InOrder inOrder = Mockito.inOrder(robot);
+        inOrder.verify(robot).keyPress(1);
+        inOrder.verify(robot).keyPress(2);
+        inOrder.verify(robot).keyRelease(1);
+        inOrder.verify(robot).keyRelease(2);
+    }
+
+    @Test
+    @DisplayName("Mouse button action")
+    public void testMouseButtonAction() throws Exception {
+        startServer(true);
+        client = new Client(PORT);
+        client.login(PASSWORD);
+        List<Response> responses = new ArrayList<>();
+        responses.add(client.doAction(new MouseButtonPressAction(1)));
+        responses.add(client.doAction(new MouseButtonPressAction(2)));
+        responses.add(client.doAction(new MouseButtonReleaseAction(1)));
+        responses.add(client.doAction(new MouseButtonReleaseAction(2)));
+
+        responses.forEach(i -> assertOK(i));
+        InOrder inOrder = Mockito.inOrder(robot);
+        inOrder.verify(robot).mousePress(1);
+        inOrder.verify(robot).mousePress(2);
+        inOrder.verify(robot).mouseRelease(1);
+        inOrder.verify(robot).mouseRelease(2);
+    }
+
+    @Test
+    @DisplayName("Mouse wheel action")
+    public void testMouseWheelAction() throws Exception {
+        startServer(true);
+        client = new Client(PORT);
+        client.login(PASSWORD);
+        List<Response> responses = new ArrayList<>();
+        responses.add(client.doAction(new MouseScrollAction(1)));
+        responses.add(client.doAction(new MouseScrollAction(2)));
+        responses.add(client.doAction(new MouseScrollAction(-5)));
+
+        responses.forEach(i -> assertOK(i));
+        InOrder inOrder = Mockito.inOrder(robot);
+        inOrder.verify(robot).mouseWheel(1);
+        inOrder.verify(robot).mouseWheel(2);
+        inOrder.verify(robot).mouseWheel(-5);
+    }
+
+    @Test
+    @DisplayName("Mouse move action")
+    public void testMouseMoveAction() throws Exception {
+        startServer(true);
+        client = new Client(PORT);
+        client.login(PASSWORD);
+        List<Response> responses = new ArrayList<>();
+        responses.add(client.doAction(new MouseMoveAction(1, 2)));
+        responses.add(client.doAction(new MouseMoveAction(3, 4)));
+        responses.add(client.doAction(new MouseMoveAction(-100, 100)));
+        responses.add(client.doAction(new MouseMoveAction(123, 321)));
+        responses.add(client.doAction(new MouseMoveAction(0, 0)));
+
+        responses.forEach(i -> assertOK(i));
+        InOrder inOrder = Mockito.inOrder(mouseMovingService);
+        inOrder.verify(mouseMovingService).move(1, 2);
+        inOrder.verify(mouseMovingService).move(3, 4);
+        inOrder.verify(mouseMovingService).move(-100, 100);
+        inOrder.verify(mouseMovingService).move(123, 321);
+        inOrder.verify(mouseMovingService).move(0, 0);
+    }
+
+    @Test
+    @DisplayName("Text action")
+    public void testTextAction() throws Exception {
+        startServer(true);
+        client = new Client(PORT);
+        client.login(PASSWORD);
+        List<Response> responses = new ArrayList<>();
+        responses.add(client.doAction(new TextAction(TEST_TXT)));
+
+        responses.forEach(i -> assertOK(i));
+        ArgumentCaptor<StringSelection> argument = ArgumentCaptor.forClass(StringSelection.class);
+        InOrder inOrder = Mockito.inOrder(clipboard, robot);
+        inOrder.verify(clipboard).setContents(argument.capture(), Mockito.eq(null));
+        assertThat(argument.getValue().getTransferData(DataFlavor.stringFlavor),
+                Matchers.equalTo(new StringSelection(TEST_TXT).getTransferData(DataFlavor.stringFlavor)));
+        inOrder.verify(robot).keyPress(KeyEvent.VK_CONTROL);
+        inOrder.verify(robot).keyPress(KeyEvent.VK_V);
+        inOrder.verify(robot).keyRelease(KeyEvent.VK_V);
+        inOrder.verify(robot).keyRelease(KeyEvent.VK_CONTROL);
+    }
+
     /**
      * Starts server with default settings.
      *
@@ -295,4 +430,5 @@ public class ControllerServerTest {
         assertEquals(Status.OK, response.getStatus());
         assertEquals(ServerState.CONNECTED, server.getStatus());
     }
+
 }

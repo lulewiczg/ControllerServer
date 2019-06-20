@@ -1,8 +1,6 @@
 package com.github.lulewiczg.controller.actions.impl;
 
 import java.awt.Robot;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 
@@ -33,9 +31,8 @@ public class TextAction extends LoginRequiredAction {
      */
     @Override
     protected Response doAction(ControllerServer server, ControllingService controllingService) throws ActionException {
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         StringSelection stringSelection = new StringSelection(text);
-        clipboard.setContents(stringSelection, null);
+        controllingService.getClipboard().setContents(stringSelection, null);
         Robot robot = controllingService.getRobot();
         robot.keyPress(KeyEvent.VK_CONTROL);
         robot.keyPress(KeyEvent.VK_V);
