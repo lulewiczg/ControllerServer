@@ -53,8 +53,6 @@ public class ServerWindow extends JFrame {
     private static final Logger log = LogManager.getLogger(ServerWindow.class);
     private static final int SLEEP = 1000;
     private static final long serialVersionUID = 2687314377956367316L;
-    @Autowired
-    private ControllerServer server;
     private JButton stop;
     private JButton start;
     private JLabel stateIndicator;
@@ -67,6 +65,11 @@ public class ServerWindow extends JFrame {
     private JCheckBox autostart;
     private JCheckBox restart;
     private JTextField passwordInput;
+
+    @Autowired
+    private ControllerServer server;
+
+    @Autowired
     private JTextArea logsArea;
 
     public void run() {
@@ -172,12 +175,7 @@ public class ServerWindow extends JFrame {
         levels.setMaximumSize(new Dimension(50, 20));
         buttons.add(levels);
 
-        logsArea = new JTextArea();
-        logsArea.setEditable(false);
-        logsArea.setOpaque(false);
-        logsArea.setFont(new Font("Arial", 0, 11));
         JScrollPane scrollPanel = new JScrollPane(logsArea);
-        JTextAreaAppender.addTextArea(logsArea);
         panel.add(scrollPanel);
 
         return panel;

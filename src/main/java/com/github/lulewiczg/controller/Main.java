@@ -1,20 +1,23 @@
 package com.github.lulewiczg.controller;
 
 import java.awt.AWTException;
+import java.awt.Font;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
-import java.nio.charset.Charset;
+
+import javax.swing.JTextArea;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import com.github.lulewiczg.controller.server.ControllerServer;
@@ -38,6 +41,15 @@ public class Main implements CommandLineRunner {
     @Autowired
     private ServerWindow window;
 
+    @Autowired
+    private JTextArea loggingTextArea;
+
+    @Autowired
+    private ApplicationContext context;
+
+    @Value("${com.github.lulewiczg.logging.pattern}")
+    private String logPattern;
+
     @Bean
     public Robot robot() throws AWTException {
         return new Robot();
@@ -48,20 +60,27 @@ public class Main implements CommandLineRunner {
         return Toolkit.getDefaultToolkit().getSystemClipboard();
     }
 
+    @Bean
+    public JTextArea logTextArea() {
+        JTextArea jTextArea = new JTextArea();
+        jTextArea.setEditable(false);
+        jTextArea.setOpaque(false);
+        jTextArea.setFont(new Font("Arial", 0, 11));
+        return jTextArea;
+    }
+
     /**
      * Configures loggers.
      *
      * @param window
      *            is in window
      */
-    private static void configureLogger(boolean window) {
+    private void configureLogger(boolean window) {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
-        PatternLayout layout = PatternLayout.newBuilder().withPattern("[%d{dd.MM.YYYY HH:mm:ss}] [%p] - %m%ex%n")
-                .withCharset(Charset.defaultCharset()).build();
         LoggerConfig loggerConfig = config.getRootLogger();
         if (window) {
-            JTextAreaAppender windowAppender = JTextAreaAppender.createAppender("SWING_APPENDER", 0, false, layout, null);
+            JTextAreaAppender windowAppender = context.getBean(JTextAreaAppender.class, loggingTextArea, logPattern);
             windowAppender.start();
             loggerConfig.addAppender(windowAppender, null, null);
             config.addAppender(windowAppender);
