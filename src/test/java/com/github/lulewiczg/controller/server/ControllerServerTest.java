@@ -36,7 +36,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.lulewiczg.controller.TestConfiguration;
-import com.github.lulewiczg.controller.actions.MouseMovingService;
 import com.github.lulewiczg.controller.actions.impl.KeyPressAction;
 import com.github.lulewiczg.controller.actions.impl.KeyReleaseAction;
 import com.github.lulewiczg.controller.actions.impl.MouseButtonPressAction;
@@ -44,6 +43,7 @@ import com.github.lulewiczg.controller.actions.impl.MouseButtonReleaseAction;
 import com.github.lulewiczg.controller.actions.impl.MouseMoveAction;
 import com.github.lulewiczg.controller.actions.impl.MouseScrollAction;
 import com.github.lulewiczg.controller.actions.impl.TextAction;
+import com.github.lulewiczg.controller.actions.processor.MouseMovingService;
 import com.github.lulewiczg.controller.actions.processor.ObjectStreamActionProcessor;
 import com.github.lulewiczg.controller.client.Client;
 import com.github.lulewiczg.controller.common.Response;

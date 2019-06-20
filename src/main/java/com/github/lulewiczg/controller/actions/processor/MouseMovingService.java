@@ -1,4 +1,4 @@
-package com.github.lulewiczg.controller.actions;
+package com.github.lulewiczg.controller.actions.processor;
 
 import org.springframework.stereotype.Service;
 

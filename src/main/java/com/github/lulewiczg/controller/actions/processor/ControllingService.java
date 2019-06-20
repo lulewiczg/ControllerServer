@@ -6,8 +6,6 @@ import java.awt.datatransfer.Clipboard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.github.lulewiczg.controller.actions.MouseMovingService;
-
 /**
  * Service for controlling PC.
  *
