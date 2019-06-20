@@ -6,7 +6,7 @@ import java.util.EnumSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
+import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.exception.ActionException;
 import com.github.lulewiczg.controller.server.ControllerServer;
@@ -36,13 +36,13 @@ public abstract class Action implements Serializable {
      *
      * @param server
      *            server
-     * @param actionProcessor
-     *            action processor
+     * @param controllingService
+     *            controlling service
      * @return action result
      * @throws ActionException
      *             the ActionException
      */
-    protected abstract Response doAction(ControllerServer server, ActionProcessor actionProcessor) throws ActionException;
+    protected abstract Response doAction(ControllerServer server, ControllingService controllingService) throws ActionException;
 
     /**
      * Throws exception when action can not be run.
@@ -57,15 +57,15 @@ public abstract class Action implements Serializable {
      *
      * @param server
      *            server
-     * @param actionProcessor
-     *            action processor
+     * @param controllingService
+     *            controlling service
      * @return action response
      * @throws ActionException
      *             the ActionException
      */
-    public Response run(ControllerServer server, ActionProcessor actionProcessor) throws ActionException {
+    public Response run(ControllerServer server, ControllingService controllingService) throws ActionException {
         if (getProperStates().contains(server.getStatus())) {
-            return doAction(server, actionProcessor);
+            return doAction(server, controllingService);
         } else {
             doThrowException();
             return null;

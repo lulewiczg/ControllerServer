@@ -1,7 +1,7 @@
 package com.github.lulewiczg.controller.actions.impl;
 
 import com.github.lulewiczg.controller.actions.KeyAction;
-import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
+import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
@@ -24,8 +24,8 @@ public class KeyPressAction extends KeyAction {
      * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)
      */
     @Override
-    protected Response doAction(ControllerServer server, ActionProcessor actionProcessor) throws ActionException {
-        actionProcessor.getRobot().keyPress(key);
+    protected Response doAction(ControllerServer server, ControllingService controllingService) throws ActionException {
+        controllingService.getRobot().keyPress(key);
         return new Response(Status.OK);
     }
 }
