@@ -28,7 +28,6 @@ public class Settings implements Serializable {
     private static final String PASSWORD_FORMAT = "%03d";
     private static final int PASSWORD_MAX = 999999;
     public static final Logger log = LogManager.getLogger(Settings.class);
-    private static Settings settings;
 
     private int port = 5555;
     private String password;
@@ -51,7 +50,7 @@ public class Settings implements Serializable {
      *
      * @return settings
      */
-    public static Settings loadSettigs() {
+    public static Settings loadSettings() {
         Settings settings;
         try (FileInputStream fin = new FileInputStream(SETTINGS_DAT); ObjectInputStream ois = new ObjectInputStream(fin);) {
             settings = (Settings) ois.readObject();
@@ -65,15 +64,14 @@ public class Settings implements Serializable {
             log.catching(e);
             settings = new Settings();
         }
-        Settings.settings = settings;
         return settings;
     }
 
     /**
      * Saves settings.
      */
-    public static void saveSettings() {
-        saveSettings(settings);
+    public void saveSettings() {
+        saveSettings(this);
     }
 
     /**
@@ -90,10 +88,6 @@ public class Settings implements Serializable {
             log.error("Error while saving file");
             log.catching(e);
         }
-    }
-
-    public static Settings getSettings() {
-        return settings;
     }
 
     public void setPort(int port) {
@@ -137,16 +131,6 @@ public class Settings implements Serializable {
 
     public Level getLevel() {
         return level;
-    }
-
-    public Settings() {
-    }
-
-    public Settings(int port, String password, boolean autostart, boolean restartOnError) {
-        this.port = port;
-        this.password = password;
-        this.autostart = autostart;
-        this.restartOnError = restartOnError;
     }
 
     public SerializerType getSerialier() {

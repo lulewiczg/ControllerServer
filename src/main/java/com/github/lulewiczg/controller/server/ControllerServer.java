@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
@@ -26,6 +27,7 @@ import com.github.lulewiczg.controller.exception.HandledException;
  *
  * @author Grzegurz
  */
+@Lazy
 @Service
 public class ControllerServer {
 
@@ -33,16 +35,25 @@ public class ControllerServer {
     private ServerState status = ServerState.SHUTDOWN;
     private ServerSocket server;
     private Socket socket;
-    private Settings config;
     private ExecutorService exec = Executors.newSingleThreadExecutor();
     private Semaphore semaphore = new Semaphore(1, true);
     private Semaphore listenerSemaphore = new Semaphore(1, true);
+
+    private SettingsBean config;
 
     @Autowired
     private ApplicationContext context;
 
     // context.getBean
     private ActionProcessor processor;
+
+    @Autowired
+    public ControllerServer(SettingsBean config) {
+        this.config = config;
+        if (config.getSettings().isAutostart()) {
+            start();
+        }
+    }
 
     /**
      * Listens for connections.
@@ -89,18 +100,11 @@ public class ControllerServer {
     }
 
     /**
-     * Starts server on given port.
+     * Starts server.
      *
-     * @param port
-     *            port
-     * @param password
-     *            password
-     * @param testMode
-     *            test mode
      */
-    public void start(Settings config) {
+    public void start() {
         acquire(semaphore);
-        this.config = config;
         exec.submit(this::doServer);
         release(semaphore);
     }
@@ -135,8 +139,8 @@ public class ControllerServer {
         processor.errInc();
         stopServer();
         shouldFail();
-        if (config.isRestartOnError() && getStatus() != ServerState.CONNECTED) {
-            start(config);
+        if (config.getSettings().isRestartOnError() && getStatus() != ServerState.CONNECTED) {
+            start();
         }
     }
 
@@ -147,9 +151,9 @@ public class ControllerServer {
      *             the IOException
      */
     private void setupSocket() throws IOException {
-        server = new ServerSocket(config.getPort());
+        server = new ServerSocket(config.getSettings().getPort());
         setStatus(ServerState.WAITING);
-        log.info(String.format("Waiting for connection on port %s...", config.getPort()));
+        log.info(String.format("Waiting for connection on port %s...", config.getSettings().getPort()));
         socket = server.accept();
         socket.setReuseAddress(false);
         socket.setKeepAlive(true);
@@ -180,7 +184,7 @@ public class ControllerServer {
      * @return false if shouldn't
      */
     private boolean shouldFail() {
-        if (config.isRestartOnError() && processor.getErrorCount() <= Common.ERROR_THRESHOLD) {
+        if (config.getSettings().isRestartOnError() && processor.getErrorCount() <= Common.ERROR_THRESHOLD) {
             return false;
         }
         throw new RuntimeException("Connection lost");
@@ -218,7 +222,7 @@ public class ControllerServer {
     }
 
     public String getPassword() {
-        return config.getPassword();
+        return config.getSettings().getPassword();
     }
 
     public ServerState getStatus() {

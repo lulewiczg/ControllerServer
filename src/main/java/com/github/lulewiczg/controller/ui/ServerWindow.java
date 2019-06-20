@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ServerState;
-import com.github.lulewiczg.controller.server.Settings;
+import com.github.lulewiczg.controller.server.SettingsBean;
 
 /**
  * GUI for server.
@@ -61,10 +61,12 @@ public class ServerWindow extends JFrame {
     private JComboBox<Level> levels;
     private LoggerConfig loggerConfig;
     private LoggerContext ctx;
-    private Settings settings;
     private JCheckBox autostart;
     private JCheckBox restart;
     private JTextField passwordInput;
+
+    @Autowired
+    private SettingsBean settings;
 
     @Autowired
     private ControllerServer server;
@@ -73,7 +75,6 @@ public class ServerWindow extends JFrame {
     private JTextArea logsArea;
 
     public void run() {
-        settings = Settings.getSettings();
         ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
         loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
@@ -105,16 +106,13 @@ public class ServerWindow extends JFrame {
             }
         });
         revalidate();
-        if (settings.isAutostart()) {
-            server.start(settings);
-        }
     }
 
     /**
      * Saves settings and quits.
      */
     private void quit() {
-        Settings.saveSettings();
+        settings.getSettings().saveSettings();
         System.exit(0);
     }
 
@@ -164,14 +162,14 @@ public class ServerWindow extends JFrame {
         levels = new JComboBox<>(values);
         levels.addActionListener(buildListener(e -> {
             Level level = (Level) levels.getSelectedItem();
-            settings.setLevel(level);
+            settings.getSettings().setLevel(level);
             loggerConfig.setLevel(Level.INFO);
             ctx.updateLoggers();
             log.info("Logger level changed to: " + level);
             loggerConfig.setLevel(level);
             ctx.updateLoggers();
         }));
-        levels.setSelectedItem(settings.getLevel());
+        levels.setSelectedItem(settings.getSettings().getLevel());
         levels.setMaximumSize(new Dimension(50, 20));
         buttons.add(levels);
 
@@ -197,12 +195,12 @@ public class ServerWindow extends JFrame {
         panel.add(ipInput);
 
         JLabel port = new JLabel("Port");
-        portInput = new JTextField(String.valueOf(settings.getPort()));
+        portInput = new JTextField(String.valueOf(settings.getSettings().getPort()));
         portInput.addActionListener(buildListener(e -> {
             String text = portInput.getText();
             if (!text.isEmpty()) {
                 try {
-                    settings.setPort(Integer.valueOf(text));
+                    settings.getSettings().setPort(Integer.valueOf(text));
                 } catch (Exception ex) {
                     invalidValue(INVALID_PORT);
                 }
@@ -214,12 +212,12 @@ public class ServerWindow extends JFrame {
         panel.add(portInput);
 
         JLabel password = new JLabel("Password");
-        passwordInput = new JTextField(String.valueOf(settings.getPassword()));
+        passwordInput = new JTextField(String.valueOf(settings.getSettings().getPassword()));
         passwordInput.addActionListener(buildListener(e -> {
             String text = passwordInput.getText();
             if (!text.isEmpty()) {
                 try {
-                    settings.setPassword(text);
+                    settings.getSettings().setPassword(text);
                 } catch (Exception ex) {
                     invalidValue(INVALID_PASSWORD);
                 }
@@ -230,11 +228,11 @@ public class ServerWindow extends JFrame {
         panel.add(password);
         panel.add(passwordInput);
 
-        autostart = new JCheckBox("Auto start server on startup", settings.isAutostart());
-        autostart.addActionListener(buildListener(e -> settings.setAutostart(autostart.isSelected())));
+        autostart = new JCheckBox("Auto start server on startup", settings.getSettings().isAutostart());
+        autostart.addActionListener(buildListener(e -> settings.getSettings().setAutostart(autostart.isSelected())));
         panel.add(autostart);
-        restart = new JCheckBox("Restart on error", settings.isRestartOnError());
-        restart.addActionListener(buildListener(e -> server.start(settings)));
+        restart = new JCheckBox("Restart on error", settings.getSettings().isRestartOnError());
+        restart.addActionListener(buildListener(e -> server.start()));
         panel.add(restart);
 
         JLabel state = new JLabel("Server state");
@@ -247,7 +245,7 @@ public class ServerWindow extends JFrame {
         stop = new JButton("Stop");
         stop.addActionListener(buildListener(e -> server.stop()));
         start = new JButton("Start");
-        start.addActionListener(buildListener(e -> server.start(settings)));
+        start.addActionListener(buildListener(e -> server.start()));
         panel.add(stop);
         panel.add(start);
         return panel;

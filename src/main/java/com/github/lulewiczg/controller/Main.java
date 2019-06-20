@@ -21,7 +21,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import com.github.lulewiczg.controller.server.ControllerServer;
-import com.github.lulewiczg.controller.server.Settings;
+import com.github.lulewiczg.controller.server.SettingsBean;
 import com.github.lulewiczg.controller.ui.JTextAreaAppender;
 import com.github.lulewiczg.controller.ui.ServerWindow;
 
@@ -46,6 +46,9 @@ public class Main implements CommandLineRunner {
 
     @Autowired
     private ApplicationContext context;
+
+    @Autowired
+    private SettingsBean settings;
 
     @Value("${com.github.lulewiczg.logging.pattern}")
     private String logPattern;
@@ -100,14 +103,13 @@ public class Main implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Settings settings = Settings.loadSettigs();
         if (args.length >= 1) {
             configureLogger(false);
             if (args[0].equals(CONSOLE)) {
                 if (args.length == 2) {
-                    settings.setPort(Integer.parseInt(args[1]));
+                    settings.getSettings().setPort(Integer.parseInt(args[1]));
                 }
-                server.start(new Settings(settings.getPort(), settings.getPassword(), true, false));
+                server.start();
             }
         } else {
             configureLogger(true);
