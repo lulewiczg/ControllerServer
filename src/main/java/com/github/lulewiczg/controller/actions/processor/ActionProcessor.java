@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.lulewiczg.controller.actions.Action;
+import com.github.lulewiczg.controller.common.ActionResultEvent;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
@@ -59,6 +60,9 @@ public abstract class ActionProcessor implements Closeable {
         log.debug(action);
         try {
             Response res = action.run(server, controllingService);
+            if (res.getEvent() == ActionResultEvent.LOGIN) {
+                server.setStatus(ServerState.CONNECTED);
+            }
             sendResponse(res);
         } catch (Exception e) {
             handleException(server, e);

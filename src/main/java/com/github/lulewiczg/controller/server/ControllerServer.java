@@ -221,10 +221,6 @@ public class ControllerServer {
         this.status = state;
     }
 
-    public String getPassword() {
-        return config.getSettings().getPassword();
-    }
-
     public ServerState getStatus() {
         return status;
     }

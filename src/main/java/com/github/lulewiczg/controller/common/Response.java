@@ -10,9 +10,16 @@ public class Response implements Serializable {
 
     private Exception exception;
 
+    private transient ActionResultEvent event;
+
     public Response(Status status, Exception exception) {
         this.status = status;
         this.exception = exception;
+    }
+
+    public Response(Status status, ActionResultEvent event) {
+        this.status = status;
+        this.event = event;
     }
 
     public Response(Status status) {
@@ -48,4 +55,13 @@ public class Response implements Serializable {
         }
         return str.toString();
     }
+
+    public ActionResultEvent getEvent() {
+        return event;
+    }
+
+    public void setEvent(ActionResultEvent event) {
+        this.event = event;
+    }
+
 }

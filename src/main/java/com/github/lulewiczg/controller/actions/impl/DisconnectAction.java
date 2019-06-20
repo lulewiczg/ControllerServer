@@ -5,7 +5,6 @@ import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.exception.ActionException;
 import com.github.lulewiczg.controller.exception.DisconnectException;
-import com.github.lulewiczg.controller.server.ControllerServer;
 
 /**
  * Action to disconnect from server.
@@ -20,7 +19,7 @@ public class DisconnectAction extends Action {
      * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)
      */
     @Override
-    protected Response doAction(ControllerServer server, ControllingService controllingService) throws ActionException {
+    protected Response doAction(ControllingService controllingService) throws ActionException {
         throw new DisconnectException();
     }
 

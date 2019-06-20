@@ -5,7 +5,6 @@ import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
-import com.github.lulewiczg.controller.server.ControllerServer;
 
 /**
  * Action for mouse button press event.
@@ -28,7 +27,7 @@ public class MouseButtonPressAction extends MouseButtonAction {
      * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)
      */
     @Override
-    protected Response doAction(ControllerServer server, ControllingService controllingService) throws ActionException {
+    protected Response doAction(ControllingService controllingService) throws ActionException {
         controllingService.getRobot().mousePress(key);
         return new Response(Status.OK);
     }

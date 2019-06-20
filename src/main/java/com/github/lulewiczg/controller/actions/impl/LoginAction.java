@@ -4,12 +4,12 @@ import java.util.EnumSet;
 
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
+import com.github.lulewiczg.controller.common.ActionResultEvent;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
 import com.github.lulewiczg.controller.exception.AlreadyLoggedInAction;
 import com.github.lulewiczg.controller.exception.LoginException;
-import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ServerState;
 
 /**
@@ -42,13 +42,12 @@ public class LoginAction extends Action {
      * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)
      */
     @Override
-    protected Response doAction(ControllerServer server, ControllingService controllingService) throws ActionException {
-        if (password == null || !password.equals(server.getPassword())) {
+    protected Response doAction(ControllingService controllingService) throws ActionException {
+        if (password == null || !password.equals(controllingService.getSettings().getSettings().getPassword())) {
             throw new LoginException(info, ip);
         }
         log.info(String.format("Connected: %s, %s", info, ip));
-        server.setStatus(ServerState.CONNECTED);
-        return new Response(Status.OK);
+        return new Response(Status.OK, ActionResultEvent.LOGIN);
     }
 
     /**

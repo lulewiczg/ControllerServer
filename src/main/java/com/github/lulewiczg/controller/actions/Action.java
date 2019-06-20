@@ -33,16 +33,14 @@ public abstract class Action implements Serializable {
 
     /**
      * Executes action.
-     *
-     * @param server
-     *            server
      * @param controllingService
      *            controlling service
+     *
      * @return action result
      * @throws ActionException
      *             the ActionException
      */
-    protected abstract Response doAction(ControllerServer server, ControllingService controllingService) throws ActionException;
+    protected abstract Response doAction(ControllingService controllingService) throws ActionException;
 
     /**
      * Throws exception when action can not be run.
@@ -65,7 +63,7 @@ public abstract class Action implements Serializable {
      */
     public Response run(ControllerServer server, ControllingService controllingService) throws ActionException {
         if (getProperStates().contains(server.getStatus())) {
-            return doAction(server, controllingService);
+            return doAction(controllingService);
         } else {
             doThrowException();
             return null;
