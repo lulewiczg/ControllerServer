@@ -77,7 +77,7 @@ public class ServerWindow extends JFrame {
     public void run() {
         ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
-        loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+        loggerConfig = config.getLoggerConfig("com.github.lulewiczg.controller");
         setTitle(CONTROLLER_SERVER);
         setSize(400, 600);
         try {

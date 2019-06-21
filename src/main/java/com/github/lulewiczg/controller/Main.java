@@ -81,7 +81,7 @@ public class Main implements CommandLineRunner {
     private void configureLogger(boolean window) {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
-        LoggerConfig loggerConfig = config.getRootLogger();
+        LoggerConfig loggerConfig = config.getLoggerConfig("com.github.lulewiczg.controller");
         if (window) {
             JTextAreaAppender windowAppender = context.getBean(JTextAreaAppender.class, loggingTextArea, logPattern);
             windowAppender.start();
