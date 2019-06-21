@@ -87,6 +87,8 @@ public abstract class ActionProcessor implements Closeable {
         } else if (e instanceof AlreadyLoggedInException) {
             log.info("Already logged in");
             status = Status.NOT_OK;
+        } else {
+            handled = false;
         }
         log.catching(Level.DEBUG, e);
         sendResponse(new Response(status, e));

@@ -114,8 +114,8 @@ public class ControllerServerTest {
         client.login(PASSWORD);
         client.logout();
 
-        Mockito.verify(server).setStatus(ServerState.CONNECTED);
-        // TODO logout
+        Mockito.verify(server).login();
+        Mockito.verify(server).logout();
 
         waitForState(ServerState.SHUTDOWN);
     }
@@ -160,6 +160,8 @@ public class ControllerServerTest {
         startServer(true);
         client = new Client(PORT);
         Response response = client.login("4321");
+
+        Mockito.verify(server, Mockito.never()).login();
         assertEquals(Status.INVALID_PASSWORD, response.getStatus());
     }
 
@@ -170,6 +172,8 @@ public class ControllerServerTest {
         client = new Client(PORT);
         client.login(PASSWORD);
         Response response = client.login(PASSWORD);
+
+        Mockito.verify(server, Mockito.times(1)).login();
         assertError(response, AlreadyLoggedInException.class);
         waitForState(ServerState.CONNECTED);
     }
@@ -180,6 +184,8 @@ public class ControllerServerTest {
         startServer(true);
         client = new Client(PORT);
         Response response = client.logout();
+
+        Mockito.verify(server, Mockito.never()).logout();
         assertError(response, ActionException.class);
         waitForState(ServerState.WAITING);
     }
@@ -196,6 +202,9 @@ public class ControllerServerTest {
         waitForState(ServerState.WAITING);
         client2 = new Client(PORT);
         Response response3 = client2.login(PASSWORD);
+
+        Mockito.verify(server, Mockito.times(2)).login();
+        Mockito.verify(server).logout();
         assertOK(response3);
     }
 
@@ -267,6 +276,8 @@ public class ControllerServerTest {
             client2 = new Client(PORT);
             client2.login(PASSWORD);
         }));
+        Mockito.verify(server, Mockito.times(1)).login();
+
     }
 
     @Test
@@ -281,6 +292,8 @@ public class ControllerServerTest {
             Response login = client2.login(PASSWORD);
             assertEquals(Status.OK, login.getStatus());
         });
+
+        Mockito.verify(server, Mockito.times(2)).login();
     }
 
     @Test
