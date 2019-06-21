@@ -3,8 +3,8 @@ package com.github.lulewiczg.controller.actions.impl;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
+import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
-import com.github.lulewiczg.controller.exception.DisconnectException;
 
 /**
  * Action to disconnect from server.
@@ -20,7 +20,7 @@ public class DisconnectAction extends Action {
      */
     @Override
     protected Response doAction(ControllingService controllingService) throws ActionException {
-        throw new DisconnectException();
+        return new Response(Status.OK, i -> i.logout());
     }
 
     @Override

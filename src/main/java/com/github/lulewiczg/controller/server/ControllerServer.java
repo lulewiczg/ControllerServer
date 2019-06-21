@@ -139,6 +139,13 @@ public class ControllerServer {
         processor.errInc();
         stopServer();
         shouldFail();
+        restartIfNeeded();
+    }
+
+    /**
+     * Restarts server after stop when required.
+     */
+    private void restartIfNeeded() {
         if (config.getSettings().isRestartOnError() && getStatus() != ServerState.CONNECTED) {
             start();
         }
@@ -164,6 +171,15 @@ public class ControllerServer {
      */
     public void login() {
         setStatus(ServerState.CONNECTED);
+    }
+
+    /**
+     * Disconnects client.
+     */
+    public void logout() {
+        stopServer();
+        log.info("Disconnected");
+        restartIfNeeded();
     }
 
     /**

@@ -14,7 +14,6 @@ import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
-import com.github.lulewiczg.controller.exception.DisconnectException;
 import com.github.lulewiczg.controller.exception.HandledException;
 import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.server.ControllerServer;
@@ -59,10 +58,10 @@ public abstract class ActionProcessor implements Closeable {
         log.debug(action);
         try {
             Response res = action.run(server, controllingService);
+            sendResponse(res);
             if (res.getCallback() != null) {
                 res.getCallback().accept(server);
             }
-            sendResponse(res);
         } catch (Exception e) {
             handleException(server, e);
         }
@@ -87,11 +86,6 @@ public abstract class ActionProcessor implements Closeable {
             handled = true;
             log.error("Connection lost");
             logException = false;
-            server.setStatus(ServerState.SHUTDOWN);
-        } else if (e instanceof DisconnectException) {
-            handled = true;
-            log.info("Disconnected");
-            status = Status.OK;
             server.setStatus(ServerState.SHUTDOWN);
         } else if (e instanceof LoginException) {
             handled = true;

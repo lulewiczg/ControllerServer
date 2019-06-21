@@ -44,9 +44,13 @@ public class Client implements Closeable {
      *             IOException
      * @throws ClassNotFoundException
      *             the ClassNotFoundException
+     * @throws InterruptedException
+     *             the InterruptedException
      */
-    public Response login(String password) throws IOException, ClassNotFoundException {
-        return doAction(new LoginAction(password, "Client", "localhost"));
+    public Response login(String password) throws IOException, ClassNotFoundException, InterruptedException {
+        Response res = doAction(new LoginAction(password, "Client", "localhost"));
+        Thread.sleep(100);
+        return res;
     }
 
     /**
