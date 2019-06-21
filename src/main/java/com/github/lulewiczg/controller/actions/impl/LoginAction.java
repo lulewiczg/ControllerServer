@@ -4,7 +4,6 @@ import java.util.EnumSet;
 
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
-import com.github.lulewiczg.controller.common.ActionResultEvent;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
@@ -47,7 +46,7 @@ public class LoginAction extends Action {
             throw new LoginException(info, ip);
         }
         log.info(String.format("Connected: %s, %s", info, ip));
-        return new Response(Status.OK, ActionResultEvent.LOGIN);
+        return new Response(Status.OK, i -> i.login());
     }
 
     /**

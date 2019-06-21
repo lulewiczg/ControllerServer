@@ -1,6 +1,9 @@
 package com.github.lulewiczg.controller.common;
 
 import java.io.Serializable;
+import java.util.function.Consumer;
+
+import com.github.lulewiczg.controller.server.ControllerServer;
 
 public class Response implements Serializable {
 
@@ -10,16 +13,16 @@ public class Response implements Serializable {
 
     private Exception exception;
 
-    private transient ActionResultEvent event;
+    private transient Consumer<ControllerServer> callback;
 
     public Response(Status status, Exception exception) {
         this.status = status;
         this.exception = exception;
     }
 
-    public Response(Status status, ActionResultEvent event) {
+    public Response(Status status, Consumer<ControllerServer> callback) {
         this.status = status;
-        this.event = event;
+        this.callback = callback;
     }
 
     public Response(Status status) {
@@ -56,12 +59,12 @@ public class Response implements Serializable {
         return str.toString();
     }
 
-    public ActionResultEvent getEvent() {
-        return event;
+    public Consumer<ControllerServer> getCallback() {
+        return callback;
     }
 
-    public void setEvent(ActionResultEvent event) {
-        this.event = event;
+    public void setEvent(Consumer<ControllerServer> callback) {
+        this.callback = callback;
     }
 
 }

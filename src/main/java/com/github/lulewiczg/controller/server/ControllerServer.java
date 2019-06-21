@@ -160,6 +160,13 @@ public class ControllerServer {
     }
 
     /**
+     * Changes server state to connected.
+     */
+    public void login() {
+        setStatus(ServerState.CONNECTED);
+    }
+
+    /**
      * Listens for connection.
      *
      * @throws Exception
