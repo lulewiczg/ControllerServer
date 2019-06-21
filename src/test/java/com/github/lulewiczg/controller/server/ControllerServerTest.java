@@ -28,7 +28,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.opentest4j.AssertionFailedError;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -71,11 +70,11 @@ public class ControllerServerTest {
     private Client client;
     private Client client2;
 
-    @Autowired
-    private SettingsBean settings;
-
     @SpyBean
     private ControllerServer server;
+
+    @MockBean
+    private SettingsBean settings;
 
     @MockBean
     private Robot robot;
@@ -392,15 +391,13 @@ public class ControllerServerTest {
      *             the InterruptedException
      */
     private void startServer(boolean restartAfterError) throws InterruptedException {
-        Settings s = settings.getSettings();
+        Settings s = new Settings();
         s.setAutostart(true);
         s.setPassword(PASSWORD);
         s.setPort(PORT);
         s.setRestartOnError(restartAfterError);
+        Mockito.when(settings.getSettings()).thenReturn(s);
 
-        if (server.getStatus() != ServerState.SHUTDOWN) {
-            server.stop();
-        }
         server.start();
         waitForState(ServerState.WAITING);
     }

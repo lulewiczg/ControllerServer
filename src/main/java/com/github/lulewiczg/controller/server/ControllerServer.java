@@ -50,7 +50,7 @@ public class ControllerServer {
     @Autowired
     public ControllerServer(SettingsBean config) {
         this.config = config;
-        if (config.getSettings().isAutostart()) {
+        if (config.getSettings() != null && config.getSettings().isAutostart()) {
             start();
         }
     }
