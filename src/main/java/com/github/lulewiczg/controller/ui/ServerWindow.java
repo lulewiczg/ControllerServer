@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.github.lulewiczg.controller.server.ControllerServer;
+import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.ServerState;
 import com.github.lulewiczg.controller.server.SettingsBean;
 
@@ -74,6 +75,9 @@ public class ServerWindow extends JFrame {
     @Autowired
     private JTextArea logsArea;
 
+    @Autowired
+    private ExceptionLoggingService exceptionService;
+
     public void run() {
         ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
@@ -83,7 +87,7 @@ public class ServerWindow extends JFrame {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-            log.catching(e);
+            exceptionService.log(log, e);
         }
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setVisible(true);
@@ -136,7 +140,7 @@ public class ServerWindow extends JFrame {
                 try {
                     Thread.sleep(SLEEP);
                 } catch (InterruptedException e) {
-                    log.catching(e);
+                    exceptionService.log(log, e);
                 }
             }
         });

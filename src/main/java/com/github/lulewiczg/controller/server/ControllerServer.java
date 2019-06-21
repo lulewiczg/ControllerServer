@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.EmptyActionProcessor;
 import com.github.lulewiczg.controller.common.Common;
-import com.github.lulewiczg.controller.exception.HandledException;
 
 /**
  * Server implementation.
@@ -40,6 +38,9 @@ public class ControllerServer {
     private Semaphore listenerSemaphore = new Semaphore(1, true);
 
     private SettingsBean config;
+
+    @Autowired
+    private ExceptionLoggingService exceptionService;
 
     @Autowired
     private ApplicationContext context;
@@ -76,12 +77,8 @@ public class ControllerServer {
     private void doActions() {
         try {
             listen();
-        } catch (HandledException e) {
-            log.catching(Level.TRACE, e);
-            onFatalError();
         } catch (Exception e) {
-            log.error(e.getMessage());
-            log.catching(Level.DEBUG, e);
+            exceptionService.log(log, e);
             onFatalError();
         }
     }
@@ -93,8 +90,7 @@ public class ControllerServer {
         try {
             setupSocket();
         } catch (IOException e) {
-            log.error("Failed to setup socket");
-            log.catching(Level.DEBUG, e);
+            exceptionService.log(log, "Failed to setup socket", e);
             onFatalError();
         }
     }

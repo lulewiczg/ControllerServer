@@ -5,7 +5,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.SocketException;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.server.ControllerServer;
+import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.ServerState;
 
 /**
@@ -28,6 +28,9 @@ public abstract class ActionProcessor implements Closeable {
 
     @Autowired
     private ControllingService controllingService;
+
+    @Autowired
+    private ExceptionLoggingService exceptionService;
 
     /**
      * Writes response to output stream.
@@ -74,23 +77,23 @@ public abstract class ActionProcessor implements Closeable {
      *             the Exception
      */
     private void handleException(ControllerServer server, Exception e) throws Exception {
-        log.catching(Level.DEBUG, e);
         Status status = Status.NOT_OK;
         boolean handled = true;
         if (e instanceof SocketException || e instanceof EOFException) {
-            log.error("Connection lost");
+            exceptionService.log(log, "Connection lost", e);
             server.setStatus(ServerState.SHUTDOWN);
         } else if (e instanceof LoginException) {
             LoginException le = (LoginException) e;
-            log.info(String.format("User %s from %s tried to login with invalid password", le.getWho(), le.getWhere()));
+            exceptionService.log(log,
+                    String.format("User %s from %s tried to login with invalid password", le.getWho(), le.getWhere()), e);
             status = Status.INVALID_PASSWORD;
         } else if (e instanceof AlreadyLoggedInException) {
-            log.info("Already logged in");
+            exceptionService.log(log, "Already logged in", e);
             status = Status.NOT_OK;
         } else {
+            exceptionService.log(log, e);
             handled = false;
         }
-        log.catching(Level.DEBUG, e);
         sendResponse(new Response(status, e));
         if (!handled) {
             throw e;
@@ -112,7 +115,7 @@ public abstract class ActionProcessor implements Closeable {
                 write(res);
                 return;
             } catch (IOException e) {
-                log.catching(Level.DEBUG, e);
+                exceptionService.log(log, e);
                 error = true;
             }
         }
