@@ -74,7 +74,7 @@ public class ControllerServerTest {
     private ControllerServer server;
 
     @MockBean
-    private SettingsBean settings;
+    private SettingsComponent settings;
 
     @MockBean
     private Robot robot;

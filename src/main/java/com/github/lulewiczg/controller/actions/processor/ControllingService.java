@@ -6,7 +6,7 @@ import java.awt.datatransfer.Clipboard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.github.lulewiczg.controller.server.SettingsBean;
+import com.github.lulewiczg.controller.server.SettingsComponent;
 
 /**
  * Service for controlling PC.
@@ -26,7 +26,7 @@ public class ControllingService {
     private Clipboard clipboard;
 
     @Autowired
-    private SettingsBean settings;
+    private SettingsComponent settings;
 
     public MouseMovingService getMouseService() {
         return mouseService;
@@ -40,7 +40,7 @@ public class ControllingService {
         return clipboard;
     }
 
-    public SettingsBean getSettings() {
+    public SettingsComponent getSettings() {
         return settings;
     }
 

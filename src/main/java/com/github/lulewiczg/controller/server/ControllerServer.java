@@ -37,7 +37,7 @@ public class ControllerServer {
     private Semaphore semaphore = new Semaphore(1, true);
     private Semaphore listenerSemaphore = new Semaphore(1, true);
 
-    private SettingsBean config;
+    private SettingsComponent config;
 
     @Autowired
     private ExceptionLoggingService exceptionService;
@@ -49,7 +49,7 @@ public class ControllerServer {
     private ActionProcessor processor;
 
     @Autowired
-    public ControllerServer(SettingsBean config) {
+    public ControllerServer(SettingsComponent config) {
         this.config = config;
         if (config.getSettings() != null && config.getSettings().isAutostart()) {
             start();

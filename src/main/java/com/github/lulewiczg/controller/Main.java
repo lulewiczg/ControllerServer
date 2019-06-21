@@ -21,7 +21,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import com.github.lulewiczg.controller.server.ControllerServer;
-import com.github.lulewiczg.controller.server.SettingsBean;
+import com.github.lulewiczg.controller.server.SettingsComponent;
 import com.github.lulewiczg.controller.ui.JTextAreaAppender;
 import com.github.lulewiczg.controller.ui.ServerWindow;
 
@@ -48,7 +48,7 @@ public class Main implements CommandLineRunner {
     private ApplicationContext context;
 
     @Autowired
-    private SettingsBean settings;
+    private SettingsComponent settings;
 
     @Value("${com.github.lulewiczg.logging.pattern}")
     private String logPattern;

@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.ServerState;
-import com.github.lulewiczg.controller.server.SettingsBean;
+import com.github.lulewiczg.controller.server.SettingsComponent;
 
 /**
  * GUI for server.
@@ -67,7 +67,7 @@ public class ServerWindow extends JFrame {
     private JTextField passwordInput;
 
     @Autowired
-    private SettingsBean settings;
+    private SettingsComponent settings;
 
     @Autowired
     private ControllerServer server;
@@ -116,7 +116,7 @@ public class ServerWindow extends JFrame {
      * Saves settings and quits.
      */
     private void quit() {
-        settings.getSettings().saveSettings();
+        settings.saveSettings();
         System.exit(0);
     }
 

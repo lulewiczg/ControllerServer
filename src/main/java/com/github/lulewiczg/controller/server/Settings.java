@@ -1,18 +1,9 @@
 package com.github.lulewiczg.controller.server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Random;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.github.lulewiczg.controller.common.SerializerType;
 
@@ -23,11 +14,9 @@ import com.github.lulewiczg.controller.common.SerializerType;
  */
 public class Settings implements Serializable {
 
-    private static final String SETTINGS_DAT = "settings.dat";
     private static final long serialVersionUID = 7010493017533238086L;
     private static final String PASSWORD_FORMAT = "%03d";
     private static final int PASSWORD_MAX = 999999;
-    public static final Logger log = LogManager.getLogger(Settings.class);
 
     private int port = 5555;
     private String password;
@@ -43,51 +32,6 @@ public class Settings implements Serializable {
         Random r = new Random();
         int p = r.nextInt(PASSWORD_MAX);
         password = String.format(PASSWORD_FORMAT, p);
-    }
-
-    /**
-     * Loads saved settings.
-     *
-     * @return settings
-     */
-    public static Settings loadSettings() {
-        Settings settings;
-        try (FileInputStream fin = new FileInputStream(SETTINGS_DAT); ObjectInputStream ois = new ObjectInputStream(fin);) {
-            settings = (Settings) ois.readObject();
-        } catch (FileNotFoundException e) {
-            log.catching(e);
-            log.info("Settings not found, creating new...");
-            settings = new Settings();
-            saveSettings(settings);
-        } catch (Exception e) {
-            log.error("Could not load settings file");
-            log.catching(e);
-            settings = new Settings();
-        }
-        return settings;
-    }
-
-    /**
-     * Saves settings.
-     */
-    public void saveSettings() {
-        saveSettings(this);
-    }
-
-    /**
-     * Saves settings
-     *
-     * @param settings
-     *            settings
-     */
-    public static void saveSettings(Settings settings) {
-        try (FileOutputStream fos = new FileOutputStream(new File(SETTINGS_DAT));
-                ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            oos.writeObject(settings);
-        } catch (IOException e) {
-            log.error("Error while saving file");
-            log.catching(e);
-        }
     }
 
     public void setPort(int port) {
