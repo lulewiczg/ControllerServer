@@ -13,8 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
-import com.github.lulewiczg.controller.exception.ActionException;
-import com.github.lulewiczg.controller.exception.HandledException;
+import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ServerState;
@@ -80,28 +79,21 @@ public abstract class ActionProcessor implements Closeable {
         log.catching(Level.DEBUG, e);
         Status status = Status.NOT_OK;
         errorCount++;
-        boolean handled = false;
-        boolean logException = true;
+        boolean handled = true;
         if (e instanceof SocketException || e instanceof EOFException) {
-            handled = true;
             log.error("Connection lost");
-            logException = false;
             server.setStatus(ServerState.SHUTDOWN);
         } else if (e instanceof LoginException) {
-            handled = true;
             LoginException le = (LoginException) e;
             log.info(String.format("User %s from %s tried to login with invalid password", le.getWho(), le.getWhere()));
             status = Status.INVALID_PASSWORD;
-        } else if (e instanceof ActionException) {
-            handled = true;
+        } else if (e instanceof AlreadyLoggedInException) {
+            log.info("Already logged in");
+            status = Status.NOT_OK;
         }
-        if (logException) {
-            log.error(e.getMessage());
-        }
+        log.catching(Level.DEBUG, e);
         sendResponse(new Response(status, e));
-        if (handled) {
-            throw new HandledException(e);
-        } else {
+        if (!handled) {
             throw e;
         }
     }

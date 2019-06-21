@@ -49,7 +49,7 @@ import com.github.lulewiczg.controller.client.Client;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
-import com.github.lulewiczg.controller.exception.AlreadyLoggedInAction;
+import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.AuthorizationException;
 
 /**
@@ -170,8 +170,8 @@ public class ControllerServerTest {
         client = new Client(PORT);
         client.login(PASSWORD);
         Response response = client.login(PASSWORD);
-        assertError(response, AlreadyLoggedInAction.class);
-        waitForState(ServerState.WAITING);
+        assertError(response, AlreadyLoggedInException.class);
+        waitForState(ServerState.CONNECTED);
     }
 
     @Test

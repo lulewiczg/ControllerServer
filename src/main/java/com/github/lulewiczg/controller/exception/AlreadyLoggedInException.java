@@ -5,10 +5,10 @@ package com.github.lulewiczg.controller.exception;
  *
  * @author Grzegurz
  */
-public class AlreadyLoggedInAction extends ActionException {
+public class AlreadyLoggedInException extends ActionException {
     private static final long serialVersionUID = 1L;
 
-    public AlreadyLoggedInAction(String msg) {
+    public AlreadyLoggedInException(String msg) {
         super(msg);
     }
 }

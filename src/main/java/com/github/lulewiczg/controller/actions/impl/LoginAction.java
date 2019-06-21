@@ -7,7 +7,7 @@ import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
-import com.github.lulewiczg.controller.exception.AlreadyLoggedInAction;
+import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.server.ServerState;
 
@@ -54,7 +54,7 @@ public class LoginAction extends Action {
      */
     @Override
     protected void doThrowException() throws ActionException {
-        throw new AlreadyLoggedInAction("User already logged in");
+        throw new AlreadyLoggedInException("User already logged in");
     }
 
 }
