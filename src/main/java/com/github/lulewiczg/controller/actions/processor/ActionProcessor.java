@@ -25,7 +25,6 @@ import com.github.lulewiczg.controller.server.ServerState;
  */
 public abstract class ActionProcessor implements Closeable {
     protected static final Logger log = LogManager.getLogger();
-    protected int errorCount;
 
     @Autowired
     private ControllingService controllingService;
@@ -64,7 +63,6 @@ public abstract class ActionProcessor implements Closeable {
         } catch (Exception e) {
             handleException(server, e);
         }
-        errorCount = 0;
     }
 
     /**
@@ -78,7 +76,6 @@ public abstract class ActionProcessor implements Closeable {
     private void handleException(ControllerServer server, Exception e) throws Exception {
         log.catching(Level.DEBUG, e);
         Status status = Status.NOT_OK;
-        errorCount++;
         boolean handled = true;
         if (e instanceof SocketException || e instanceof EOFException) {
             log.error("Connection lost");
@@ -115,21 +112,7 @@ public abstract class ActionProcessor implements Closeable {
             } catch (IOException e) {
                 log.catching(Level.DEBUG, e);
                 error = true;
-                errorCount++;
             }
         }
     }
-
-    public int getErrorCount() {
-        return errorCount;
-    }
-
-    public void setErrorCount(int errorCount) {
-        this.errorCount = errorCount;
-    }
-
-    public void errInc() {
-        errorCount++;
-    }
-
 }

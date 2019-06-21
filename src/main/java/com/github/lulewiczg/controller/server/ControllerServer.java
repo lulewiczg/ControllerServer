@@ -35,7 +35,7 @@ public class ControllerServer {
     private ServerState status = ServerState.SHUTDOWN;
     private ServerSocket server;
     private Socket socket;
-    private ExecutorService exec = Executors.newSingleThreadExecutor();
+    private ExecutorService exec;
     private Semaphore semaphore = new Semaphore(1, true);
     private Semaphore listenerSemaphore = new Semaphore(1, true);
 
@@ -105,6 +105,7 @@ public class ControllerServer {
      */
     public void start() {
         acquire(semaphore);
+        exec = Executors.newSingleThreadExecutor();
         exec.submit(this::doServer);
         release(semaphore);
     }
@@ -128,17 +129,15 @@ public class ControllerServer {
      * Forces server to stop.
      */
     public void stop() {
-        processor.setErrorCount(Common.ERROR_THRESHOLD + 1);
         stopServer();
+        exec.shutdownNow();
     }
 
     /**
      * Handle fatal server error that can not be recovered.
      */
     private void onFatalError() {
-        processor.errInc();
         stopServer();
-        shouldFail();
         restartIfNeeded();
     }
 
@@ -148,6 +147,8 @@ public class ControllerServer {
     private void restartIfNeeded() {
         if (config.getSettings().isRestartOnError() && getStatus() != ServerState.CONNECTED) {
             start();
+        } else {
+            throw new RuntimeException("Connection lost");
         }
     }
 
@@ -199,18 +200,6 @@ public class ControllerServer {
         while (!socket.isClosed() && getStatus() != ServerState.SHUTDOWN) {
             processor.processAction(this);
         }
-    }
-
-    /**
-     * Checks if error threshold was exceeded.
-     *
-     * @return false if shouldn't
-     */
-    private boolean shouldFail() {
-        if (config.getSettings().isRestartOnError() && processor.getErrorCount() <= Common.ERROR_THRESHOLD) {
-            return false;
-        }
-        throw new RuntimeException("Connection lost");
     }
 
     /**
