@@ -48,7 +48,6 @@ import com.github.lulewiczg.controller.actions.processor.ObjectStreamActionProce
 import com.github.lulewiczg.controller.client.Client;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
-import com.github.lulewiczg.controller.exception.ActionException;
 import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.AuthorizationException;
 
@@ -186,7 +185,7 @@ public class ControllerServerTest {
         Response response = client.logout();
 
         Mockito.verify(server, Mockito.never()).logout();
-        assertError(response, ActionException.class);
+        assertError(response, AuthorizationException.class);
         waitForState(ServerState.WAITING);
     }
 

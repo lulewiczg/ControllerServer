@@ -1,6 +1,6 @@
 package com.github.lulewiczg.controller.actions.impl;
 
-import com.github.lulewiczg.controller.actions.Action;
+import com.github.lulewiczg.controller.actions.LoginRequiredAction;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
@@ -11,7 +11,7 @@ import com.github.lulewiczg.controller.exception.ActionException;
  *
  * @author Grzegurz
  */
-public class DisconnectAction extends Action {
+public class DisconnectAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
 
@@ -21,11 +21,6 @@ public class DisconnectAction extends Action {
     @Override
     protected Response doAction(ControllingService controllingService) throws ActionException {
         return new Response(Status.OK, i -> i.logout());
-    }
-
-    @Override
-    protected void doThrowException() throws ActionException {
-        throw new ActionException("Already disconnected");
     }
 
 }
