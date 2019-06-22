@@ -86,7 +86,7 @@ public class ServerWindow extends JFrame {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-            exceptionService.log(log, e);
+            exceptionService.error(log, e);
         }
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setVisible(true);
@@ -139,7 +139,7 @@ public class ServerWindow extends JFrame {
                 try {
                     Thread.sleep(SLEEP);
                 } catch (InterruptedException e) {
-                    exceptionService.log(log, e);
+                    exceptionService.error(log, e);
                 }
             }
         });

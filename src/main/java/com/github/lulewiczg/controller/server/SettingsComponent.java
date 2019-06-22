@@ -47,11 +47,11 @@ public class SettingsComponent {
         try (FileInputStream fin = new FileInputStream(SETTINGS_DAT); ObjectInputStream ois = new ObjectInputStream(fin);) {
             settings = (Settings) ois.readObject();
         } catch (FileNotFoundException e) {
-            loggingService.log(log, "Settings not found, creating new...", e);
+            loggingService.error(log, "Settings not found, creating new...", e);
             settings = new Settings();
             saveSettings(settings);
         } catch (Exception e) {
-            loggingService.log(log, "Could not load settings file", e);
+            loggingService.error(log, "Could not load settings file", e);
             settings = new Settings();
         }
         return settings;

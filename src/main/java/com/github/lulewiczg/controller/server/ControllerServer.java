@@ -71,8 +71,8 @@ public class ControllerServer {
             setupConnection();
             doActions();
         } catch (SemaphoreException e) {
-            exceptionService.log(log, "Disconnected", e);// closing server is interrupted, good job for eating up interruptions in
-                                                         // InputStream API
+            // closing server is interrupted, good job for eating up interruptions in InputStream API
+            exceptionService.info(log, "Disconnected", e);
         } finally {
             processor = emptyProcessor;
             release(listenerSemaphore);
@@ -86,7 +86,7 @@ public class ControllerServer {
         try {
             listen();
         } catch (Exception e) {
-            exceptionService.log(log, e);
+            exceptionService.error(log, e);
             stopServer();
             start();
         }
@@ -99,7 +99,7 @@ public class ControllerServer {
         try {
             setupSocket();
         } catch (IOException e) {
-            exceptionService.log(log, "Failed to setup socket", e);
+            exceptionService.error(log, "Failed to setup socket", e);
             stopServer();
             start();
         }

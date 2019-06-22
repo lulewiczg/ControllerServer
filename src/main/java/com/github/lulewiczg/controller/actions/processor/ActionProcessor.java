@@ -80,18 +80,18 @@ public abstract class ActionProcessor implements Closeable {
         Status status = Status.NOT_OK;
         boolean handled = true;
         if (e instanceof SocketException || e instanceof EOFException) {
-            exceptionService.log(log, "Connection lost", e);
+            exceptionService.error(log, "Connection lost", e);
             server.setStatus(ServerState.SHUTDOWN);
         } else if (e instanceof LoginException) {
             LoginException le = (LoginException) e;
-            exceptionService.log(log,
+            exceptionService.error(log,
                     String.format("User %s from %s tried to login with invalid password", le.getWho(), le.getWhere()), e);
             status = Status.INVALID_PASSWORD;
         } else if (e instanceof AlreadyLoggedInException) {
-            exceptionService.log(log, "Already logged in", e);
+            exceptionService.error(log, "Already logged in", e);
             status = Status.NOT_OK;
         } else {
-            exceptionService.log(log, e);
+            exceptionService.error(log, e);
             handled = false;
         }
         sendResponse(new Response(status, e));
@@ -115,7 +115,7 @@ public abstract class ActionProcessor implements Closeable {
                 write(res);
                 return;
             } catch (IOException e) {
-                exceptionService.log(log, e);
+                exceptionService.error(log, e);
                 error = true;
             }
         }
