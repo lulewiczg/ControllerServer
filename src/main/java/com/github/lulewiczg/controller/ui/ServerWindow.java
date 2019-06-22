@@ -63,7 +63,6 @@ public class ServerWindow extends JFrame {
     private LoggerConfig loggerConfig;
     private LoggerContext ctx;
     private JCheckBox autostart;
-    private JCheckBox restart;
     private JTextField passwordInput;
 
     @Autowired
@@ -235,9 +234,7 @@ public class ServerWindow extends JFrame {
         autostart = new JCheckBox("Auto start server on startup", settings.getSettings().isAutostart());
         autostart.addActionListener(buildListener(e -> settings.getSettings().setAutostart(autostart.isSelected())));
         panel.add(autostart);
-        restart = new JCheckBox("Restart on error", settings.getSettings().isRestartOnError());
-        restart.addActionListener(buildListener(e -> server.start()));
-        panel.add(restart);
+        panel.add(new JLabel());
 
         JLabel state = new JLabel("Server state");
         stateIndicator = new JLabel();

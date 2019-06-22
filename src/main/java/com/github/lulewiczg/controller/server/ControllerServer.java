@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.common.Common;
+import com.github.lulewiczg.controller.exception.SemaphoreException;
 
 /**
  * Server implementation.
@@ -69,6 +70,9 @@ public class ControllerServer {
         try {
             setupConnection();
             doActions();
+        } catch (SemaphoreException e) {
+            exceptionService.log(log, "Disconnected", e);// closing server is interrupted, good job for eating up interruptions in
+                                                         // InputStream API
         } finally {
             processor = emptyProcessor;
             release(listenerSemaphore);
@@ -83,7 +87,8 @@ public class ControllerServer {
             listen();
         } catch (Exception e) {
             exceptionService.log(log, e);
-            onFatalError();
+            stopServer();
+            start();
         }
     }
 
@@ -95,13 +100,13 @@ public class ControllerServer {
             setupSocket();
         } catch (IOException e) {
             exceptionService.log(log, "Failed to setup socket", e);
-            onFatalError();
+            stopServer();
+            start();
         }
     }
 
     /**
      * Starts server.
-     *
      */
     public void start() {
         acquire(semaphore);
@@ -126,30 +131,11 @@ public class ControllerServer {
     }
 
     /**
-     * Forces server to stop.
+     * Forces server to stop. Will not restart.
      */
     public void stop() {
-        stopServer();
         exec.shutdownNow();
-    }
-
-    /**
-     * Handle fatal server error that can not be recovered.
-     */
-    private void onFatalError() {
         stopServer();
-        restartIfNeeded();
-    }
-
-    /**
-     * Restarts server after stop when required.
-     */
-    private void restartIfNeeded() {
-        if (config.getSettings().isRestartOnError() && getStatus() == ServerState.SHUTDOWN) {
-            start();
-        } else {
-            throw new RuntimeException("Connection lost");
-        }
     }
 
     /**
@@ -178,9 +164,8 @@ public class ControllerServer {
      * Disconnects client.
      */
     public void logout() {
-        stop();
-        log.info("Disconnected");
-        restartIfNeeded();
+        stopServer();
+        start();
     }
 
     /**
@@ -212,7 +197,7 @@ public class ControllerServer {
         try {
             semaphore.acquire();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new SemaphoreException(e);
         }
     }
 

@@ -22,7 +22,6 @@ public class Settings implements Serializable {
     private String password;
     private Level level = Level.ERROR;
     private boolean autostart = false;
-    private boolean restartOnError = false;
     private SerializerType serialier = SerializerType.OBJECT_STREAM;
 
     /**
@@ -48,14 +47,6 @@ public class Settings implements Serializable {
 
     public void setAutostart(boolean autostart) {
         this.autostart = autostart;
-    }
-
-    public boolean isRestartOnError() {
-        return restartOnError;
-    }
-
-    public void setRestartOnError(boolean restartOnError) {
-        this.restartOnError = restartOnError;
     }
 
     public String getPassword() {

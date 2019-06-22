@@ -107,23 +107,23 @@ public class ControllerServerTest {
     }
 
     @Test
-    @DisplayName("Server not restart after shutdown")
-    public void testServerShutdownAfterStop() throws Exception {
-        startServer(false);
-        client = new Client(PORT);// TODO add option to slow down state changes
+    @DisplayName("Server not restart after logout")
+    public void testStateAfterLogout() throws Exception {
+        startServer();
+        client = new Client(PORT);
         client.login(PASSWORD);
         client.logout();
 
         Mockito.verify(server).login();
         Mockito.verify(server).logout();
 
-        waitForState(ServerState.SHUTDOWN);
+        waitForState(ServerState.WAITING);
     }
 
     @Test
     @DisplayName("Server is stopped after stop")
     public void testServerStateAfterStop() throws Exception {
-        startServer(false);
+        startServer();
         server.stop();
         waitForState(ServerState.SHUTDOWN);
     }
@@ -131,11 +131,11 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Server losts connection to client")
     public void testServerConnectionLost() throws Exception {
-        startServer(false);
+        startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         client.close();
-        waitForState(ServerState.SHUTDOWN);
+        waitForState(ServerState.WAITING);
     }
 
     @Test
@@ -148,7 +148,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Connect to server in up state")
     public void testLoginToUpServer() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         Response response = client.login(PASSWORD);
         assertOK(response);
@@ -157,7 +157,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Connect to server wiith invalid password")
     public void testLoginWithInvalidPassword() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         Response response = client.login("4321");
 
@@ -168,7 +168,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Log in when already logged in")
     public void testLoginWhenLoggedIn() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         Response response = client.login(PASSWORD);
@@ -181,7 +181,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Disconnects when not connected")
     public void testDisconnectWhenNotConnected() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         Response response = client.logout();
 
@@ -193,7 +193,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Relog")
     public void testRelogin() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         Response response = client.login(PASSWORD);
         assertOK(response);
@@ -211,14 +211,14 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Connects to server using invalid port")
     public void testConnectToInvalidPort() throws Exception {
-        startServer(true);
+        startServer();
         assertThrows(ConnectException.class, () -> client = new Client(4321));
     }
 
     @Test
     @DisplayName("Sends action without login")
     public void testSendActionWithoutLogin() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         Response response = client.doAction(new MouseButtonPressAction(1));
         assertError(response, AuthorizationException.class);
@@ -228,7 +228,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Sends action after logout")
     public void testSendActionAfterLogout() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         client.logout();
@@ -242,7 +242,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Sends action")
     public void testSendAction() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         Response response = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON1_DOWN_MASK));
@@ -252,7 +252,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Sends multiple actions")
     public void testSendMultipleActions() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         Instant then = Instant.now();
@@ -269,7 +269,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Two clients connect")
     public void testConnectTwoClients() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         assertThrows(AssertionFailedError.class, () -> assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
@@ -283,7 +283,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Reconnect after connection lose")
     public void testServerStateAfterConnectionLost() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         client.close();
@@ -299,7 +299,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Key action")
     public void testKeyAction() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         List<Response> responses = new ArrayList<>();
@@ -319,7 +319,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Mouse button action")
     public void testMouseButtonAction() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         List<Response> responses = new ArrayList<>();
@@ -339,7 +339,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Mouse wheel action")
     public void testMouseWheelAction() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         List<Response> responses = new ArrayList<>();
@@ -357,7 +357,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Mouse move action")
     public void testMouseMoveAction() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         List<Response> responses = new ArrayList<>();
@@ -379,7 +379,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Text action")
     public void testTextAction() throws Exception {
-        startServer(true);
+        startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         List<Response> responses = new ArrayList<>();
@@ -403,12 +403,12 @@ public class ControllerServerTest {
      * @throws InterruptedException
      *             the InterruptedException
      */
-    private void startServer(boolean restartAfterError) throws InterruptedException {
+
+    private void startServer() throws InterruptedException {
         Settings s = new Settings();
         s.setAutostart(true);
         s.setPassword(PASSWORD);
         s.setPort(PORT);
-        s.setRestartOnError(restartAfterError);
         Mockito.when(settings.getSettings()).thenReturn(s);
 
         server.start();
