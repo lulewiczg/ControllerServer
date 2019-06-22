@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +19,9 @@ import com.github.lulewiczg.controller.common.Response;
  *
  * @author Grzegurz
  */
-@Service
+@Primary
 @Scope("prototype")
+@Service("objectStreamProcessor")
 public class ObjectStreamActionProcessor extends ActionProcessor {
 
     private ObjectInputStream in;

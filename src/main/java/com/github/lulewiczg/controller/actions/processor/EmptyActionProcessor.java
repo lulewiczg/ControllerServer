@@ -2,6 +2,8 @@ package com.github.lulewiczg.controller.actions.processor;
 
 import java.io.IOException;
 
+import org.springframework.stereotype.Service;
+
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.common.Response;
 
@@ -10,6 +12,7 @@ import com.github.lulewiczg.controller.common.Response;
  *
  * @author Grzegurz
  */
+@Service("emptyProcessor")
 public class EmptyActionProcessor extends ActionProcessor {
 
     @Override

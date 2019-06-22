@@ -12,12 +12,12 @@ import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
-import com.github.lulewiczg.controller.actions.processor.EmptyActionProcessor;
 import com.github.lulewiczg.controller.common.Common;
 
 /**
@@ -49,6 +49,10 @@ public class ControllerServer {
     private ActionProcessor processor;
 
     @Autowired
+    @Qualifier("emptyProcessor")
+    private ActionProcessor emptyProcessor;
+
+    @Autowired
     public ControllerServer(SettingsComponent config) {
         this.config = config;
         if (config.getSettings() != null && config.getSettings().isAutostart()) {
@@ -61,12 +65,12 @@ public class ControllerServer {
      */
     private void doServer() {
         acquire(listenerSemaphore);
-        processor = new EmptyActionProcessor();
+        processor = emptyProcessor;
         try {
             setupConnection();
             doActions();
         } finally {
-            processor = new EmptyActionProcessor();
+            processor = emptyProcessor;
             release(listenerSemaphore);
         }
     }
@@ -141,7 +145,7 @@ public class ControllerServer {
      * Restarts server after stop when required.
      */
     private void restartIfNeeded() {
-        if (config.getSettings().isRestartOnError() && getStatus() != ServerState.CONNECTED) {
+        if (config.getSettings().isRestartOnError() && getStatus() == ServerState.SHUTDOWN) {
             start();
         } else {
             throw new RuntimeException("Connection lost");
@@ -174,7 +178,7 @@ public class ControllerServer {
      * Disconnects client.
      */
     public void logout() {
-        stopServer();
+        stop();
         log.info("Disconnected");
         restartIfNeeded();
     }
