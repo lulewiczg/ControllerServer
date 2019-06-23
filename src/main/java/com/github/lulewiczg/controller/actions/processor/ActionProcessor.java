@@ -17,6 +17,7 @@ import com.github.lulewiczg.controller.actions.processor.connection.ClientConnec
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
+import com.github.lulewiczg.controller.exception.AuthorizationException;
 import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
@@ -89,6 +90,9 @@ public class ActionProcessor implements Closeable {
             status = Status.INVALID_PASSWORD;
         } else if (e instanceof AlreadyLoggedInException) {
             exceptionService.error(log, "Already logged in", e);
+            status = Status.NOT_OK;
+        } else if (e instanceof AuthorizationException) {
+            exceptionService.error(log, "Permission denied", e);
             status = Status.NOT_OK;
         } else {
             exceptionService.error(log, e);

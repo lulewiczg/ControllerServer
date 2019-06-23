@@ -67,4 +67,16 @@ public class Response implements Serializable {
         this.callback = callback;
     }
 
+    @Override
+    public int hashCode() {
+        return status.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Response)) {
+            return false;
+        }
+        return ((Response) obj).status == status;
+    }
 }
