@@ -13,7 +13,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
@@ -26,7 +25,6 @@ import com.github.lulewiczg.controller.exception.SemaphoreException;
  *
  * @author Grzegurz
  */
-@Lazy
 @Service
 public class ControllerServer {
 
@@ -37,6 +35,7 @@ public class ControllerServer {
     private ExecutorService exec;
     private Semaphore semaphore = new Semaphore(1, true);
     private Semaphore listenerSemaphore = new Semaphore(1, true);
+    private volatile InternalServerState internalState = InternalServerState.DOWN;
 
     private SettingsComponent config;
 
@@ -58,44 +57,18 @@ public class ControllerServer {
     }
 
     /**
-     * Listens for connections.
+     * Handles server logic.
      */
     private void doServer() {
         acquire(listenerSemaphore);
         try {
-            setupConnection();
+            setupSocket();
             doActions();
-        } catch (SemaphoreException e) {
-            // closing server is interrupted, good job for eating up interruptions in InputStream API
-            exceptionService.info(log, "Disconnected", e);
-        } finally {
-            release(listenerSemaphore);
-        }
-    }
-
-    /*
-     * Listens for actions and executes them.
-     */
-    private void doActions() {
-        try {
-            listen();
         } catch (Exception e) {
             exceptionService.error(log, e);
             stopServer();
-            start();
-        }
-    }
-
-    /**
-     * Sets up connection with client.
-     */
-    private void setupConnection() {
-        try {
-            setupSocket();
-        } catch (IOException e) {
-            exceptionService.error(log, "Failed to setup socket", e);
-            stopServer();
-            start();
+        } finally {
+            release(listenerSemaphore);
         }
     }
 
@@ -106,13 +79,17 @@ public class ControllerServer {
         acquire(semaphore);
         exec = Executors.newSingleThreadExecutor();
         exec.submit(this::doServer);
+        internalState = InternalServerState.UP;
         release(semaphore);
     }
 
     /**
      * Stops server.
+     *
+     * @param state
+     *            internal server state to set after stop
      */
-    private void stopServer() {
+    private void stopServer(InternalServerState state) {
         acquire(semaphore);
         setStatus(ServerState.SHUTDOWN);
         if (server != null && !server.isClosed()) {
@@ -120,8 +97,16 @@ public class ControllerServer {
             Common.close(processor);
             Common.close(socket);
         }
+        internalState = state;
         log.info("Server stopped");
         release(semaphore);
+    }
+
+    /**
+     * Stops server.
+     */
+    private void stopServer() {
+        stopServer(InternalServerState.DOWN);
     }
 
     /**
@@ -129,14 +114,14 @@ public class ControllerServer {
      */
     public void stop() {
         exec.shutdownNow();
-        stopServer();
+        stopServer(InternalServerState.DOWN_AND_DONT_RESTART);
     }
 
     /**
      * Sets up socket.
      *
      * @throws IOException
-     *             the IOException
+     *             when socket could not be set up
      */
     private void setupSocket() throws IOException {
         server = new ServerSocket(config.getSettings().getPort());
@@ -145,6 +130,26 @@ public class ControllerServer {
         socket = server.accept();
         socket.setReuseAddress(false);
         socket.setKeepAlive(true);
+    }
+
+    /**
+     * Listens for incoming connections.
+     *
+     * @throws Exception
+     *             the Exception
+     */
+    private void doActions() throws Exception {
+        InputStream inputStream = socket.getInputStream();
+        OutputStream outputStream = socket.getOutputStream();
+        while (!socket.isConnected() && inputStream.available() == 0) {
+            Thread.sleep(500);
+        }
+        log.info("Trying to connect...");
+        ClientConnection clientConnection = context.getBean(ClientConnection.class, inputStream, outputStream);
+        processor = context.getBean(ActionProcessor.class, clientConnection);
+        while (!socket.isClosed() && getStatus() != ServerState.SHUTDOWN) {
+            processor.processAction(this);
+        }
     }
 
     /**
@@ -159,27 +164,7 @@ public class ControllerServer {
      */
     public void logout() {
         stopServer();
-        start();
-    }
-
-    /**
-     * Listens for connection.
-     *
-     * @throws Exception
-     *             the Exception
-     */
-    private void listen() throws Exception {
-        InputStream inputStream = socket.getInputStream();
-        OutputStream outputStream = socket.getOutputStream();
-        while (!socket.isConnected() && inputStream.available() == 0) {
-            Thread.sleep(500);
-        }
-        log.info("Trying to connect...");
-        ClientConnection clientConnection = context.getBean(ClientConnection.class, inputStream, outputStream);
-        processor = context.getBean(ActionProcessor.class, clientConnection);
-        while (!socket.isClosed() && getStatus() != ServerState.SHUTDOWN) {
-            processor.processAction(this);
-        }
+        log.info("Disconnected");
     }
 
     /**
@@ -215,6 +200,10 @@ public class ControllerServer {
 
     public ServerState getStatus() {
         return status;
+    }
+
+    public InternalServerState getInternalState() {
+        return internalState;
     }
 
 }

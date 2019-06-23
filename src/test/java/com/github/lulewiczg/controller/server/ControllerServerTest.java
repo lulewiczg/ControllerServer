@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.opentest4j.AssertionFailedError;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -57,6 +58,9 @@ public class ControllerServerTest {
 
     private Client client;
     private Client client2;
+
+    @Autowired
+    private ControllerServerManager serverRunner;
 
     @SpyBean
     private ControllerServer server;
@@ -233,7 +237,7 @@ public class ControllerServerTest {
     }
 
     @Test
-    @DisplayName("Sends multiple actions")
+    @DisplayName("Send multiple actions")
     public void testSendMultipleActions() throws Exception {
         startServer();
         client = new Client(PORT);
@@ -264,13 +268,13 @@ public class ControllerServerTest {
     }
 
     @Test
-    @DisplayName("Reconnect after connection lose")
-    public void testServerStateAfterConnectionLost() throws Exception {
+    @DisplayName("Reconnect after connection lost")
+    public void testReconnectAfterConnectionLost() throws Exception {
         startServer();
         client = new Client(PORT);
         client.login(PASSWORD);
         client.close();
-        assertTimeoutPreemptively(Duration.ofMillis(200), () -> {
+        assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
             client2 = new Client(PORT);
             Response login = client2.login(PASSWORD);
             assertEquals(Status.OK, login.getStatus());
@@ -313,7 +317,7 @@ public class ControllerServerTest {
         s.setPort(PORT);
         Mockito.when(settings.getSettings()).thenReturn(s);
 
-        server.start();
+        serverRunner.start();
         waitForState(ServerState.WAITING);
     }
 
@@ -325,10 +329,10 @@ public class ControllerServerTest {
      * @throws InterruptedException
      */
     private void waitForState(ServerState state) throws InterruptedException {
-        for (int i = 0; i < 5 && server.getStatus() != state; i++) {
+        for (int i = 0; i < 5 && serverRunner.getStatus() != state; i++) {
             Thread.sleep(100);
         }
-        assertEquals(state, server.getStatus(), "Invalid server state");
+        assertEquals(state, serverRunner.getStatus(), "Invalid server state");
     }
 
     /**

@@ -35,7 +35,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.github.lulewiczg.controller.server.ControllerServer;
+import com.github.lulewiczg.controller.server.ControllerServerManager;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.ServerState;
 import com.github.lulewiczg.controller.server.SettingsComponent;
@@ -69,7 +69,7 @@ public class ServerWindow extends JFrame {
     private SettingsComponent settings;
 
     @Autowired
-    private ControllerServer server;
+    private ControllerServerManager server;
 
     @Autowired
     private JTextArea logsArea;

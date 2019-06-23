@@ -1,9 +1,7 @@
 package com.github.lulewiczg.controller.actions.processor;
 
 import java.io.Closeable;
-import java.io.EOFException;
 import java.io.IOException;
-import java.net.SocketException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +19,6 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
 import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
-import com.github.lulewiczg.controller.server.ServerState;
 
 /**
  * Interface for serializing actions.
@@ -80,10 +77,7 @@ public class ActionProcessor implements Closeable {
     private void handleException(ControllerServer server, Exception e) throws Exception {
         Status status = Status.NOT_OK;
         boolean handled = true;
-        if (e instanceof SocketException || e instanceof EOFException) {
-            exceptionService.error(log, "Connection lost", e);
-            server.setStatus(ServerState.SHUTDOWN);
-        } else if (e instanceof LoginException) {
+        if (e instanceof LoginException) {
             LoginException le = (LoginException) e;
             exceptionService.error(log,
                     String.format("User %s from %s tried to login with invalid password", le.getWho(), le.getWhere()), e);
@@ -95,7 +89,7 @@ public class ActionProcessor implements Closeable {
             exceptionService.error(log, "Permission denied", e);
             status = Status.NOT_OK;
         } else {
-            exceptionService.error(log, e);
+            exceptionService.error(log, "Unexpected exception", e);
             handled = false;
         }
         sendResponse(new Response(status, e));
