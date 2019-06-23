@@ -1,4 +1,4 @@
-package com.github.lulewiczg.controller.actions.processor;
+package com.github.lulewiczg.controller.actions.processor.connection;
 
 import java.io.IOException;
 
@@ -8,12 +8,12 @@ import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.common.Response;
 
 /**
- * Empty Action processor.
+ * Empty connection implementation.
  *
  * @author Grzegurz
  */
-@Service("emptyProcessor")
-public class EmptyActionProcessor extends ActionProcessor {
+@Service("voidConnection")
+public class VoidConnection implements ClientConnection {
 
     @Override
     public void close() throws IOException {
@@ -21,12 +21,12 @@ public class EmptyActionProcessor extends ActionProcessor {
     }
 
     @Override
-    protected void write(Response r) throws IOException {
+    public void write(Response r) throws IOException {
         throw new IOException("Unexpected call");
     }
 
     @Override
-    protected Action getNext() throws Exception {
+    public Action getNext() throws Exception {
         throw new IOException("Unexpected call");
     }
 

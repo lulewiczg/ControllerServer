@@ -8,8 +8,12 @@ import java.net.SocketException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import com.github.lulewiczg.controller.actions.Action;
+import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
@@ -23,7 +27,10 @@ import com.github.lulewiczg.controller.server.ServerState;
  *
  * @author Grzegurz
  */
-public abstract class ActionProcessor implements Closeable {
+@Lazy
+@Service
+@Scope("prototype")
+public class ActionProcessor implements Closeable {
     protected static final Logger log = LogManager.getLogger();
 
     @Autowired
@@ -32,19 +39,12 @@ public abstract class ActionProcessor implements Closeable {
     @Autowired
     private ExceptionLoggingService exceptionService;
 
-    /**
-     * Writes response to output stream.
-     */
-    protected abstract void write(Response r) throws IOException;
+    private ClientConnection connection;
 
-    /**
-     * Reads next action.
-     *
-     * @return action action
-     * @throws Exception
-     *             the Exception
-     */
-    protected abstract Action getNext() throws Exception;
+    @Autowired
+    public ActionProcessor(ClientConnection connection) {
+        this.connection = connection;
+    }
 
     /**
      * Processes action
@@ -55,7 +55,7 @@ public abstract class ActionProcessor implements Closeable {
      *
      */
     public void processAction(ControllerServer server) throws Exception {
-        Action action = getNext();
+        Action action = connection.getNext();
         log.debug(action);
         try {
             Response res = action.run(server, controllingService);
@@ -112,12 +112,17 @@ public abstract class ActionProcessor implements Closeable {
         boolean error = false;
         while (!error) {
             try {
-                write(res);
+                connection.write(res);
                 return;
             } catch (IOException e) {
                 exceptionService.error(log, e);
                 error = true;
             }
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        connection.close();
     }
 }

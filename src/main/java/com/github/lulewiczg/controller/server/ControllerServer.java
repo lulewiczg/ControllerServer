@@ -12,12 +12,12 @@ import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
+import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
 import com.github.lulewiczg.controller.common.Common;
 import com.github.lulewiczg.controller.exception.SemaphoreException;
 
@@ -50,10 +50,6 @@ public class ControllerServer {
     private ActionProcessor processor;
 
     @Autowired
-    @Qualifier("emptyProcessor")
-    private ActionProcessor emptyProcessor;
-
-    @Autowired
     public ControllerServer(SettingsComponent config) {
         this.config = config;
         if (config.getSettings() != null && config.getSettings().isAutostart()) {
@@ -66,7 +62,6 @@ public class ControllerServer {
      */
     private void doServer() {
         acquire(listenerSemaphore);
-        processor = emptyProcessor;
         try {
             setupConnection();
             doActions();
@@ -74,7 +69,6 @@ public class ControllerServer {
             // closing server is interrupted, good job for eating up interruptions in InputStream API
             exceptionService.info(log, "Disconnected", e);
         } finally {
-            processor = emptyProcessor;
             release(listenerSemaphore);
         }
     }
@@ -181,7 +175,8 @@ public class ControllerServer {
             Thread.sleep(500);
         }
         log.info("Trying to connect...");
-        processor = context.getBean(ActionProcessor.class, inputStream, outputStream);
+        ClientConnection clientConnection = context.getBean(ClientConnection.class, inputStream, outputStream);
+        processor = context.getBean(ActionProcessor.class, clientConnection);
         while (!socket.isClosed() && getStatus() != ServerState.SHUTDOWN) {
             processor.processAction(this);
         }

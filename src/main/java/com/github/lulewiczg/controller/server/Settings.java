@@ -5,8 +5,6 @@ import java.util.Random;
 
 import org.apache.logging.log4j.Level;
 
-import com.github.lulewiczg.controller.common.SerializerType;
-
 /**
  * Holds server settings.
  *
@@ -22,7 +20,6 @@ public class Settings implements Serializable {
     private String password;
     private Level level = Level.ERROR;
     private boolean autostart = false;
-    private SerializerType serialier = SerializerType.OBJECT_STREAM;
 
     /**
      * Generates password.
@@ -66,14 +63,6 @@ public class Settings implements Serializable {
 
     public Level getLevel() {
         return level;
-    }
-
-    public SerializerType getSerialier() {
-        return serialier;
-    }
-
-    public void setSerialier(SerializerType serialier) {
-        this.serialier = serialier;
     }
 
 }

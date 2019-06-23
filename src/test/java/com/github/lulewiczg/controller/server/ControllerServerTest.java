@@ -44,7 +44,7 @@ import com.github.lulewiczg.controller.actions.impl.MouseMoveAction;
 import com.github.lulewiczg.controller.actions.impl.MouseScrollAction;
 import com.github.lulewiczg.controller.actions.impl.TextAction;
 import com.github.lulewiczg.controller.actions.processor.MouseMovingService;
-import com.github.lulewiczg.controller.actions.processor.ObjectStreamActionProcessor;
+import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
 import com.github.lulewiczg.controller.client.Client;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
@@ -59,7 +59,7 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { TestConfiguration.class, ObjectStreamActionProcessor.class })
+@SpringBootTest(classes = { TestConfiguration.class, ObjectStreamClientConnection.class })
 @EnableAutoConfiguration
 public class ControllerServerTest {
     private static final String TEST_TXT = "test txt";
