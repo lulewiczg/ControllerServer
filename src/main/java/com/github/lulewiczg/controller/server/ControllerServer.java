@@ -66,7 +66,7 @@ public class ControllerServer {
             doActions();
         } catch (Exception e) {
             exceptionService.error(log, e);
-            stopServer();
+            softStop();
         } finally {
             release(listenerSemaphore);
         }
@@ -84,12 +84,9 @@ public class ControllerServer {
     }
 
     /**
-     * Stops server.
-     *
-     * @param state
-     *            internal server state to set after stop
+     * Performs soft stop. Server will restart.
      */
-    private void stopServer(InternalServerState state) {
+    private void softStop() {
         acquire(semaphore);
         setStatus(ServerState.SHUTDOWN);
         if (server != null && !server.isClosed()) {
@@ -97,24 +94,20 @@ public class ControllerServer {
             Common.close(processor);
             Common.close(socket);
         }
-        internalState = state;
+        if (internalState != InternalServerState.DOWN_AND_DONT_START) {
+            internalState = InternalServerState.DOWN;
+        }
         log.info("Server stopped");
         release(semaphore);
-    }
-
-    /**
-     * Stops server.
-     */
-    private void stopServer() {
-        stopServer(InternalServerState.DOWN);
     }
 
     /**
      * Forces server to stop. Will not restart.
      */
     public void stop() {
+        internalState = InternalServerState.DOWN_AND_DONT_START;
         exec.shutdownNow();
-        stopServer(InternalServerState.DOWN_AND_DONT_RESTART);
+        softStop();
     }
 
     /**
@@ -163,7 +156,7 @@ public class ControllerServer {
      * Disconnects client.
      */
     public void logout() {
-        stopServer();
+        softStop();
         log.info("Disconnected");
     }
 
@@ -204,6 +197,10 @@ public class ControllerServer {
 
     public InternalServerState getInternalState() {
         return internalState;
+    }
+
+    public void setInternalState(InternalServerState internalState) {
+        this.internalState = internalState;
     }
 
 }

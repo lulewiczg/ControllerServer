@@ -17,6 +17,7 @@ import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.AuthorizationException;
 import com.github.lulewiczg.controller.exception.LoginException;
+import com.github.lulewiczg.controller.exception.ServerExitException;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 
@@ -67,7 +68,7 @@ public class ActionProcessor implements Closeable {
     }
 
     /**
-     * Handles exception
+     * Handles exceptions.
      *
      * @param e
      *            exception to handle
@@ -76,7 +77,6 @@ public class ActionProcessor implements Closeable {
      */
     private void handleException(ControllerServer server, Exception e) throws Exception {
         Status status = Status.NOT_OK;
-        boolean handled = true;
         if (e instanceof LoginException) {
             LoginException le = (LoginException) e;
             exceptionService.error(log,
@@ -88,14 +88,16 @@ public class ActionProcessor implements Closeable {
         } else if (e instanceof AuthorizationException) {
             exceptionService.error(log, "Permission denied", e);
             status = Status.NOT_OK;
+        } else if (e instanceof ServerExitException) {
+            exceptionService.debug(log, e);
+            status = Status.OK;
+            throw e;
         } else {
             exceptionService.error(log, "Unexpected exception", e);
-            handled = false;
-        }
-        sendResponse(new Response(status, e));
-        if (!handled) {
+            sendResponse(new Response(status, e));
             throw e;
         }
+        sendResponse(new Response(status, e));
     }
 
     /**

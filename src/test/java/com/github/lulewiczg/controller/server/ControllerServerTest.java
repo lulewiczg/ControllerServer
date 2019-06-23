@@ -34,6 +34,7 @@ import com.github.lulewiczg.controller.TestConfiguration;
 import com.github.lulewiczg.controller.actions.impl.KeyPressAction;
 import com.github.lulewiczg.controller.actions.impl.KeyReleaseAction;
 import com.github.lulewiczg.controller.actions.impl.MouseButtonPressAction;
+import com.github.lulewiczg.controller.actions.impl.ServerStopAction;
 import com.github.lulewiczg.controller.actions.processor.MouseMovingService;
 import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
 import com.github.lulewiczg.controller.client.Client;
@@ -264,7 +265,19 @@ public class ControllerServerTest {
             client2.login(PASSWORD);
         }));
         Mockito.verify(server, Mockito.times(1)).login();
+    }
 
+    @Test
+    @DisplayName("Server does not restart after stop action")
+    public void testStopAction() throws Exception {
+        startServer();
+        client = new Client(PORT);
+        client.login(PASSWORD);
+        Response response = client.doAction(new ServerStopAction());
+        assertOK(response);
+        waitForState(ServerState.SHUTDOWN);
+        Thread.sleep(1000);
+        waitForState(ServerState.SHUTDOWN);
     }
 
     @Test

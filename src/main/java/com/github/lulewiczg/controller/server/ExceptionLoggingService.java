@@ -4,8 +4,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import com.github.lulewiczg.controller.exception.SemaphoreException;
-
 /**
  * Service for logging error messages and exceptions.
  *
@@ -52,8 +50,20 @@ public class ExceptionLoggingService {
      * @param e
      *            exception
      */
-    public void info(Logger log, String msg, SemaphoreException e) {
+    public void info(Logger log, String msg, Exception e) {
         log.info(msg);
+        log.catching(Level.DEBUG, e);
+    }
+
+    /**
+     * Logs exception with DEBUG level.
+     *
+     * @param log
+     *            logger
+     * @param e
+     *            exception
+     */
+    public void debug(Logger log, Exception e) {
         log.catching(Level.DEBUG, e);
     }
 
