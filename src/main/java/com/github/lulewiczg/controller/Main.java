@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import com.github.lulewiczg.controller.server.ControllerServer;
+import com.github.lulewiczg.controller.server.ControllerServerManager;
 import com.github.lulewiczg.controller.server.SettingsComponent;
 import com.github.lulewiczg.controller.ui.JTextAreaAppender;
 import com.github.lulewiczg.controller.ui.ServerWindow;
@@ -36,7 +37,7 @@ public class Main implements CommandLineRunner {
     private static final String CONSOLE = "console";
 
     @Autowired
-    private ControllerServer server;
+    private ControllerServerManager server;
 
     @Autowired
     private ServerWindow window;

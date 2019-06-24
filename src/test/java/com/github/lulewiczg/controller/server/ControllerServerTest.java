@@ -342,7 +342,7 @@ public class ControllerServerTest {
      * @throws InterruptedException
      */
     private void waitForState(ServerState state) throws InterruptedException {
-        for (int i = 0; i < 5 && serverRunner.getStatus() != state; i++) {
+        for (int i = 0; i < 10 && serverRunner.getStatus() != state; i++) {
             Thread.sleep(100);
         }
         assertEquals(state, serverRunner.getStatus(), "Invalid server state");

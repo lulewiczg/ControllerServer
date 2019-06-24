@@ -24,12 +24,13 @@ public class SettingsComponent {
     private static final Logger log = LogManager.getLogger(SettingsComponent.class);
     private static final String SETTINGS_DAT = "settings.dat";
 
-    @Autowired
     private ExceptionLoggingService loggingService;
 
     private Settings settings;
 
-    public SettingsComponent() {
+    @Autowired
+    public SettingsComponent(ExceptionLoggingService loggingService) {
+        this.loggingService = loggingService;
         settings = loadSettings();
     }
 
@@ -44,8 +45,10 @@ public class SettingsComponent {
      */
     private Settings loadSettings() {
         Settings settings;
-        try (FileInputStream fin = new FileInputStream(SETTINGS_DAT); ObjectInputStream ois = new ObjectInputStream(fin);) {
+        try (FileInputStream fin = new FileInputStream(SETTINGS_DAT);
+                ObjectInputStream ois = new ObjectInputStream(fin);) {
             settings = (Settings) ois.readObject();
+            log.debug("Settings loaded");
         } catch (FileNotFoundException e) {
             loggingService.error(log, "Settings not found, creating new...", e);
             settings = new Settings();
