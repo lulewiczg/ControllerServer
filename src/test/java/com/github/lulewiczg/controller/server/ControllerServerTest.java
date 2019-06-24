@@ -77,7 +77,7 @@ public class ControllerServerTest {
      */
     @AfterEach
     public void after() throws InterruptedException, IOException {
-        server.stop();
+        serverRunner.stop();
         waitForState(ServerState.SHUTDOWN);
         if (client != null) {
             client.close();
@@ -240,8 +240,8 @@ public class ControllerServerTest {
             Response response2 = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON2_DOWN_MASK));
             assertOK(response2);
         }
-        System.out.println("--------> Time needed for 20000 actions: "
-                + Duration.between(then, Instant.now()).getNano() / 1000000.0);
+        System.out.println(
+                "--------> Time needed for 20000 actions: " + Duration.between(then, Instant.now()).getNano() / 1000000.0);
     }
 
     @Test

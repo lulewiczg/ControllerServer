@@ -90,7 +90,6 @@ public class ActionProcessor implements Closeable {
             status = Status.NOT_OK;
         } else if (e instanceof ServerExitException) {
             exceptionService.debug(log, e);
-            status = Status.OK;
             throw e;
         } else {
             exceptionService.error(log, "Unexpected exception", e);

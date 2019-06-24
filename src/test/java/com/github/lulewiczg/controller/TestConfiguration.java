@@ -22,8 +22,8 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
 @Profile("test")
 @Configuration
 @ImportAutoConfiguration(value = { ControllerServer.class, ControllerServerManager.class, ControllingService.class,
-        SettingsComponent.class, ExceptionLoggingService.class, ActionProcessor.class, VoidConnection.class,
-        JNAMouseMovingService.class, RobotMouseMovingService.class })
+        SettingsComponent.class, ExceptionLoggingService.class, ActionProcessor.class, JNAMouseMovingService.class,
+        RobotMouseMovingService.class, VoidConnection.class })
 public class TestConfiguration {
 
     @MockBean
