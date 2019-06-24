@@ -23,8 +23,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.github.lulewiczg.controller.TestConfiguration;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
-import com.github.lulewiczg.controller.actions.processor.MouseMovingService;
 import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
+import com.github.lulewiczg.controller.actions.processor.mouse.JNAMouseMovingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.server.ControllerServer;
@@ -42,22 +42,22 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
 @EnableAutoConfiguration
 public abstract class ActionTestTemplate {
 
-    @MockBean
+    @Autowired
     protected SettingsComponent settings;
 
-    @MockBean
+    @Autowired
     protected ControllerServer server;
 
     @MockBean
     protected ClientConnection connection;
 
-    @MockBean
+    @Autowired
     protected Robot robot;
 
-    @MockBean
-    protected MouseMovingService mouseMovingService;
+    @Autowired
+    protected JNAMouseMovingService mouseMovingService;
 
-    @MockBean
+    @Autowired
     protected Clipboard clipboard;
 
     @Autowired

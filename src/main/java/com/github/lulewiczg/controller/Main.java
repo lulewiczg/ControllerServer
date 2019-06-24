@@ -20,7 +20,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ControllerServerManager;
 import com.github.lulewiczg.controller.server.SettingsComponent;
 import com.github.lulewiczg.controller.ui.JTextAreaAppender;

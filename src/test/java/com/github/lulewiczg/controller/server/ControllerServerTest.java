@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import java.awt.Robot;
-import java.awt.datatransfer.Clipboard;
 import java.awt.event.InputEvent;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -25,8 +24,6 @@ import org.opentest4j.AssertionFailedError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -35,7 +32,6 @@ import com.github.lulewiczg.controller.actions.impl.KeyPressAction;
 import com.github.lulewiczg.controller.actions.impl.KeyReleaseAction;
 import com.github.lulewiczg.controller.actions.impl.MouseButtonPressAction;
 import com.github.lulewiczg.controller.actions.impl.ServerStopAction;
-import com.github.lulewiczg.controller.actions.processor.MouseMovingService;
 import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
 import com.github.lulewiczg.controller.client.Client;
 import com.github.lulewiczg.controller.common.Response;
@@ -63,20 +59,14 @@ public class ControllerServerTest {
     @Autowired
     private ControllerServerManager serverRunner;
 
-    @SpyBean
+    @Autowired
     private ControllerServer server;
 
-    @MockBean
+    @Autowired
     private SettingsComponent settings;
 
-    @MockBean
+    @Autowired
     private Robot robot;
-
-    @MockBean
-    private MouseMovingService mouseMovingService;
-
-    @MockBean
-    private Clipboard clipboard;
 
     /**
      * Stops server after test.
@@ -250,8 +240,8 @@ public class ControllerServerTest {
             Response response2 = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON2_DOWN_MASK));
             assertOK(response2);
         }
-        System.out.println(
-                "--------> Time needed for 20000 actions: " + Duration.between(then, Instant.now()).getNano() / 1000000.0);
+        System.out.println("--------> Time needed for 20000 actions: "
+                + Duration.between(then, Instant.now()).getNano() / 1000000.0);
     }
 
     @Test
