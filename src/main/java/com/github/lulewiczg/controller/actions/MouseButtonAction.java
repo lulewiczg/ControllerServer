@@ -10,10 +10,6 @@ public abstract class MouseButtonAction extends LoginRequiredAction {
     private static final long serialVersionUID = 1L;
     protected int key;
 
-    protected MouseButtonAction() {
-        super();
-    }
-
     public MouseButtonAction(int key) {
         this.key = key;
     }
