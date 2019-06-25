@@ -9,6 +9,7 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -24,9 +25,11 @@ public class JTextAreaAppender extends AbstractAppender {
 
     private JTextArea textArea;
 
-    protected JTextAreaAppender(JTextArea textArea, String logPattern) {
+    protected JTextAreaAppender(JTextArea textArea,
+            @Value("${com.github.lulewiczg.logging.pattern}") String logPattern) {
         super("SWING_APPENDER", null,
-                PatternLayout.newBuilder().withPattern(logPattern).withCharset(Charset.defaultCharset()).build(), false, null);
+                PatternLayout.newBuilder().withPattern(logPattern).withCharset(Charset.defaultCharset()).build(), false,
+                null);
         this.textArea = textArea;
     }
 

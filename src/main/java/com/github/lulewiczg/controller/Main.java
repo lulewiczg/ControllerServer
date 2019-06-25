@@ -13,7 +13,6 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -42,16 +41,10 @@ public class Main implements CommandLineRunner {
     private ServerWindow window;
 
     @Autowired
-    private JTextArea loggingTextArea;
-
-    @Autowired
     private ApplicationContext context;
 
     @Autowired
     private SettingsComponent settings;
-
-    @Value("${com.github.lulewiczg.logging.pattern}")
-    private String logPattern;
 
     @Bean
     public Robot robot() throws AWTException {
@@ -83,7 +76,7 @@ public class Main implements CommandLineRunner {
         Configuration config = ctx.getConfiguration();
         LoggerConfig loggerConfig = config.getLoggerConfig("com.github.lulewiczg.controller");
         if (window) {
-            JTextAreaAppender windowAppender = context.getBean(JTextAreaAppender.class, loggingTextArea, logPattern);
+            JTextAreaAppender windowAppender = context.getBean(JTextAreaAppender.class);
             windowAppender.start();
             loggerConfig.addAppender(windowAppender, null, null);
             config.addAppender(windowAppender);
