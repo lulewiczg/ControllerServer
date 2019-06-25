@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
@@ -26,6 +27,7 @@ import com.github.lulewiczg.controller.exception.SemaphoreException;
  *
  * @author Grzegurz
  */
+@Lazy
 @Service
 public class ControllerServer {
 
@@ -52,7 +54,7 @@ public class ControllerServer {
     @Autowired
     public ControllerServer(SettingsComponent config) {
         this.config = config;
-        if (config.getSettings() != null && config.getSettings().isAutostart()) {
+        if (config.isAutostart()) {
             start();
         }
     }
@@ -84,6 +86,7 @@ public class ControllerServer {
         exec = Executors.newSingleThreadExecutor();
         exec.submit(this::doServer);
         internalState = InternalServerState.UP;
+        log.info("Server started");
         release(semaphore);
     }
 
@@ -121,9 +124,9 @@ public class ControllerServer {
      *             when socket could not be set up
      */
     private void setupSocket() throws IOException {
-        server = new ServerSocket(config.getSettings().getPort());
+        server = new ServerSocket(config.getPort());
         setStatus(ServerState.WAITING);
-        log.info(String.format("Waiting for connection on port %s...", config.getSettings().getPort()));
+        log.info(String.format("Waiting for connection on port %s...", config.getPort()));
         socket = server.accept();
         socket.setReuseAddress(false);
         socket.setKeepAlive(true);

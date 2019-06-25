@@ -3,6 +3,7 @@ package com.github.lulewiczg.controller.actions.impl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import com.github.lulewiczg.controller.actions.Action;
@@ -10,7 +11,7 @@ import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.server.ServerState;
-import com.github.lulewiczg.controller.server.Settings;
+import com.github.lulewiczg.controller.server.SettingsComponent;
 
 /**
  * Tests LoginAction.
@@ -23,13 +24,13 @@ public class LoginActionTest extends ActionTestTemplate {
     private static final String INFO = "Hello there,";
     private static final String IP = "General Kenobi!";
     private static final String PASSWORD = "password";
-    private Settings passwordSetting;
+
+    @Autowired
+    private SettingsComponent settings;
 
     @Override
     public void additionalBefore() throws Exception {
-        passwordSetting = new Settings();
-        passwordSetting.setPassword(PASSWORD);
-        Mockito.when(settings.getSettings()).thenReturn(passwordSetting);
+        Mockito.when(settings.getPassword()).thenReturn(PASSWORD);
     }
 
     @Override
@@ -40,7 +41,7 @@ public class LoginActionTest extends ActionTestTemplate {
     @Test
     @DisplayName("Login with invalid password")
     public void testLoginWithInvalidPassword() throws Exception {
-        passwordSetting.setPassword("different pwd");
+        Mockito.when(settings.getPassword()).thenReturn("different pwd");
         Mockito.when(server.getStatus()).thenReturn(ServerState.WAITING);
         processor.processAction(server);
         Mockito.verify(server, Mockito.never()).login();

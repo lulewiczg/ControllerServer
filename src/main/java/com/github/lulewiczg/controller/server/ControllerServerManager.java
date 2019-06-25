@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,7 +18,9 @@ import org.springframework.stereotype.Service;
  *
  * @author Grzegurz
  */
+@Lazy
 @Service
+@DependsOn({ "jTextAreaAppender" })
 public class ControllerServerManager {
 
     private static final Logger log = LogManager.getLogger(ControllerServerManager.class);

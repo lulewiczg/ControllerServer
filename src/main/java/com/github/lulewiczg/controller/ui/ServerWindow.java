@@ -77,6 +77,9 @@ public class ServerWindow extends JFrame {
     @Autowired
     private ExceptionLoggingService exceptionService;
 
+    @Autowired
+    private JTextAreaAppender appender;
+
     public void run() {
         ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
@@ -109,6 +112,7 @@ public class ServerWindow extends JFrame {
             }
         });
         revalidate();
+        appender.flush();
     }
 
     /**
@@ -163,16 +167,16 @@ public class ServerWindow extends JFrame {
         Level[] values = Level.values();
         Arrays.sort(values);
         levels = new JComboBox<>(values);
+        levels.setSelectedItem(settings.getLogLevel());
         levels.addActionListener(buildListener(e -> {
             Level level = (Level) levels.getSelectedItem();
-            settings.getSettings().setLevel(level);
+            settings.setLogLevel(level);
             loggerConfig.setLevel(Level.INFO);
             ctx.updateLoggers();
             log.info("Logger level changed to: " + level);
             loggerConfig.setLevel(level);
             ctx.updateLoggers();
         }));
-        levels.setSelectedItem(settings.getSettings().getLevel());
         levels.setMaximumSize(new Dimension(50, 20));
         buttons.add(levels);
 
@@ -198,12 +202,12 @@ public class ServerWindow extends JFrame {
         panel.add(ipInput);
 
         JLabel port = new JLabel("Port");
-        portInput = new JTextField(String.valueOf(settings.getSettings().getPort()));
+        portInput = new JTextField(String.valueOf(settings.getPort()));
         portInput.addActionListener(buildListener(e -> {
             String text = portInput.getText();
             if (!text.isEmpty()) {
                 try {
-                    settings.getSettings().setPort(Integer.valueOf(text));
+                    settings.setPort(Integer.valueOf(text));
                 } catch (Exception ex) {
                     invalidValue(INVALID_PORT);
                 }
@@ -215,12 +219,12 @@ public class ServerWindow extends JFrame {
         panel.add(portInput);
 
         JLabel password = new JLabel("Password");
-        passwordInput = new JTextField(String.valueOf(settings.getSettings().getPassword()));
+        passwordInput = new JTextField(String.valueOf(settings.getPassword()));
         passwordInput.addActionListener(buildListener(e -> {
             String text = passwordInput.getText();
             if (!text.isEmpty()) {
                 try {
-                    settings.getSettings().setPassword(text);
+                    settings.setPassword(text);
                 } catch (Exception ex) {
                     invalidValue(INVALID_PASSWORD);
                 }
@@ -231,8 +235,8 @@ public class ServerWindow extends JFrame {
         panel.add(password);
         panel.add(passwordInput);
 
-        autostart = new JCheckBox("Auto start server on startup", settings.getSettings().isAutostart());
-        autostart.addActionListener(buildListener(e -> settings.getSettings().setAutostart(autostart.isSelected())));
+        autostart = new JCheckBox("Auto start server on startup", settings.isAutostart());
+        autostart.addActionListener(buildListener(e -> settings.setAutostart(autostart.isSelected())));
         panel.add(autostart);
         panel.add(new JLabel());
 

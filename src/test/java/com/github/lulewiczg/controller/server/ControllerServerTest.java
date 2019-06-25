@@ -314,11 +314,9 @@ public class ControllerServerTest {
      */
 
     private void startServer() throws InterruptedException {
-        Settings s = new Settings();
-        s.setAutostart(true);
-        s.setPassword(PASSWORD);
-        s.setPort(PORT);
-        Mockito.when(settings.getSettings()).thenReturn(s);
+        Mockito.when(settings.isAutostart()).thenReturn(true);
+        Mockito.when(settings.getPassword()).thenReturn(PASSWORD);
+        Mockito.when(settings.getPort()).thenReturn(PORT);
 
         serverRunner.start();
         waitForState(ServerState.WAITING);

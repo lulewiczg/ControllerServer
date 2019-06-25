@@ -5,12 +5,16 @@ import java.nio.charset.Charset;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,19 +22,29 @@ import org.springframework.stereotype.Component;
  *
  * @author Grzegurz
  */
-@Component
-@Lazy
+@Component("jTextAreaAppender")
 @Plugin(name = "JTextAreaAppender", category = "Core", elementType = "appender", printObject = true)
 public class JTextAreaAppender extends AbstractAppender {
 
     private JTextArea textArea;
 
-    protected JTextAreaAppender(JTextArea textArea,
-            @Value("${com.github.lulewiczg.logging.pattern}") String logPattern) {
+    private StringBuffer buffer = new StringBuffer();
+
+    private boolean enableOutput;
+
+    @Autowired
+    public JTextAreaAppender(JTextArea textArea, @Value("${com.github.lulewiczg.logging.pattern}") String logPattern) {
         super("SWING_APPENDER", null,
-                PatternLayout.newBuilder().withPattern(logPattern).withCharset(Charset.defaultCharset()).build(), false,
-                null);
+                PatternLayout.newBuilder().withPattern(logPattern).withCharset(Charset.defaultCharset()).build(), false, null);
         this.textArea = textArea;
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        Configuration config = ctx.getConfiguration();
+        LoggerConfig loggerConfig = config.getLoggerConfig("com.github.lulewiczg.controller");
+        loggerConfig.addAppender(this, null, null);
+        config.addAppender(this);
+        start();
+        config.addLogger("", loggerConfig);
+        ctx.updateLoggers(config);
     }
 
     /*
@@ -38,10 +52,29 @@ public class JTextAreaAppender extends AbstractAppender {
      */
     @Override
     public void append(LogEvent event) {
-        if (!textArea.isDisplayable()) {
+        String message = new String(this.getLayout().toByteArray(event));
+        buffer.append(message);
+        if (!isEnableOutput() || !textArea.isDisplayable()) {
             return;
         }
-        String message = new String(this.getLayout().toByteArray(event));
-        SwingUtilities.invokeLater(() -> textArea.append(message));
+        flush();
     }
+
+    /**
+     * Flushes collected logs to component.
+     */
+    public void flush() {
+        String logMsg = buffer.toString();
+        buffer.delete(0, buffer.length());
+        SwingUtilities.invokeLater(() -> textArea.append(logMsg));
+    }
+
+    public void setEnableOutput(boolean enableOutput) {
+        this.enableOutput = enableOutput;
+    }
+
+    public boolean isEnableOutput() {
+        return enableOutput;
+    }
+
 }

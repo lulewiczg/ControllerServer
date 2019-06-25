@@ -42,7 +42,7 @@ public class LoginAction extends Action {
      */
     @Override
     protected Response doAction(ControllingService controllingService) throws ActionException {
-        if (password == null || !password.equals(controllingService.getSettings().getSettings().getPassword())) {
+        if (password == null || !password.equals(controllingService.getSettings().getPassword())) {
             throw new LoginException(info, ip);
         }
         log.info(String.format("Connected: %s, %s", info, ip));
