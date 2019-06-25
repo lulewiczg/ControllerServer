@@ -3,6 +3,7 @@ package com.github.lulewiczg.controller.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -64,6 +65,9 @@ public class ControllerServer {
         try {
             setupSocket();
             doActions();
+        } catch (BindException e) {
+            exceptionService.error(log, "Address is already in use", e);
+            stop();
         } catch (Exception e) {
             exceptionService.error(log, e);
             softStop();
