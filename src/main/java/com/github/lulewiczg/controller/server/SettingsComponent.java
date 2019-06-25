@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.annotation.Resource;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,15 +24,23 @@ public class SettingsComponent {
 
     private static final Logger log = LogManager.getLogger(SettingsComponent.class);
 
+    @Value("${com.github.lulewiczg.setting.password}")
     private String password;
 
+    @Value("${com.github.lulewiczg.setting.port}")
     private int port;
 
+    @Value("${com.github.lulewiczg.setting.autostart}")
     private boolean autostart;
 
+    @Value("${logging.level.com.github.lulewiczg}")
     private Level logLevel;
 
-    private Properties properties = new Properties();
+    @Value("${com.github.lulewiczg.setting.userFile}")
+    private String propsFile;
+
+    @Resource(name = "userProperties")
+    private Properties userProperties;
 
     private ExceptionLoggingService loggingService;
 
@@ -43,10 +53,16 @@ public class SettingsComponent {
      * Saves settings.
      */
     public void saveSettings() {
-        File f = new File("application.properties");
+        if (userProperties.isEmpty()) {
+            return;
+        }
+        File f = new File(propsFile);
         try {
             f.createNewFile();
-            properties.store(new FileOutputStream(f), "");
+            FileOutputStream out = new FileOutputStream(f);
+            try (out) {
+                userProperties.store(out, "");
+            }
             log.debug("Settings saved");
         } catch (IOException e) {
             loggingService.error(log, "Could not save settings file", e);
@@ -57,9 +73,8 @@ public class SettingsComponent {
         return password;
     }
 
-    @Value("${com.github.lulewiczg.setting.password}")
     public void setPassword(String password) {
-        properties.setProperty("com.github.lulewiczg.setting.password", password);
+        userProperties.setProperty("com.github.lulewiczg.setting.password", password);
         this.password = password;
     }
 
@@ -67,9 +82,8 @@ public class SettingsComponent {
         return port;
     }
 
-    @Value("${com.github.lulewiczg.setting.port}")
     public void setPort(int port) {
-        properties.setProperty("com.github.lulewiczg.setting.port", port + "");
+        userProperties.setProperty("com.github.lulewiczg.setting.port", port + "");
         this.port = port;
     }
 
@@ -77,9 +91,8 @@ public class SettingsComponent {
         return autostart;
     }
 
-    @Value("${com.github.lulewiczg.setting.autostart}")
     public void setAutostart(boolean autostart) {
-        properties.setProperty("com.github.lulewiczg.setting.autostart", autostart + "");
+        userProperties.setProperty("com.github.lulewiczg.setting.autostart", autostart + "");
         this.autostart = autostart;
     }
 
@@ -87,9 +100,8 @@ public class SettingsComponent {
         return logLevel;
     }
 
-    @Value("${logging.level.com.github.lulewiczg}")
     public void setLogLevel(Level logLevel) {
-        properties.setProperty("logging.level.com.github.lulewiczg", logLevel.toString());
+        userProperties.setProperty("logging.level.com.github.lulewiczg", logLevel.toString());
         this.logLevel = logLevel;
     }
 

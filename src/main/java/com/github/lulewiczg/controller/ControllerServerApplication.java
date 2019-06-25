@@ -9,10 +9,13 @@ import java.awt.datatransfer.Clipboard;
 import javax.swing.JTextArea;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.FileSystemResource;
 
 import com.github.lulewiczg.controller.server.ControllerServerManager;
 import com.github.lulewiczg.controller.server.SettingsComponent;
@@ -58,6 +61,17 @@ public class ControllerServerApplication implements CommandLineRunner {
         jTextArea.setOpaque(false);
         jTextArea.setFont(new Font("Arial", 0, 11));
         return jTextArea;
+    }
+
+    @Bean
+    public PropertiesFactoryBean userProperties(@Value("${com.github.lulewiczg.setting.userFile}") String propsFile) {
+        PropertiesFactoryBean res = new PropertiesFactoryBean();
+        res.setFileEncoding("UTF-8");
+        FileSystemResource location = new FileSystemResource(propsFile);
+        if (location.exists()) {
+            res.setLocation(location);
+        }
+        return res;
     }
 
     /**
