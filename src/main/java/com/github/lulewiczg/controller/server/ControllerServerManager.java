@@ -13,6 +13,9 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
+import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
+
 /**
  * Manager for ControllerServer. Manages stopping and restarting server.
  *
@@ -44,6 +47,9 @@ public class ControllerServerManager {
      * Starts server.
      */
     public void start() {
+        if (server.getInternalState() == InternalServerState.UP) {
+            throw new ServerAlreadyRunningException();
+        }
         runningThread = stateRunner.submit(() -> server.start());
     }
 
@@ -51,7 +57,19 @@ public class ControllerServerManager {
      * Stops server.
      */
     public void stop() {
+        if (server.getInternalState() != InternalServerState.UP) {
+            throw new ServerAlreadyStoppedException();
+        }
         stateRunner.submit(() -> server.stop());
+    }
+
+    /**
+     * Checks if server is running;
+     *
+     * @return true if running
+     */
+    public boolean isRunning() {
+        return server.getInternalState() == InternalServerState.UP;
     }
 
     public ServerState getStatus() {

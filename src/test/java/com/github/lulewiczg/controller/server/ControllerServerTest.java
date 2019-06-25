@@ -38,6 +38,7 @@ import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.AuthorizationException;
+import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
 
 /**
  * Tests controller server.
@@ -77,7 +78,9 @@ public class ControllerServerTest {
      */
     @AfterEach
     public void after() throws InterruptedException, IOException {
-        serverRunner.stop();
+        if (serverRunner.isRunning()) {
+            serverRunner.stop();
+        }
         waitForState(ServerState.SHUTDOWN);
         if (client != null) {
             client.close();
@@ -109,6 +112,14 @@ public class ControllerServerTest {
         startServer();
         server.stop();
         waitForState(ServerState.SHUTDOWN);
+    }
+
+    @Test
+    @DisplayName("Server can't be started twice")
+    public void test() throws Exception {
+        startServer();
+        waitForState(ServerState.WAITING);
+        assertThrows(ServerAlreadyRunningException.class, () -> startServer());
     }
 
     @Test
