@@ -42,10 +42,10 @@ public class TestConfiguration {
     @MockBean
     private JNAMouseMovingService mouseMovingService;
 
-    @MockBean(name = "jTextAreaAppender")
+    @MockBean(name = "JTextAreaAppender")
     private JTextAreaAppender appender;
 
-    @MockBean
+    @SpyBean
     private JTextArea textArea;
 
 }

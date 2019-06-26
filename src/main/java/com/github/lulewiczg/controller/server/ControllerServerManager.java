@@ -6,6 +6,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,7 @@ import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
  */
 @Lazy
 @Service
-@DependsOn({ "jTextAreaAppender" })
+@DependsOn({ "JTextAreaAppender" })
 public class ControllerServerManager {
 
     private static final Logger log = LogManager.getLogger(ControllerServerManager.class);
@@ -34,7 +36,8 @@ public class ControllerServerManager {
     @Autowired
     private ControllerServer server;
 
-    public ControllerServerManager() {
+    @PostConstruct
+    private void setupRunner() {
         restarterRunner.scheduleWithFixedDelay(() -> {
             if (server.getInternalState() == InternalServerState.DOWN && runningThread != null && runningThread.isDone()) {
                 log.info("Restarting server...");
@@ -45,12 +48,15 @@ public class ControllerServerManager {
 
     /**
      * Starts server.
+     *
+     * @return thread
      */
-    public void start() {
+    public Future<?> start() {
         if (server.getInternalState() == InternalServerState.UP) {
             throw new ServerAlreadyRunningException();
         }
         runningThread = stateRunner.submit(() -> server.start());
+        return runningThread;
     }
 
     /**

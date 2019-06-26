@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Grzegurz
  */
-@Component("jTextAreaAppender")
+@Component
 @Plugin(name = "JTextAreaAppender", category = "Core", elementType = "appender", printObject = true)
 public class JTextAreaAppender extends AbstractAppender {
 
