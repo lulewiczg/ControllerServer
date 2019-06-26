@@ -1,12 +1,9 @@
 package com.github.lulewiczg.controller;
 
 import java.awt.AWTException;
-import java.awt.Font;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
-
-import javax.swing.JTextArea;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
@@ -41,15 +38,6 @@ public class MainConfiguration {
             res.setLocation(location);
         }
         return res;
-    }
-
-    @Bean
-    public JTextArea logTextArea() {
-        JTextArea jTextArea = new JTextArea();
-        jTextArea.setEditable(false);
-        jTextArea.setOpaque(false);
-        jTextArea.setFont(new Font("Arial", 0, 11));
-        return jTextArea;
     }
 
 }
