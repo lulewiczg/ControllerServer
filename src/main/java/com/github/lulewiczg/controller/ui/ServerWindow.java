@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.apache.logging.log4j.Level;
@@ -55,10 +56,8 @@ public class ServerWindow extends JFrame {
     private static final String INVALID_PORT = "Invalid port!";
     private static final String CONTROLLER_SERVER = "Controller server";
     private static final Logger log = LogManager.getLogger(ServerWindow.class);
-    private static final int SLEEP = 1000;
-    private static final long serialVersionUID = 2687314377956367316L;
+    private static final long serialVersionUID = 1L;
     private LoggerContext ctx;
-    private Thread monitorThread;
     private LoggerConfig loggerConfig;
 
     @Autowired
@@ -300,24 +299,6 @@ public class ServerWindow extends JFrame {
         setLayout(new BorderLayout());
         add(settingsPanel, BorderLayout.NORTH);
         add(logPanel);
-        monitorThread = new Thread(() -> {
-            while (true) {
-                ServerState s = server.getStatus();
-                if (s == ServerState.SHUTDOWN) {
-                    setServerRunnig(false);
-                } else {
-                    setServerRunnig(true);
-                }
-                stateIndicator.setText(s.getMsg());
-                revalidate();
-                try {
-                    Thread.sleep(SLEEP);
-                } catch (InterruptedException e) {
-                    exceptionService.error(log, e);
-                }
-            }
-        });
-        monitorThread.start();
     }
 
     /**
@@ -342,11 +323,16 @@ public class ServerWindow extends JFrame {
      * @param enabled
      *            enabled
      */
-    private void setServerRunnig(boolean enabled) {
-        startButton.setEnabled(!enabled);
-        portInput.setEnabled(!enabled);
-        passwordInput.setEnabled(!enabled);
-        stopButton.setEnabled(enabled);
+    public void updateUI(ServerState state) {
+        SwingUtilities.invokeLater(() -> {
+            boolean shutdown = state == ServerState.SHUTDOWN;
+            portInput.setEnabled(shutdown);
+            passwordInput.setEnabled(shutdown);
+            startButton.setEnabled(shutdown);
+            stopButton.setEnabled(!shutdown);
+            stateIndicator.setText(state.getMsg());
+            revalidate();
+        });
     }
 
     /**

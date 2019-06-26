@@ -24,6 +24,7 @@ import org.opentest4j.AssertionFailedError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -39,6 +40,7 @@ import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.AuthorizationException;
 import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
+import com.github.lulewiczg.controller.ui.ServerWindow;
 
 /**
  * Tests controller server.
@@ -68,6 +70,9 @@ public class ControllerServerTest {
 
     @Autowired
     private Robot robot;
+
+    @MockBean
+    private ServerWindow window;
 
     /**
      * Stops server after test.
@@ -251,8 +256,8 @@ public class ControllerServerTest {
             Response response2 = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON2_DOWN_MASK));
             assertOK(response2);
         }
-        System.out.println(
-                "--------> Time needed for 20000 actions: " + Duration.between(then, Instant.now()).getNano() / 1000000.0);
+        System.out.println("--------> Time needed for 20000 actions: "
+                + Duration.between(then, Instant.now()).getNano() / 1000000.0);
     }
 
     @Test
@@ -315,6 +320,14 @@ public class ControllerServerTest {
         inOrder.verify(robot).keyPress(2);
         inOrder.verify(robot).keyRelease(1);
         inOrder.verify(robot).keyRelease(2);
+    }
+
+    @Test
+    @DisplayName("State in UI is updated")
+    public void testUpdateStateInUI() throws Exception {
+        startServer();
+        waitForState(ServerState.WAITING);
+        Mockito.verify(window).updateUI(ServerState.WAITING);
     }
 
     /**

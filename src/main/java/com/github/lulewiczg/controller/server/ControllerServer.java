@@ -21,6 +21,7 @@ import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
 import com.github.lulewiczg.controller.common.Common;
 import com.github.lulewiczg.controller.exception.SemaphoreException;
+import com.github.lulewiczg.controller.ui.ServerWindow;
 
 /**
  * Server implementation.
@@ -47,6 +48,8 @@ public class ControllerServer {
 
     @Autowired
     private ApplicationContext context;
+
+    private ServerWindow window;
 
     // context.getBean
     private ActionProcessor processor;
@@ -168,6 +171,15 @@ public class ControllerServer {
     }
 
     /**
+     * Updates UI.
+     */
+    private void updateUI() {
+        if (window != null) {
+            window.updateUI(status);
+        }
+    }
+
+    /**
      * Acquires lock.
      *
      * @param semaphore
@@ -196,6 +208,7 @@ public class ControllerServer {
             log.debug(String.format("Status changed from %s to %s.", status, state));
         }
         this.status = state;
+        updateUI();
     }
 
     public ServerState getStatus() {
@@ -208,6 +221,12 @@ public class ControllerServer {
 
     public void setInternalState(InternalServerState internalState) {
         this.internalState = internalState;
+    }
+
+    @Autowired(required = false)
+    public void setWindow(ServerWindow window) {
+        this.window = window;
+        window.updateUI(status);
     }
 
 }
