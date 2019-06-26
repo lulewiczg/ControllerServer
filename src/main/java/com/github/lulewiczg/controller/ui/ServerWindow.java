@@ -33,6 +33,8 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import com.github.lulewiczg.controller.server.ControllerServerManager;
@@ -45,6 +47,7 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
  *
  * @author Grzegurz
  */
+@Lazy
 @Component
 public class ServerWindow extends JFrame {
 
@@ -54,16 +57,9 @@ public class ServerWindow extends JFrame {
     private static final Logger log = LogManager.getLogger(ServerWindow.class);
     private static final int SLEEP = 1000;
     private static final long serialVersionUID = 2687314377956367316L;
-    private JButton stop;
-    private JButton start;
-    private JLabel stateIndicator;
-    private Thread monitorThread;
-    private JTextField portInput;
-    private JComboBox<Level> levels;
-    private LoggerConfig loggerConfig;
     private LoggerContext ctx;
-    private JCheckBox autostart;
-    private JTextField passwordInput;
+    private Thread monitorThread;
+    private LoggerConfig loggerConfig;
 
     @Autowired
     private SettingsComponent settings;
@@ -80,17 +76,191 @@ public class ServerWindow extends JFrame {
     @Autowired
     private JTextAreaAppender appender;
 
-    public void run() {
-        ctx = (LoggerContext) LogManager.getContext(false);
-        Configuration config = ctx.getConfiguration();
-        loggerConfig = config.getLoggerConfig("com.github.lulewiczg.controller");
-        setTitle(CONTROLLER_SERVER);
-        setSize(400, 600);
+    @Autowired
+    private JButton stopButton;
+
+    @Autowired
+    private JButton startButton;
+
+    @Autowired
+    private JLabel stateIndicator;
+
+    @Autowired
+    private JTextField portInput;
+
+    @Autowired
+    private JComboBox<Level> levels;
+
+    @Autowired
+    private JCheckBox autostart;
+
+    @Autowired
+    private JTextField passwordInput;
+
+    @Autowired
+    private JComboBox<String> ipCombobox;
+
+    @Autowired
+    private JPanel settingsPanel;
+
+    @Autowired
+    private JPanel logPanel;
+
+    @Bean
+    public JTextField passwordInput() {
+        JTextField passwordInput = new JTextField(String.valueOf(settings.getPassword()));
+        passwordInput.addActionListener(buildListener(e -> {
+            String text = passwordInput.getText();
+            if (!text.isEmpty()) {
+                try {
+                    settings.setPassword(text);
+                } catch (Exception ex) {
+                    invalidValue(INVALID_PASSWORD);
+                }
+            } else {
+                invalidValue(INVALID_PASSWORD);
+            }
+        }));
+        return passwordInput;
+    }
+
+    @Bean
+    public JComboBox<Level> levelsCombobox() {
+        Level[] values = Level.values();
+        Arrays.sort(values);
+        JComboBox<Level> levels = new JComboBox<>(values);
+        levels.setSelectedItem(settings.getLogLevel());
+        levels.addActionListener(buildListener(e -> {
+            Level level = (Level) levels.getSelectedItem();
+            settings.setLogLevel(level);
+            loggerConfig.setLevel(Level.INFO);
+            ctx.updateLoggers();
+            log.info("Logger level changed to: " + level);
+            loggerConfig.setLevel(level);
+            ctx.updateLoggers();
+        }));
+        levels.setMaximumSize(new Dimension(50, 20));
+        return levels;
+    }
+
+    @Bean
+    public JTextField portInput() {
+        JTextField portInput = new JTextField(String.valueOf(settings.getPort()));
+        portInput.addActionListener(buildListener(e -> {
+            String text = portInput.getText();
+            if (!text.isEmpty()) {
+                try {
+                    settings.setPort(Integer.valueOf(text));
+                } catch (Exception ex) {
+                    invalidValue(INVALID_PORT);
+                }
+            } else {
+                invalidValue(INVALID_PORT);
+            }
+        }));
+        return portInput;
+    }
+
+    @Bean
+    public JLabel stateIndicator() {
+        JLabel stateIndicator = new JLabel();
+        Font font = stateIndicator.getFont();
+        stateIndicator.setFont(new Font(font.getFontName(), Font.BOLD, font.getSize()));
+        return stateIndicator;
+    }
+
+    @Bean
+    public JCheckBox autostartCheckbox() {
+        JCheckBox autostart = new JCheckBox("Auto start server on startup", settings.isAutostart());
+        autostart.addActionListener(buildListener(e -> settings.setAutostart(autostart.isSelected())));
+        return autostart;
+    }
+
+    @Bean
+    public JButton startButton() {
+        JButton start = new JButton("Start");
+        start.addActionListener(buildListener(e -> server.start()));
+        return start;
+    }
+
+    @Bean
+    public JButton stopButton() {
+        JButton stop = new JButton("Stop");
+        stop.addActionListener(buildListener(e -> server.stop()));
+        return stop;
+    }
+
+    @Bean
+    public JComboBox<String> ipCombobox() {
+        String[] localIps = getIPs();
+        JComboBox<String> ipInput = new JComboBox<>(localIps);
+        ipInput.setEditable(false);
+        return ipInput;
+    }
+
+    @Bean
+    public JPanel settingsPanel() {
+        JPanel panel = new JPanel(new GridLayout(6, 3));
+        panel.setBorder(BorderFactory.createTitledBorder("Server settings"));
+        JLabel ip = new JLabel("IP");
+        panel.add(ip);
+        panel.add(ipCombobox);
+
+        JLabel port = new JLabel("Port");
+        panel.add(port);
+        panel.add(portInput);
+
+        JLabel password = new JLabel("Password");
+        panel.add(password);
+        panel.add(passwordInput);
+
+        panel.add(autostart);
+        panel.add(new JLabel());
+
+        JLabel state = new JLabel("Server state");
+        panel.add(state);
+        panel.add(stateIndicator);
+
+        panel.add(stopButton);
+        panel.add(startButton);
+        return panel;
+    }
+
+    @Bean
+    public JPanel logPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JPanel buttons = new JPanel(new GridLayout(1, 2));
+        panel.add(buttons, BorderLayout.NORTH);
+        panel.setBorder(BorderFactory.createTitledBorder("Logs"));
+        JButton clearLogsBtn = new JButton("Clear logs");
+        clearLogsBtn.addActionListener(buildListener(e -> logsArea.setText("")));
+        buttons.add(clearLogsBtn);
+
+        buttons.add(levels);
+
+        JScrollPane scrollPanel = new JScrollPane(logsArea);
+        panel.add(scrollPanel);
+
+        return panel;
+    }
+
+    public ServerWindow() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             exceptionService.error(log, e);
         }
+    }
+
+    /**
+     * Starts window UI.
+     */
+    public void startUI() {
+        ctx = (LoggerContext) LogManager.getContext(false);
+        Configuration config = ctx.getConfiguration();
+        loggerConfig = config.getLoggerConfig("com.github.lulewiczg.controller");
+        setTitle(CONTROLLER_SERVER);
+        setSize(400, 600);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setVisible(true);
         setLocationRelativeTo(null);
@@ -128,8 +298,8 @@ public class ServerWindow extends JFrame {
      */
     private void initComponents() {
         setLayout(new BorderLayout());
-        add(createSettingsPanel(), BorderLayout.NORTH);
-        add(createLogPanel());
+        add(settingsPanel, BorderLayout.NORTH);
+        add(logPanel);
         monitorThread = new Thread(() -> {
             while (true) {
                 ServerState s = server.getStatus();
@@ -148,112 +318,6 @@ public class ServerWindow extends JFrame {
             }
         });
         monitorThread.start();
-    }
-
-    /**
-     * Creates logs panel.
-     *
-     * @return log panel
-     */
-    private JPanel createLogPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        JPanel buttons = new JPanel(new GridLayout(1, 2));
-        panel.add(buttons, BorderLayout.NORTH);
-        panel.setBorder(BorderFactory.createTitledBorder("Logs"));
-        JButton clearLogsBtn = new JButton("Clear logs");
-        clearLogsBtn.addActionListener(buildListener(e -> logsArea.setText("")));
-        buttons.add(clearLogsBtn);
-
-        Level[] values = Level.values();
-        Arrays.sort(values);
-        levels = new JComboBox<>(values);
-        levels.setSelectedItem(settings.getLogLevel());
-        levels.addActionListener(buildListener(e -> {
-            Level level = (Level) levels.getSelectedItem();
-            settings.setLogLevel(level);
-            loggerConfig.setLevel(Level.INFO);
-            ctx.updateLoggers();
-            log.info("Logger level changed to: " + level);
-            loggerConfig.setLevel(level);
-            ctx.updateLoggers();
-        }));
-        levels.setMaximumSize(new Dimension(50, 20));
-        buttons.add(levels);
-
-        JScrollPane scrollPanel = new JScrollPane(logsArea);
-        panel.add(scrollPanel);
-
-        return panel;
-    }
-
-    /**
-     * Creates settings panel.
-     *
-     * @return setting panel
-     */
-    private JPanel createSettingsPanel() {
-        JPanel panel = new JPanel(new GridLayout(6, 3));
-        panel.setBorder(BorderFactory.createTitledBorder("Server settings"));
-        JLabel ip = new JLabel("IP");
-        String[] localIps = getIPs();
-        JComboBox<String> ipInput = new JComboBox<>(localIps);
-        ipInput.setEditable(false);
-        panel.add(ip);
-        panel.add(ipInput);
-
-        JLabel port = new JLabel("Port");
-        portInput = new JTextField(String.valueOf(settings.getPort()));
-        portInput.addActionListener(buildListener(e -> {
-            String text = portInput.getText();
-            if (!text.isEmpty()) {
-                try {
-                    settings.setPort(Integer.valueOf(text));
-                } catch (Exception ex) {
-                    invalidValue(INVALID_PORT);
-                }
-            } else {
-                invalidValue(INVALID_PORT);
-            }
-        }));
-        panel.add(port);
-        panel.add(portInput);
-
-        JLabel password = new JLabel("Password");
-        passwordInput = new JTextField(String.valueOf(settings.getPassword()));
-        passwordInput.addActionListener(buildListener(e -> {
-            String text = passwordInput.getText();
-            if (!text.isEmpty()) {
-                try {
-                    settings.setPassword(text);
-                } catch (Exception ex) {
-                    invalidValue(INVALID_PASSWORD);
-                }
-            } else {
-                invalidValue(INVALID_PASSWORD);
-            }
-        }));
-        panel.add(password);
-        panel.add(passwordInput);
-
-        autostart = new JCheckBox("Auto start server on startup", settings.isAutostart());
-        autostart.addActionListener(buildListener(e -> settings.setAutostart(autostart.isSelected())));
-        panel.add(autostart);
-        panel.add(new JLabel());
-
-        JLabel state = new JLabel("Server state");
-        stateIndicator = new JLabel();
-        Font font = stateIndicator.getFont();
-        stateIndicator.setFont(new Font(font.getFontName(), Font.BOLD, font.getSize()));
-        panel.add(state);
-        panel.add(stateIndicator);
-
-        stop = new JButton("Stop");
-        stop.addActionListener(buildListener(e -> server.stop()));
-        start = new JButton("Start");
-        start.addActionListener(buildListener(e -> server.start()));
-        panel.add(stop);
-        panel.add(start);
-        return panel;
     }
 
     /**
@@ -279,10 +343,10 @@ public class ServerWindow extends JFrame {
      *            enabled
      */
     private void setServerRunnig(boolean enabled) {
-        start.setEnabled(!enabled);
+        startButton.setEnabled(!enabled);
         portInput.setEnabled(!enabled);
         passwordInput.setEnabled(!enabled);
-        stop.setEnabled(enabled);
+        stopButton.setEnabled(enabled);
     }
 
     /**
@@ -293,7 +357,7 @@ public class ServerWindow extends JFrame {
      */
     private void invalidValue(String message) {
         JOptionPane.showMessageDialog(new JFrame(), message, "Error", JOptionPane.ERROR_MESSAGE);
-        start.setEnabled(false);
+        startButton.setEnabled(false);
     }
 
     /**

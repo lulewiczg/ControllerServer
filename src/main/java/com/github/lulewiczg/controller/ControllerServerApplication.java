@@ -15,6 +15,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.FileSystemResource;
 
 import com.github.lulewiczg.controller.server.ControllerServerManager;
@@ -28,6 +29,7 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
  * @author Grzegurz
  */
 @SpringBootApplication
+@Import(ServerWindow.class)
 public class ControllerServerApplication implements CommandLineRunner {
 
     private static final String CONSOLE = "console";
@@ -94,7 +96,7 @@ public class ControllerServerApplication implements CommandLineRunner {
             }
         } else {
             appender.setEnableOutput(true);
-            window.run();
+            window.startUI();
         }
     }
 
