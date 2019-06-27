@@ -22,6 +22,10 @@ public class LightTestConfiguration {
     @Bean
     public Properties userProperties() {
         return new Properties();
-    };
+    }
 
+    {
+        // SpringBootContextLoader not working when all tests are run
+        System.setProperty("java.awt.headless", "false");
+    }
 }

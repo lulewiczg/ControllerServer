@@ -3,6 +3,7 @@ package com.github.lulewiczg.controller.actions.processor.mouse;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.IOException;
 import java.util.stream.Stream;
 
 import org.hamcrest.Matchers;
@@ -136,6 +137,19 @@ public class ActionProcessorTest {
         processor.close();
 
         Mockito.verify(connection).close();
+    }
+
+    @Test
+    @DisplayName("Error when sending response to client")
+    public void testConnectionError() throws Exception {
+        Mockito.when(connection.getNext()).thenReturn(action);
+        Mockito.doThrow(IOException.class).when(connection).write(Mockito.any());
+        Response response = new Response(Status.OK);
+        Mockito.when(action.run(Mockito.any(), Mockito.any())).thenReturn(response);
+
+        processor.processAction(server);
+
+        Mockito.verify(connection).write(response);
     }
 
     /**

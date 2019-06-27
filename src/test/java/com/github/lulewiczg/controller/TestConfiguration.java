@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
-import com.github.lulewiczg.controller.actions.processor.connection.VoidConnection;
 import com.github.lulewiczg.controller.actions.processor.mouse.JNAMouseMovingService;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ControllerServerManager;
@@ -23,7 +22,7 @@ import com.github.lulewiczg.controller.ui.SwingPopup;
 
 @Configuration
 @ImportAutoConfiguration(value = { ControllerServerManager.class, ControllingService.class, ExceptionLoggingService.class,
-        ActionProcessor.class, JNAMouseMovingService.class, VoidConnection.class })
+        ActionProcessor.class, JNAMouseMovingService.class })
 public class TestConfiguration {
 
     @MockBean

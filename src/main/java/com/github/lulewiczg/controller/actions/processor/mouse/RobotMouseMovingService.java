@@ -1,5 +1,8 @@
 package com.github.lulewiczg.controller.actions.processor.mouse;
 
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
 import java.awt.Robot;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,10 @@ public class RobotMouseMovingService implements MouseMovingService {
      */
     @Override
     public void move(long dx, long dy) {
-        robot.mouseMove((int) dx, (int) dy);
+        PointerInfo a = MouseInfo.getPointerInfo();
+        Point b = a.getLocation();
+        int x = (int) b.getX();
+        int y = (int) b.getY();
+        robot.mouseMove((int) (x + dx), (int) (y + dy));
     }
 }
