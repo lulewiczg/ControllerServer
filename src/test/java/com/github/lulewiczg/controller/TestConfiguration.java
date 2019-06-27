@@ -20,11 +20,12 @@ import com.github.lulewiczg.controller.server.ControllerServerManager;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.SettingsComponent;
 import com.github.lulewiczg.controller.ui.JTextAreaAppender;
+import com.github.lulewiczg.controller.ui.SwingPopup;
 
 @Profile("test")
 @Configuration
-@ImportAutoConfiguration(value = { ControllerServerManager.class, ControllingService.class, ExceptionLoggingService.class,
-        ActionProcessor.class, JNAMouseMovingService.class, VoidConnection.class })
+@ImportAutoConfiguration(value = { ControllerServerManager.class, ControllingService.class,
+        ExceptionLoggingService.class, ActionProcessor.class, JNAMouseMovingService.class, VoidConnection.class })
 public class TestConfiguration {
 
     @MockBean
@@ -45,7 +46,15 @@ public class TestConfiguration {
     @MockBean(name = "JTextAreaAppender")
     private JTextAreaAppender appender;
 
+    @MockBean
+    private SwingPopup popup;
+
     @SpyBean
     private JTextArea textArea;
+
+    {
+        // SpringBootContextLoader not working when all tests are run
+        System.setProperty("java.awt.headless", "false");
+    }
 
 }

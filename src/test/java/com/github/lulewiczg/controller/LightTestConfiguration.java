@@ -15,7 +15,6 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
 
 @Profile("test")
 @Configuration
-
 @ImportAutoConfiguration(value = { ExceptionLoggingService.class, SettingsComponent.class })
 public class LightTestConfiguration {
 

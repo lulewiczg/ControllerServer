@@ -305,7 +305,7 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("Actions are executed in order")
-    public void testActionsInOrde() throws Exception {
+    public void testActionsInOrder() throws Exception {
         startServer();
         client = new Client(PORT);
         client.login(PASSWORD);

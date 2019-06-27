@@ -82,12 +82,7 @@ public class ServerWindow extends JFrame {
      */
     public void startUI() {
         appender.setEnableOutput(true);
-        setTitle(CONTROLLER_SERVER);
-        setSize(400, 600);
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        setVisible(true);
-        initComponents();
-        setLocationRelativeTo(null);
+        initUI();
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent we) {
@@ -109,20 +104,25 @@ public class ServerWindow extends JFrame {
     }
 
     /**
+     * Inits UI.
+     */
+    private void initUI() {
+        setTitle(CONTROLLER_SERVER);
+        setSize(400, 600);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        setVisible(true);
+        setLayout(new BorderLayout());
+        add(settingsPanel, BorderLayout.NORTH);
+        add(logPanel);
+        setLocationRelativeTo(null);
+    }
+
+    /**
      * Saves settings and quits.
      */
     private void quit() {
         settings.saveSettings();
         System.exit(0);
-    }
-
-    /**
-     * Inits UI components.
-     */
-    private void initComponents() {
-        setLayout(new BorderLayout());
-        add(settingsPanel, BorderLayout.NORTH);
-        add(logPanel);
     }
 
     /**

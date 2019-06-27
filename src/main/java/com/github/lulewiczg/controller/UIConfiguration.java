@@ -15,9 +15,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -35,6 +33,7 @@ import org.springframework.context.annotation.Configuration;
 import com.github.lulewiczg.controller.server.ControllerServerManager;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.SettingsComponent;
+import com.github.lulewiczg.controller.ui.SwingPopup;
 
 /**
  * Beans for UI.
@@ -49,21 +48,18 @@ public class UIConfiguration {
     private static final String INVALID_PORT = "Invalid port!";
 
     @Autowired
-    private JButton startButton;
-
-    @Autowired
     private ExceptionLoggingService exceptionService;
 
     @Autowired
     private ControllerServerManager server;
 
     @Bean
-    public JTextField passwordInput(SettingsComponent settings) {
+    public JTextField passwordInput(SettingsComponent settings, JButton startButton, SwingPopup popup) {
         JTextField passwordInput = new JTextField(String.valueOf(settings.getPassword()));
         passwordInput.addActionListener(buildListener(e -> {
             String text = passwordInput.getText();
             if (text.isEmpty()) {
-                invalidValue(INVALID_PASSWORD);
+                popup.invalidValuePopup(INVALID_PASSWORD, startButton);
             } else {
                 settings.setPassword(text);
             }
@@ -94,7 +90,7 @@ public class UIConfiguration {
     }
 
     @Bean
-    public JTextField portInput(SettingsComponent settings) {
+    public JTextField portInput(SettingsComponent settings, JButton startButton, SwingPopup popup) {
         JTextField portInput = new JTextField(String.valueOf(settings.getPort()));
         portInput.addActionListener(buildListener(e -> {
             String text = portInput.getText();
@@ -102,10 +98,10 @@ public class UIConfiguration {
                 try {
                     settings.setPort(Integer.valueOf(text));
                 } catch (Exception ex) {
-                    invalidValue(INVALID_PORT);
+                    popup.invalidValuePopup(INVALID_PORT, startButton);
                 }
             } else {
-                invalidValue(INVALID_PORT);
+                popup.invalidValuePopup(INVALID_PORT, startButton);
             }
         }));
         return portInput;
@@ -156,8 +152,8 @@ public class UIConfiguration {
     }
 
     @Bean
-    public JPanel settingsPanel(JComboBox<String> ipCombobox, JTextField portInput, JTextField passwordInput, JCheckBox autostart,
-            JLabel stateIndicator, JButton startButton, JButton stopButton) {
+    public JPanel settingsPanel(JComboBox<String> ipCombobox, JTextField portInput, JTextField passwordInput,
+            JCheckBox autostart, JLabel stateIndicator, JButton startButton, JButton stopButton) {
         JPanel panel = new JPanel(new GridLayout(6, 3));
         panel.setBorder(BorderFactory.createTitledBorder("Server settings"));
         JLabel ip = new JLabel("IP");
@@ -198,17 +194,6 @@ public class UIConfiguration {
         panel.add(scrollPanel);
 
         return panel;
-    }
-
-    /**
-     * Shows error when value is invalid.
-     *
-     * @param message
-     *            message
-     */
-    private void invalidValue(String message) {
-        JOptionPane.showMessageDialog(new JFrame(), message, "Error", JOptionPane.ERROR_MESSAGE);
-        startButton.setEnabled(false);
     }
 
     /**
