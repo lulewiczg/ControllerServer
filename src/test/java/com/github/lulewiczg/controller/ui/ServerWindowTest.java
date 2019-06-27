@@ -178,8 +178,7 @@ public class ServerWindowTest {
     public void testIpCombobox() throws Exception {
         assertThat(ipCombobox.isEditable(), Matchers.equalTo(false));
         InetAddress[] ips = InetAddress.getAllByName(InetAddress.getLocalHost().getHostName());
-        List<String> localIps = Arrays.stream(ips).map(InetAddress::getHostAddress).sorted()
-                .collect(Collectors.toList());
+        List<String> localIps = Arrays.stream(ips).map(InetAddress::getHostAddress).sorted().collect(Collectors.toList());
         assertThat(ipCombobox.getModel().getSize(), Matchers.equalTo(localIps.size()));
         IntStream.range(0, localIps.size())
                 .forEach(i -> assertThat(ipCombobox.getModel().getElementAt(i), Matchers.equalTo(localIps.get(i))));

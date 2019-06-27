@@ -14,7 +14,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.lulewiczg.controller.TestConfiguration;
 import com.github.lulewiczg.controller.UIConfiguration;
-import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
 
 /**
  * Tests controller ControllerServerManager.
@@ -24,7 +23,7 @@ import com.github.lulewiczg.controller.actions.processor.connection.ObjectStream
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { UIConfiguration.class, TestConfiguration.class, ObjectStreamClientConnection.class })
+@SpringBootTest(classes = { UIConfiguration.class, TestConfiguration.class })
 @EnableAutoConfiguration
 public class ControllerServerManagerAutostartTest {
 

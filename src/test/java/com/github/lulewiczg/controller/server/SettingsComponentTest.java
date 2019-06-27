@@ -87,8 +87,8 @@ public class SettingsComponentTest {
     }
 
     @Test
-    @DisplayName("Save empty properties")
-    public void testSaveEmpty() throws Exception {
+    @DisplayName("Save other property")
+    public void testSaveOtherProperty() throws Exception {
         properties.setProperty(TEST, TEST);
 
         settings.saveSettings();
