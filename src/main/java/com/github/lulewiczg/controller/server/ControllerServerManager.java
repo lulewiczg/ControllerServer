@@ -36,14 +36,31 @@ public class ControllerServerManager {
     @Autowired
     private ControllerServer server;
 
+    @Autowired
+    private SettingsComponent settings;
+
     @PostConstruct
     private void setupRunner() {
         restarterRunner.scheduleWithFixedDelay(() -> {
-            if (server.getInternalState() == InternalServerState.DOWN && runningThread != null && runningThread.isDone()) {
-                log.info("Restarting server...");
+            if (shouldStart()) {
+                log.info("Starting server...");
                 start();
             }
-        }, 1000, 100, TimeUnit.MILLISECONDS);
+        }, 100, 100, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Checks if server should start.
+     *
+     * @return true if should
+     */
+    private boolean shouldStart() {
+        if (runningThread != null && runningThread.isDone() && server.getInternalState() == InternalServerState.DOWN) {
+            return true;
+        } else if (runningThread == null && settings.isAutostart()) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -55,6 +72,7 @@ public class ControllerServerManager {
         if (server.getInternalState() == InternalServerState.UP) {
             throw new ServerAlreadyRunningException();
         }
+        server.setInternalState(InternalServerState.UNDEFINED);
         runningThread = stateRunner.submit(() -> server.start());
         return runningThread;
     }
@@ -66,6 +84,7 @@ public class ControllerServerManager {
         if (server.getInternalState() != InternalServerState.UP) {
             throw new ServerAlreadyStoppedException();
         }
+        server.setInternalState(InternalServerState.UNDEFINED);
         stateRunner.submit(() -> server.stop());
     }
 

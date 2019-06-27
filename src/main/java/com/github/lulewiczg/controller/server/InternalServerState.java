@@ -7,5 +7,5 @@ package com.github.lulewiczg.controller.server;
  */
 public enum InternalServerState {
 
-    UP, DOWN, DOWN_AND_DONT_START
+    UNDEFINED, UP, DOWN, DOWN_AND_DONT_START
 }

@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
@@ -22,10 +21,9 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
 import com.github.lulewiczg.controller.ui.JTextAreaAppender;
 import com.github.lulewiczg.controller.ui.SwingPopup;
 
-@Profile("test")
 @Configuration
-@ImportAutoConfiguration(value = { ControllerServerManager.class, ControllingService.class,
-        ExceptionLoggingService.class, ActionProcessor.class, JNAMouseMovingService.class, VoidConnection.class })
+@ImportAutoConfiguration(value = { ControllerServerManager.class, ControllingService.class, ExceptionLoggingService.class,
+        ActionProcessor.class, JNAMouseMovingService.class, VoidConnection.class })
 public class TestConfiguration {
 
     @MockBean

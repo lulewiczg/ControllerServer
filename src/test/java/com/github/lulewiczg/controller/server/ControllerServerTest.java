@@ -49,7 +49,7 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
  * @author Grzegurz
  *
  */
-@ActiveProfiles("test")
+@ActiveProfiles("testInteg")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { UIConfiguration.class, TestConfiguration.class, ObjectStreamClientConnection.class })
 @EnableAutoConfiguration

@@ -41,6 +41,7 @@ public class ControllerServer {
     private Semaphore listenerSemaphore = new Semaphore(1, true);
     private volatile InternalServerState internalState = InternalServerState.DOWN;
 
+    @Autowired
     private SettingsComponent config;
 
     @Autowired
@@ -53,14 +54,6 @@ public class ControllerServer {
 
     // context.getBean
     private ActionProcessor processor;
-
-    @Autowired
-    public ControllerServer(SettingsComponent config) {
-        this.config = config;
-        if (config.isAutostart()) {
-            start();
-        }
-    }
 
     /**
      * Handles server logic.
