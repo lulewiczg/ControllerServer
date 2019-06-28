@@ -6,7 +6,7 @@ import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
 import com.github.lulewiczg.controller.exception.ServerExitException;
-import com.github.lulewiczg.controller.server.InternalServerState;
+import com.github.lulewiczg.controller.server.ServerState;
 
 /**
  * Action that forces server to stop.
@@ -23,7 +23,7 @@ public class ServerStopAction extends LoginRequiredAction {
     @Override
     protected Response doAction(ControllingService controllingService) throws ActionException {
         return new Response(Status.OK, i -> {
-            i.setInternalState(InternalServerState.DOWN_AND_DONT_START);
+            i.setStatus(ServerState.FORCED_SHUTDOWN);
             throw new ServerExitException();
         });
     }

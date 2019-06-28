@@ -46,7 +46,7 @@ public class ControllerServerManagerTest {
 
     @BeforeEach
     public void before() {
-        Mockito.when(server.getInternalState()).thenReturn(InternalServerState.DOWN_AND_DONT_START);
+        Mockito.when(server.getStatus()).thenReturn(ServerState.FORCED_SHUTDOWN);
     }
 
     @Test
@@ -63,8 +63,6 @@ public class ControllerServerManagerTest {
     @Test
     @DisplayName("Server start after stop")
     public void testStartAfterStop() throws Exception {
-        Mockito.when(server.getInternalState()).thenReturn(InternalServerState.DOWN_AND_DONT_START);
-
         serverRunner.start();
 
         Thread.sleep(100);
@@ -74,7 +72,7 @@ public class ControllerServerManagerTest {
     @Test
     @DisplayName("Server start when already started")
     public void testStartTwice() throws Exception {
-        Mockito.when(server.getInternalState()).thenReturn(InternalServerState.UP);
+        Mockito.when(server.getStatus()).thenReturn(ServerState.WAITING);
 
         assertThrows(ServerAlreadyRunningException.class, () -> serverRunner.start());
 
@@ -84,7 +82,7 @@ public class ControllerServerManagerTest {
     @Test
     @DisplayName("Server stop")
     public void testStop() throws Exception {
-        Mockito.when(server.getInternalState()).thenReturn(InternalServerState.UP);
+        Mockito.when(server.getStatus()).thenReturn(ServerState.WAITING);
 
         serverRunner.stop();
 
@@ -95,8 +93,6 @@ public class ControllerServerManagerTest {
     @Test
     @DisplayName("Server stop when stopped")
     public void testStopWhenStopped() throws Exception {
-        Mockito.when(server.getInternalState()).thenReturn(InternalServerState.DOWN_AND_DONT_START);
-
         assertThrows(ServerAlreadyStoppedException.class, () -> serverRunner.stop());
 
         Mockito.verify(server, Mockito.never()).stop();
@@ -114,8 +110,8 @@ public class ControllerServerManagerTest {
     @MethodSource
     @DisplayName("Server running check")
     @ParameterizedTest(name = "''{0}'' state is running: ''{1}''")
-    public void testActionHandledException(InternalServerState state, boolean running) throws Exception {
-        Mockito.when(server.getInternalState()).thenReturn(state);
+    public void testActionHandledException(ServerState state, boolean running) throws Exception {
+        Mockito.when(server.getStatus()).thenReturn(state);
 
         assertThat(serverRunner.isRunning(), Matchers.equalTo(running));
     }
@@ -124,13 +120,13 @@ public class ControllerServerManagerTest {
      * Mocks server to change state to UP when started.
      */
     private void mockServerStart() {
-        Mockito.when(server.getInternalState()).thenAnswer(i -> {
+        Mockito.when(server.getStatus()).thenAnswer(i -> {
             long count = Mockito.mockingDetails(server).getInvocations().stream()
                     .filter(j -> j.getMethod().getName().equals("start")).count();
             if (count != 0) {
-                return InternalServerState.UP;
+                return ServerState.WAITING;
             } else {
-                return InternalServerState.DOWN;
+                return ServerState.SHUTDOWN;
             }
         });
     }
@@ -141,7 +137,7 @@ public class ControllerServerManagerTest {
      * @return parameters
      */
     private static Stream<Arguments> testActionHandledException() {
-        return Stream.of(Arguments.of(InternalServerState.UP, true), Arguments.of(InternalServerState.DOWN, false),
-                Arguments.of(InternalServerState.DOWN_AND_DONT_START, false), Arguments.of(InternalServerState.UNDEFINED, false));
+        return Stream.of(Arguments.of(ServerState.WAITING, true), Arguments.of(ServerState.CONNECTED, true),
+                Arguments.of(ServerState.SHUTDOWN, false), Arguments.of(ServerState.FORCED_SHUTDOWN, false));
     }
 }

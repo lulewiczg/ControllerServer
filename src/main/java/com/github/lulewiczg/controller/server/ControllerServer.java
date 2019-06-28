@@ -38,7 +38,6 @@ public class ControllerServer {
     private ExecutorService exec;
     private Semaphore semaphore = new Semaphore(1, true);
     private Semaphore listenerSemaphore = new Semaphore(1, true);
-    private volatile InternalServerState internalState = InternalServerState.DOWN;
 
     private ServerSocket server;
 
@@ -83,7 +82,6 @@ public class ControllerServer {
         acquire(semaphore);
         exec = Executors.newSingleThreadExecutor();
         exec.submit(this::doServer);
-        internalState = InternalServerState.UP;
         log.info("Server started");
         release(semaphore);
     }
@@ -93,14 +91,13 @@ public class ControllerServer {
      */
     void softStop() {
         acquire(semaphore);
-        setStatus(ServerState.SHUTDOWN);
         if (server != null && !server.isClosed()) {
             Common.close(server);
             Common.close(processor);
             Common.close(socket);
         }
-        if (internalState != InternalServerState.DOWN_AND_DONT_START) {
-            internalState = InternalServerState.DOWN;
+        if (status != ServerState.FORCED_SHUTDOWN) {
+            setStatus(ServerState.SHUTDOWN);
         }
         log.info("Server stopped");
         release(semaphore);
@@ -110,7 +107,7 @@ public class ControllerServer {
      * Forces server to stop. Will not restart.
      */
     public void stop() {
-        internalState = InternalServerState.DOWN_AND_DONT_START;
+        setStatus(ServerState.FORCED_SHUTDOWN);
         softStop();
         exec.shutdownNow();
     }
@@ -208,14 +205,6 @@ public class ControllerServer {
 
     public ServerState getStatus() {
         return status;
-    }
-
-    public InternalServerState getInternalState() {
-        return internalState;
-    }
-
-    public void setInternalState(InternalServerState internalState) {
-        this.internalState = internalState;
     }
 
     @Autowired(required = false)

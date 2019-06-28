@@ -13,17 +13,15 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.lulewiczg.controller.TestConfiguration;
-import com.github.lulewiczg.controller.UIConfiguration;
 
 /**
- * Tests controller ControllerServerManager.
+ * Tests ControllerServerManager.
  *
  * @author Grzegurz
- *
  */
-@ActiveProfiles("test")
+@ActiveProfiles("testAutostart")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { UIConfiguration.class, TestConfiguration.class })
+@SpringBootTest(classes = { TestConfiguration.class })
 @EnableAutoConfiguration
 public class ControllerServerManagerAutostartTest {
 
@@ -31,17 +29,17 @@ public class ControllerServerManagerAutostartTest {
     private ControllerServer server;
 
     @Autowired
-    private SettingsComponent settings;
+    protected ControllerServerManager manager;
 
     @BeforeEach
     public void before() {
-        Mockito.when(settings.isAutostart()).thenReturn(true);
+        Mockito.when(server.getStatus()).thenReturn(ServerState.SHUTDOWN);
     }
 
     @Test
     @DisplayName("Server autostart")
     public void testStart() throws Exception {
-        Thread.sleep(200);
+        Thread.sleep(500);
         Mockito.verify(server).start();
     }
 

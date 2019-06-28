@@ -78,9 +78,10 @@ public class ControllerServerTest {
 
     @AfterEach
     public void after() {
-        if (server.getInternalState() == InternalServerState.UP) {
+        if (server.getStatus().isRunning()) {
             server.stop();
         }
+        server.setStatus(ServerState.SHUTDOWN);
     }
 
     @Test
@@ -95,7 +96,6 @@ public class ControllerServerTest {
         Mockito.verify(server).softStop();
         Mockito.verify(processor, Mockito.never()).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
-        assertThat(server.getInternalState(), Matchers.equalTo(InternalServerState.DOWN));
     }
 
     @Test
@@ -106,7 +106,6 @@ public class ControllerServerTest {
         startAndWait();
 
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.WAITING));
-        assertThat(server.getInternalState(), Matchers.equalTo(InternalServerState.UP));
     }
 
     @Test
@@ -121,7 +120,6 @@ public class ControllerServerTest {
         Mockito.verify(server).softStop();
         Mockito.verify(processor, Mockito.never()).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
-        assertThat(server.getInternalState(), Matchers.equalTo(InternalServerState.DOWN));
     }
 
     @Test
@@ -136,7 +134,6 @@ public class ControllerServerTest {
         Mockito.verify(server).softStop();
         Mockito.verify(processor).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
-        assertThat(server.getInternalState(), Matchers.equalTo(InternalServerState.DOWN));
     }
 
     @Test
@@ -152,7 +149,6 @@ public class ControllerServerTest {
         Mockito.verify(server).softStop();
         Mockito.verify(processor).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
-        assertThat(server.getInternalState(), Matchers.equalTo(InternalServerState.DOWN));
     }
 
     @Test
@@ -167,7 +163,6 @@ public class ControllerServerTest {
         Mockito.verify(server).softStop();
         Mockito.verify(processor, Mockito.times(3)).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
-        assertThat(server.getInternalState(), Matchers.equalTo(InternalServerState.DOWN));
     }
 
     @Test
@@ -182,8 +177,7 @@ public class ControllerServerTest {
 
         Mockito.verify(server).stop();
         Mockito.verify(socket, Mockito.never()).getInputStream();
-        assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
-        assertThat(server.getInternalState(), Matchers.equalTo(InternalServerState.DOWN_AND_DONT_START));
+        assertThat(server.getStatus(), Matchers.equalTo(ServerState.FORCED_SHUTDOWN));
     }
 
     @Test
@@ -199,7 +193,6 @@ public class ControllerServerTest {
         Mockito.verify(server).softStop();
         Mockito.verify(processor).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
-        assertThat(server.getInternalState(), Matchers.equalTo(InternalServerState.DOWN));
     }
 
     @Test
@@ -215,7 +208,7 @@ public class ControllerServerTest {
     public void testLogout() throws Exception {
         server.logout();
 
-        Mockito.verify(server).setStatus(ServerState.SHUTDOWN);
+        Mockito.verify(server, Mockito.atLeastOnce()).setStatus(ServerState.SHUTDOWN);
         Mockito.verify(server).softStop();
     }
 

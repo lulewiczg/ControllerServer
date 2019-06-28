@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.exception.AuthorizationException;
 import com.github.lulewiczg.controller.exception.ServerExitException;
-import com.github.lulewiczg.controller.server.InternalServerState;
+import com.github.lulewiczg.controller.server.ServerState;
 
 /**
  * Tests ServerStopAction.
@@ -26,21 +26,21 @@ public class ServerStopActionTest extends ActionTestTemplate {
     @Override
     protected void doTestInWaiting() throws Exception {
         processor.processAction(server);
-        Mockito.verify(server, Mockito.never()).setInternalState(Mockito.any());
+        Mockito.verify(server, Mockito.never()).setStatus(ServerState.FORCED_SHUTDOWN);
         assertStatusNotOK(AuthorizationException.class);
     }
 
     @Override
     protected void doTestInConencted() throws Exception {
         assertThrows(ServerExitException.class, () -> processor.processAction(server));
-        Mockito.verify(server).setInternalState(InternalServerState.DOWN_AND_DONT_START);
+        Mockito.verify(server).setStatus(ServerState.FORCED_SHUTDOWN);
         assertStatusOK();
     }
 
     @Override
     protected void doTestInShutdown() throws Exception {
         processor.processAction(server);
-        Mockito.verify(server, Mockito.never()).setInternalState(Mockito.any());
+        Mockito.verify(server, Mockito.never()).setStatus(ServerState.FORCED_SHUTDOWN);
         assertStatusNotOK(AuthorizationException.class);
     }
 }

@@ -55,36 +55,30 @@ public class ControllerServerManager {
      * @return true if should
      */
     private boolean shouldStart() {
-        if (runningThread != null && runningThread.isDone() && server.getInternalState() == InternalServerState.DOWN) {
-            return true;
-        } else if (runningThread == null && settings.isAutostart()) {
-            return true;
+        if (settings.isAutostart()) {
+            return runningThread == null;
         }
-        return false;
+        return runningThread != null && runningThread.isDone() && server.getStatus() == ServerState.SHUTDOWN;
     }
 
     /**
      * Starts server.
      *
-     * @return thread
      */
-    public Future<?> start() {
-        if (server.getInternalState() == InternalServerState.UP) {
+    public void start() {
+        if (server.getStatus().isRunning()) {
             throw new ServerAlreadyRunningException();
         }
-        server.setInternalState(InternalServerState.UNDEFINED);
         runningThread = stateRunner.submit(() -> server.start());
-        return runningThread;
     }
 
     /**
      * Stops server.
      */
     public void stop() {
-        if (server.getInternalState() != InternalServerState.UP) {
+        if (!server.getStatus().isRunning()) {
             throw new ServerAlreadyStoppedException();
         }
-        server.setInternalState(InternalServerState.UNDEFINED);
         stateRunner.submit(() -> server.stop());
     }
 
@@ -94,7 +88,7 @@ public class ControllerServerManager {
      * @return true if running
      */
     public boolean isRunning() {
-        return server.getInternalState() == InternalServerState.UP;
+        return server.getStatus().isRunning();
     }
 
     public ServerState getStatus() {

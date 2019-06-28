@@ -20,9 +20,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.github.lulewiczg.controller.TestConfiguration;
+import com.github.lulewiczg.controller.LightTestConfiguration;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
+import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
 import com.github.lulewiczg.controller.actions.processor.mouse.JNAMouseMovingService;
 import com.github.lulewiczg.controller.common.Response;
@@ -38,26 +39,27 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { TestConfiguration.class })
+@SpringBootTest(classes = { LightTestConfiguration.class, ActionProcessor.class, ControllingService.class,
+        ControllerServer.class })
 @EnableAutoConfiguration
 public abstract class ActionTestTemplate {
 
-    @Autowired
+    @MockBean
     protected SettingsComponent settings;
 
-    @Autowired
+    @MockBean
     protected ControllerServer server;
 
     @MockBean
     protected ClientConnection connection;
 
-    @Autowired
+    @MockBean
     protected Robot robot;
 
-    @Autowired
+    @MockBean
     protected JNAMouseMovingService mouseMovingService;
 
-    @Autowired
+    @MockBean
     protected Clipboard clipboard;
 
     @Autowired

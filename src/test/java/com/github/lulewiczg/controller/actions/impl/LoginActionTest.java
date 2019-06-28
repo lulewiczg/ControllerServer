@@ -29,11 +29,6 @@ public class LoginActionTest extends ActionTestTemplate {
     private SettingsComponent settings;
 
     @Override
-    public void additionalBefore() throws Exception {
-        Mockito.when(settings.getPassword()).thenReturn(PASSWORD);
-    }
-
-    @Override
     protected Action getAction() {
         return new LoginAction(PASSWORD, INFO, IP);
     }
@@ -50,6 +45,7 @@ public class LoginActionTest extends ActionTestTemplate {
 
     @Override
     protected void doTestInWaiting() throws Exception {
+        Mockito.when(settings.getPassword()).thenReturn(PASSWORD);
         processor.processAction(server);
         Mockito.verify(server).login();
         assertStatusOK();

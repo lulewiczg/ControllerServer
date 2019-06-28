@@ -133,11 +133,11 @@ public class ServerWindow extends JFrame {
      */
     public void updateUI(ServerState state) {
         SwingUtilities.invokeLater(() -> {
-            boolean shutdown = state == ServerState.SHUTDOWN;
-            portInput.setEnabled(shutdown);
-            passwordInput.setEnabled(shutdown);
-            startButton.setEnabled(shutdown);
-            stopButton.setEnabled(!shutdown);
+            boolean running = state.isRunning();
+            portInput.setEnabled(!running);
+            passwordInput.setEnabled(!running);
+            startButton.setEnabled(!running);
+            stopButton.setEnabled(running);
             stateIndicator.setText(state.getMsg());
             revalidate();
         });
