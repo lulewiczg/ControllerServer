@@ -34,12 +34,13 @@ public class ControllerServer {
 
     private static final Logger log = LogManager.getLogger(ControllerServer.class);
     private ServerState status = ServerState.SHUTDOWN;
-    private ServerSocket server;
     private Socket socket;
     private ExecutorService exec;
     private Semaphore semaphore = new Semaphore(1, true);
     private Semaphore listenerSemaphore = new Semaphore(1, true);
     private volatile InternalServerState internalState = InternalServerState.DOWN;
+
+    private ServerSocket server;
 
     @Autowired
     private SettingsComponent config;
@@ -63,6 +64,7 @@ public class ControllerServer {
         try {
             setupSocket();
             doActions();
+            softStop();
         } catch (BindException e) {
             exceptionService.error(log, "Address is already in use", e);
             stop();
@@ -89,7 +91,7 @@ public class ControllerServer {
     /**
      * Performs soft stop. Server will restart.
      */
-    private void softStop() {
+    void softStop() {
         acquire(semaphore);
         setStatus(ServerState.SHUTDOWN);
         if (server != null && !server.isClosed()) {
@@ -109,8 +111,8 @@ public class ControllerServer {
      */
     public void stop() {
         internalState = InternalServerState.DOWN_AND_DONT_START;
-        exec.shutdownNow();
         softStop();
+        exec.shutdownNow();
     }
 
     /**
@@ -120,7 +122,7 @@ public class ControllerServer {
      *             when socket could not be set up
      */
     private void setupSocket() throws IOException {
-        server = new ServerSocket(config.getPort());
+        server = context.getBean(ServerSocket.class);
         setStatus(ServerState.WAITING);
         log.info(String.format("Waiting for connection on port %s...", config.getPort()));
         socket = server.accept();

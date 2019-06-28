@@ -2,13 +2,18 @@ package com.github.lulewiczg.controller;
 
 import java.awt.Robot;
 import java.awt.datatransfer.Clipboard;
+import java.io.IOException;
+import java.net.ServerSocket;
 
 import javax.swing.JTextArea;
 
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
@@ -21,8 +26,8 @@ import com.github.lulewiczg.controller.ui.JTextAreaAppender;
 import com.github.lulewiczg.controller.ui.SwingPopup;
 
 @Configuration
-@ImportAutoConfiguration(value = { ControllerServerManager.class, ControllingService.class, ExceptionLoggingService.class,
-        ActionProcessor.class, JNAMouseMovingService.class })
+@ImportAutoConfiguration(value = { ControllerServerManager.class, ControllingService.class,
+        ExceptionLoggingService.class, ActionProcessor.class, JNAMouseMovingService.class })
 public class TestConfiguration {
 
     @MockBean
@@ -48,6 +53,12 @@ public class TestConfiguration {
 
     @SpyBean
     private JTextArea textArea;
+
+    @Bean
+    @Scope("prototype")
+    public ServerSocket serverSocket(SettingsComponent settings) throws IOException {
+        return new ServerSocket(settings.getPort());
+    }
 
     {
         // SpringBootContextLoader not working when all tests are run
