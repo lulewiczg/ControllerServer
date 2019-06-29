@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Lazy;
 
-import com.github.lulewiczg.controller.server.ControllerServerManager;
 import com.github.lulewiczg.controller.ui.ServerWindow;
 
 /**
@@ -18,9 +17,6 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
 public class ControllerServerApplication implements CommandLineRunner {
 
     private static final String CONSOLE = "console";
-
-    @Autowired
-    private ControllerServerManager server;
 
     @Lazy
     @Autowired
@@ -37,11 +33,7 @@ public class ControllerServerApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (args.length >= 1) {
-            if (args[0].equals(CONSOLE)) {
-                server.start();
-            }
-        } else {
+        if (args.length < 1 || !args[0].equals(CONSOLE)) {
             window.startUI();
         }
     }
