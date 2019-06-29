@@ -23,7 +23,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.github.lulewiczg.controller.LightTestConfiguration;
+import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
 import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
@@ -37,7 +37,8 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { LightTestConfiguration.class, ObjectStreamClientConnection.class, ControllerServer.class })
+@SpringBootTest(classes = { MockRequiredUIConfiguration.class, ObjectStreamClientConnection.class, ControllerServer.class,
+        ExceptionLoggingService.class })
 @EnableAutoConfiguration
 public class ControllerServerTest {
 

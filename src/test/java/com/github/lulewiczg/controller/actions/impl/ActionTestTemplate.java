@@ -17,18 +17,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.github.lulewiczg.controller.LightTestConfiguration;
+import com.github.lulewiczg.controller.MockPropertiesConfiguration;
+import com.github.lulewiczg.controller.MockServerConfiguration;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
+import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
 import com.github.lulewiczg.controller.actions.processor.mouse.JNAMouseMovingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.server.ControllerServer;
+import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.ServerState;
 import com.github.lulewiczg.controller.server.SettingsComponent;
 
@@ -39,30 +43,27 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { LightTestConfiguration.class, ActionProcessor.class, ControllingService.class,
-        ControllerServer.class })
+@SpringBootTest(classes = { MockServerConfiguration.class, MockPropertiesConfiguration.class, SettingsComponent.class,
+        ExceptionLoggingService.class, ObjectStreamClientConnection.class, ControllingService.class })
 @EnableAutoConfiguration
 public abstract class ActionTestTemplate {
 
-    @MockBean
-    protected SettingsComponent settings;
-
-    @MockBean
+    @Autowired
     protected ControllerServer server;
 
     @MockBean
     protected ClientConnection connection;
 
-    @MockBean
+    @Autowired
     protected Robot robot;
 
-    @MockBean
+    @Autowired
     protected JNAMouseMovingService mouseMovingService;
 
-    @MockBean
+    @Autowired
     protected Clipboard clipboard;
 
-    @Autowired
+    @SpyBean
     protected ActionProcessor processor;
 
     /**

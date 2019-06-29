@@ -8,11 +8,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.github.lulewiczg.controller.TestConfiguration;
 
 /**
  * Tests WindowsSystemCondition class.
@@ -22,7 +19,6 @@ import com.github.lulewiczg.controller.TestConfiguration;
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { TestConfiguration.class })
 @EnableAutoConfiguration
 public class WindowsSystemConditionTest {
 

@@ -21,7 +21,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.github.lulewiczg.controller.TestConfiguration;
+import com.github.lulewiczg.controller.MockPropertiesConfiguration;
+import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
+import com.github.lulewiczg.controller.MockServerConfiguration;
 import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
 import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
 import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
@@ -34,7 +36,9 @@ import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { TestConfiguration.class, ObjectStreamClientConnection.class })
+@SpringBootTest(classes = { MockServerConfiguration.class, MockRequiredUIConfiguration.class, MockPropertiesConfiguration.class,
+        ControllerServerManager.class, ObjectStreamClientConnection.class, SettingsComponent.class,
+        ExceptionLoggingService.class })
 @EnableAutoConfiguration
 public class ControllerServerManagerTest {
 

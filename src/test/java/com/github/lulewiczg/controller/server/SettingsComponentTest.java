@@ -22,7 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.github.lulewiczg.controller.LightTestConfiguration;
+import com.github.lulewiczg.controller.TestPropertiesConfiguration;
 
 /**
  * Tests SettingsComponent class.
@@ -32,7 +32,7 @@ import com.github.lulewiczg.controller.LightTestConfiguration;
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { LightTestConfiguration.class })
+@SpringBootTest(classes = { TestPropertiesConfiguration.class, ExceptionLoggingService.class, SettingsComponent.class })
 @EnableAutoConfiguration
 public class SettingsComponentTest {
 

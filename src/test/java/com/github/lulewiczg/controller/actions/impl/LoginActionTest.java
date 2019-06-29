@@ -3,8 +3,8 @@ package com.github.lulewiczg.controller.actions.impl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.common.Status;
@@ -25,7 +25,7 @@ public class LoginActionTest extends ActionTestTemplate {
     private static final String IP = "General Kenobi!";
     private static final String PASSWORD = "password";
 
-    @Autowired
+    @MockBean
     private SettingsComponent settings;
 
     @Override

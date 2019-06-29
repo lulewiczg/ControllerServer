@@ -17,7 +17,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.lulewiczg.controller.AWTTestConfiguration;
-import com.github.lulewiczg.controller.LightTestConfiguration;
 
 /**
  * Tests for RobotMouseMovingService.
@@ -26,7 +25,7 @@ import com.github.lulewiczg.controller.LightTestConfiguration;
  */
 @ActiveProfiles("testLinux")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { AWTTestConfiguration.class, LightTestConfiguration.class, RobotMouseMovingService.class })
+@SpringBootTest(classes = { AWTTestConfiguration.class, RobotMouseMovingService.class })
 @EnableAutoConfiguration
 public class RobotMouseMovingServiceTest {
 

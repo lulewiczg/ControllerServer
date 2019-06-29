@@ -23,7 +23,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.github.lulewiczg.controller.TestConfiguration;
+import com.github.lulewiczg.controller.MockPropertiesConfiguration;
+import com.github.lulewiczg.controller.MockServerConfiguration;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
@@ -35,6 +36,8 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
 import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.exception.ServerExitException;
 import com.github.lulewiczg.controller.server.ControllerServer;
+import com.github.lulewiczg.controller.server.ExceptionLoggingService;
+import com.github.lulewiczg.controller.server.SettingsComponent;
 
 /**
  * Tests ActionProcessor class.
@@ -44,7 +47,8 @@ import com.github.lulewiczg.controller.server.ControllerServer;
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { TestConfiguration.class })
+@SpringBootTest(classes = { MockServerConfiguration.class, MockPropertiesConfiguration.class, SettingsComponent.class,
+        ExceptionLoggingService.class, ActionProcessor.class, ControllingService.class })
 @EnableAutoConfiguration
 public class ActionProcessorTest {
 

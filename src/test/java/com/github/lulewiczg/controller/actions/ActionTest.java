@@ -16,10 +16,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.github.lulewiczg.controller.TestConfiguration;
+import com.github.lulewiczg.controller.MockPropertiesConfiguration;
+import com.github.lulewiczg.controller.MockServerConfiguration;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.server.ControllerServer;
+import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.ServerState;
+import com.github.lulewiczg.controller.server.SettingsComponent;
 
 /**
  * Tests ActionTest.
@@ -28,7 +31,8 @@ import com.github.lulewiczg.controller.server.ServerState;
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { TestConfiguration.class })
+@SpringBootTest(classes = { MockPropertiesConfiguration.class, MockServerConfiguration.class, ControllingService.class,
+        SettingsComponent.class, ExceptionLoggingService.class, })
 @EnableAutoConfiguration
 public class ActionTest {
 
