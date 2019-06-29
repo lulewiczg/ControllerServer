@@ -14,10 +14,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.github.lulewiczg.controller.AWTSpringApplicationContextLoader;
+import com.github.lulewiczg.controller.AWTTestConfiguration;
 import com.github.lulewiczg.controller.LightTestConfiguration;
 
 /**
@@ -27,8 +26,7 @@ import com.github.lulewiczg.controller.LightTestConfiguration;
  */
 @ActiveProfiles("testLinux")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { LightTestConfiguration.class, RobotMouseMovingService.class })
-@ContextConfiguration(loader = AWTSpringApplicationContextLoader.class)
+@SpringBootTest(classes = { AWTTestConfiguration.class, LightTestConfiguration.class, RobotMouseMovingService.class })
 @EnableAutoConfiguration
 public class RobotMouseMovingServiceTest {
 

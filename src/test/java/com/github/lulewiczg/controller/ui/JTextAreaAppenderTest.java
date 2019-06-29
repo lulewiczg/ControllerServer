@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -37,9 +36,6 @@ public class JTextAreaAppenderTest {
 
     @Autowired
     private JTextArea textArea;
-
-    @Value("[%d{dd.MM.YYYY HH:mm:ss}] [%p] - %m%ex%n")
-    private String defaultUrl;
 
     private Log4jLogEvent event = new Log4jLogEvent("test logger", null, this.getClass().getSimpleName(), Level.INFO,
             new SimpleMessage(TEST_LOG), null, null);

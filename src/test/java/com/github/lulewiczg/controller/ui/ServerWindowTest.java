@@ -32,10 +32,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.github.lulewiczg.controller.AWTSpringApplicationContextLoader;
+import com.github.lulewiczg.controller.AWTTestConfiguration;
 import com.github.lulewiczg.controller.EagerConfiguration;
 import com.github.lulewiczg.controller.UIConfiguration;
 import com.github.lulewiczg.controller.server.ControllerServerManager;
@@ -50,8 +49,7 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { EagerConfiguration.class, UIConfiguration.class, ServerWindow.class })
-@ContextConfiguration(loader = AWTSpringApplicationContextLoader.class)
+@SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, UIConfiguration.class, ServerWindow.class })
 @EnableAutoConfiguration
 public class ServerWindowTest {
 
@@ -181,8 +179,7 @@ public class ServerWindowTest {
     public void testIpCombobox() throws Exception {
         assertThat(ipCombobox.isEditable(), Matchers.equalTo(false));
         InetAddress[] ips = InetAddress.getAllByName(InetAddress.getLocalHost().getHostName());
-        List<String> localIps = Arrays.stream(ips).map(InetAddress::getHostAddress).sorted()
-                .collect(Collectors.toList());
+        List<String> localIps = Arrays.stream(ips).map(InetAddress::getHostAddress).sorted().collect(Collectors.toList());
         assertThat(ipCombobox.getModel().getSize(), Matchers.equalTo(localIps.size()));
         IntStream.range(0, localIps.size())
                 .forEach(i -> assertThat(ipCombobox.getModel().getElementAt(i), Matchers.equalTo(localIps.get(i))));
