@@ -26,21 +26,30 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.github.lulewiczg.controller.TestConfiguration;
+import com.github.lulewiczg.controller.AWTSpringApplicationContextLoader;
+import com.github.lulewiczg.controller.AWTTestConfiguration;
+import com.github.lulewiczg.controller.EagerConfiguration;
+import com.github.lulewiczg.controller.MainConfiguration;
+import com.github.lulewiczg.controller.TestUtilConfiguration;
 import com.github.lulewiczg.controller.actions.impl.KeyPressAction;
 import com.github.lulewiczg.controller.actions.impl.KeyReleaseAction;
 import com.github.lulewiczg.controller.actions.impl.MouseButtonPressAction;
 import com.github.lulewiczg.controller.actions.impl.ServerStopAction;
+import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
+import com.github.lulewiczg.controller.actions.processor.mouse.JNAMouseMovingService;
 import com.github.lulewiczg.controller.client.Client;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.AuthorizationException;
 import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
+import com.github.lulewiczg.controller.ui.JTextAreaAppender;
 import com.github.lulewiczg.controller.ui.ServerWindow;
 
 /**
@@ -50,9 +59,12 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
  *
  */
 @ActiveProfiles("testInteg")
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { TestConfiguration.class, ObjectStreamClientConnection.class })
 @EnableAutoConfiguration
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(loader = AWTSpringApplicationContextLoader.class)
+@SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, MainConfiguration.class,
+        ControllerServerManager.class, TestUtilConfiguration.class, JNAMouseMovingService.class, JTextAreaAppender.class,
+        ControllerServer.class, ObjectStreamClientConnection.class, ActionProcessor.class })
 public class ControllerServerIntegTest {
 
     private Client client;
@@ -68,10 +80,10 @@ public class ControllerServerIntegTest {
     @Autowired
     private ControllerServerManager serverRunner;
 
-    @Autowired
+    @SpyBean
     private ControllerServer server;
 
-    @Autowired
+    @MockBean
     private Robot robot;
 
     @MockBean

@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.github.lulewiczg.controller.MockUtilConfiguration;
 import com.github.lulewiczg.controller.TestPropertiesConfiguration;
 
 /**
@@ -32,7 +33,7 @@ import com.github.lulewiczg.controller.TestPropertiesConfiguration;
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { TestPropertiesConfiguration.class, ExceptionLoggingService.class, SettingsComponent.class })
+@SpringBootTest(classes = { TestPropertiesConfiguration.class, MockUtilConfiguration.class })
 @EnableAutoConfiguration
 public class SettingsComponentTest {
 

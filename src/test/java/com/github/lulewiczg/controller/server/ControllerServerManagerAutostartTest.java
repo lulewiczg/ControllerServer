@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.lulewiczg.controller.MockPropertiesConfiguration;
 import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
+import com.github.lulewiczg.controller.MockUtilConfiguration;
 
 /**
  * Tests ControllerServerManager.
@@ -22,8 +23,8 @@ import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
  */
 @ActiveProfiles("testAutostart")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { MockPropertiesConfiguration.class, MockRequiredUIConfiguration.class, ControllerServer.class,
-        ControllerServerManager.class, SettingsComponent.class, ExceptionLoggingService.class })
+@SpringBootTest(classes = { MockPropertiesConfiguration.class, MockRequiredUIConfiguration.class, MockUtilConfiguration.class,
+        ControllerServer.class, ControllerServerManager.class })
 @EnableAutoConfiguration
 public class ControllerServerManagerAutostartTest {
 
