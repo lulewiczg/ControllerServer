@@ -1,13 +1,10 @@
 package com.github.lulewiczg.controller.ui;
 
 import java.awt.BorderLayout;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -19,10 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import com.github.lulewiczg.controller.server.ControllerServerManager;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.ServerState;
-import com.github.lulewiczg.controller.server.SettingsComponent;
 
 /**
  * GUI for server.
@@ -35,12 +30,6 @@ public class ServerWindow extends JFrame {
     private static final Logger log = LogManager.getLogger(ServerWindow.class);
     private static final String CONTROLLER_SERVER = "Controller server";
     private static final long serialVersionUID = 1L;
-
-    @Autowired
-    private SettingsComponent settings;
-
-    @Autowired
-    private ControllerServerManager server;
 
     @Autowired
     private ExceptionLoggingService exceptionService;
@@ -69,6 +58,9 @@ public class ServerWindow extends JFrame {
     @Autowired
     private JPanel logPanel;
 
+    @Autowired
+    private ServerWindowAdapter adapter;
+
     public ServerWindow() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -83,22 +75,7 @@ public class ServerWindow extends JFrame {
     public void startUI() {
         appender.setEnableOutput(true);
         initUI();
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent we) {
-                if (server.isRunning()) {
-                    String ObjButtons[] = { "Yes", "No" };
-                    int PromptResult = JOptionPane.showOptionDialog(null,
-                            "Server is still running, are you sure you want to exit?", CONTROLLER_SERVER,
-                            JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
-                    if (PromptResult == JOptionPane.YES_OPTION) {
-                        quit();
-                    }
-                } else {
-                    quit();
-                }
-            }
-        });
+        addWindowListener(adapter);
         revalidate();
         appender.flush();
     }
@@ -115,14 +92,6 @@ public class ServerWindow extends JFrame {
         add(settingsPanel, BorderLayout.NORTH);
         add(logPanel);
         setLocationRelativeTo(null);
-    }
-
-    /**
-     * Saves settings and quits.
-     */
-    private void quit() {
-        settings.saveSettings();
-        System.exit(0);
     }
 
     /**

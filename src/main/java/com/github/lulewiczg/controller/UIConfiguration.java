@@ -152,8 +152,8 @@ public class UIConfiguration {
     }
 
     @Bean
-    public JPanel settingsPanel(JComboBox<String> ipCombobox, JTextField portInput, JTextField passwordInput,
-            JCheckBox autostart, JLabel stateIndicator, JButton startButton, JButton stopButton) {
+    public JPanel settingsPanel(JComboBox<String> ipCombobox, JTextField portInput, JTextField passwordInput, JCheckBox autostart,
+            JLabel stateIndicator, JButton startButton, JButton stopButton) {
         JPanel panel = new JPanel(new GridLayout(6, 3));
         panel.setBorder(BorderFactory.createTitledBorder("Server settings"));
         JLabel ip = new JLabel("IP");
@@ -227,5 +227,4 @@ public class UIConfiguration {
         }
         return localIps;
     }
-
 }
