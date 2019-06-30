@@ -2,6 +2,7 @@ package com.github.lulewiczg.controller.ui;
 
 import static org.junit.Assert.assertThat;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.net.InetAddress;
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.stream.IntStream;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -22,6 +24,7 @@ import javax.swing.JViewport;
 
 import org.apache.logging.log4j.Level;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -124,6 +127,12 @@ public class ServerWindowTest {
         Mockito.when(settings.getPort()).thenReturn(151515);
         Mockito.when(settings.getLogLevel()).thenReturn(Level.FATAL);
         startButton.setEnabled(true);
+    }
+
+    @AfterEach
+    public void after() {
+        window.setVisible(false);
+        window.dispose();
     }
 
     @Test
@@ -328,6 +337,26 @@ public class ServerWindowTest {
         assertThat(stopButton.isEnabled(), Matchers.equalTo(true));
         assertThat(portInput.isEnabled(), Matchers.equalTo(false));
         assertThat(passwordInput.isEnabled(), Matchers.equalTo(false));
+    }
+
+    @Test
+    @DisplayName("UI configuration")
+    public void testUIConfig() throws InterruptedException {
+        window.startUI();
+
+        Mockito.verify(appender).setEnableOutput(true);
+        Mockito.verify(window).setTitle("Controller server");
+        Mockito.verify(window).setSize(400, 600);
+        Mockito.verify(window).setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        Mockito.verify(window).setVisible(true);
+        Mockito.verify(window).setLayout(Mockito.any(BorderLayout.class));
+        Mockito.verify(window).add(settingsPanel, BorderLayout.NORTH);
+        Mockito.verify(window).add(logPanel);
+        Mockito.verify(window).setLocationRelativeTo(null);
+        Mockito.verify(window).addWindowListener(Mockito.any(ServerWindowAdapter.class));
+
+        Mockito.verify(window).revalidate();
+        Mockito.verify(appender).flush();
     }
 
     /**

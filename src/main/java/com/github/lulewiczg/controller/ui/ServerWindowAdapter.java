@@ -19,21 +19,20 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
 @Component
 public class ServerWindowAdapter extends WindowAdapter {
 
-    private static final String CONTROLLER_SERVER = "Controller server";
-
     @Autowired
     private SettingsComponent settings;
 
     @Autowired
     private ControllerServerManager serverManager;
 
+    @Autowired
+    private SwingPopup popup;
+
     @Override
     public void windowClosing(WindowEvent we) {
         if (serverManager.isRunning()) {
-            String ObjButtons[] = { "Yes", "No" };
-            int PromptResult = JOptionPane.showOptionDialog(null, "Server is still running, are you sure you want to exit?",
-                    CONTROLLER_SERVER, JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
-            if (PromptResult == JOptionPane.YES_OPTION) {
+            int promptResult = popup.showExitConfirm();
+            if (promptResult == JOptionPane.YES_OPTION) {
                 quit();
             }
         } else {
@@ -47,6 +46,13 @@ public class ServerWindowAdapter extends WindowAdapter {
      */
     private void quit() {
         settings.saveSettings();
+        exit();
+    }
+
+    /**
+     * Closes app.
+     */
+    void exit() {
         System.exit(0);
     }
 }
