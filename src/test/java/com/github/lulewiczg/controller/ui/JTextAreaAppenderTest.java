@@ -12,12 +12,14 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.lulewiczg.controller.AWTTestConfiguration;
 import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
+import com.github.lulewiczg.controller.server.SettingsComponent;
 
 /**
  * Tests JTextAreaAppender class
@@ -26,7 +28,7 @@ import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
  */
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { AWTTestConfiguration.class, MockRequiredUIConfiguration.class })
+@SpringBootTest(classes = { AWTTestConfiguration.class, SettingsComponent.class, MockRequiredUIConfiguration.class })
 @EnableAutoConfiguration
 public class JTextAreaAppenderTest {
 
@@ -37,6 +39,9 @@ public class JTextAreaAppenderTest {
 
     @Autowired
     private JTextArea textArea;
+
+    @MockBean
+    private SettingsComponent settings;
 
     private Log4jLogEvent event = new Log4jLogEvent("test logger", null, this.getClass().getSimpleName(), Level.INFO,
             new SimpleMessage(TEST_LOG), null, null);

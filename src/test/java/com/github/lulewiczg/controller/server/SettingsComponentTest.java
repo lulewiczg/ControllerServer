@@ -41,7 +41,7 @@ public class SettingsComponentTest {
 
     private static final String PASSWORD = "com.github.lulewiczg.setting.password";
 
-    private static final String LOG_LEVEL = "logging.level.com.github.lulewiczg";
+    private static final String LOG_LEVEL = "com.github.lulewiczg.setting.logLevel";
 
     private static final String AUTOSTART = "com.github.lulewiczg.setting.autostart";
 
