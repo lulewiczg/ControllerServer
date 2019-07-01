@@ -298,6 +298,7 @@ public class ServerWindowTest {
 
         logLevelsCombobox.setSelectedItem(Level.WARN);
         Mockito.verify(settings).setLogLevel(Level.WARN);
+        Mockito.verify(appender).updateFilter(Level.WARN);
     }
 
     @Test

@@ -1,13 +1,20 @@
 package com.github.lulewiczg.controller.ui;
 
+import static org.junit.Assert.assertThat;
+
 import javax.swing.JTextArea;
 
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Filter.Result;
+import org.apache.logging.log4j.core.filter.ThresholdFilter;
 import org.apache.logging.log4j.core.impl.Log4jLogEvent;
 import org.apache.logging.log4j.message.SimpleMessage;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -79,6 +86,22 @@ public class JTextAreaAppenderTest {
         appender.append(event);
 
         Mockito.verify(appender, Mockito.times(2)).flush();
+    }
+
+    @Test
+    @DisplayName("Filter is updated to proper level")
+    public void testFilterUpdate() throws Exception {
+        Level level = Level.WARN;
+        Filter filter = appender.getFilter();
+
+        appender.updateFilter(level);
+
+        Mockito.verify(appender).removeFilter(filter);
+        ArgumentCaptor<ThresholdFilter> argument = ArgumentCaptor.forClass(ThresholdFilter.class);
+        Mockito.verify(appender).addFilter(argument.capture());
+        assertThat(argument.getValue().getLevel(), Matchers.equalTo(level));
+        assertThat(argument.getValue().getOnMatch(), Matchers.equalTo(Result.ACCEPT));
+        assertThat(argument.getValue().getOnMismatch(), Matchers.equalTo(Result.DENY));
     }
 
 }
