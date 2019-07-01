@@ -25,7 +25,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +32,7 @@ import org.springframework.context.annotation.Configuration;
 import com.github.lulewiczg.controller.server.ControllerServerManager;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.SettingsComponent;
+import com.github.lulewiczg.controller.ui.JTextAreaAppender;
 import com.github.lulewiczg.controller.ui.SwingPopup;
 
 /**
@@ -68,21 +68,17 @@ public class UIConfiguration {
     }
 
     @Bean
-    public JComboBox<Level> levelsCombobox(SettingsComponent settings) {
+    public JComboBox<Level> levelsCombobox(SettingsComponent settings, JTextAreaAppender appender) {
         Level[] values = Level.values();
         Arrays.sort(values);
         JComboBox<Level> levels = new JComboBox<>(values);
         levels.setSelectedItem(settings.getLogLevel());
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-        org.apache.logging.log4j.core.config.Configuration config = ctx.getConfiguration();
-        LoggerConfig loggerConfig = config.getLoggerConfig("com.github.lulewiczg.controller");
         levels.addActionListener(buildListener(e -> {
             Level level = (Level) levels.getSelectedItem();
             settings.setLogLevel(level);
-            loggerConfig.setLevel(Level.INFO);
-            ctx.updateLoggers();
+            appender.updateFilter(level);
             log.info("Logger level changed to: " + level);
-            loggerConfig.setLevel(level);
             ctx.updateLoggers();
         }));
         levels.setMaximumSize(new Dimension(50, 20));

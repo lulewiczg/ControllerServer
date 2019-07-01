@@ -33,7 +33,7 @@ public class SettingsComponent {
     @Value("${com.github.lulewiczg.setting.autostart}")
     private boolean autostart;
 
-    @Value("${logging.level.com.github.lulewiczg}")
+    @Value("${com.github.lulewiczg.setting.logLevel}")
     private Level logLevel;
 
     @Value("${com.github.lulewiczg.setting.userFile}")
@@ -101,7 +101,7 @@ public class SettingsComponent {
     }
 
     public void setLogLevel(Level logLevel) {
-        userProperties.setProperty("logging.level.com.github.lulewiczg", logLevel.toString());
+        userProperties.setProperty("com.github.lulewiczg.setting.logLevel", logLevel.toString());
         this.logLevel = logLevel;
     }
 

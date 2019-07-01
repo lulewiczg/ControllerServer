@@ -6,3 +6,5 @@ bin/
 *.jar
 target/
 *.dat
+log.txt
+application.properties
