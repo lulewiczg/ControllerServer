@@ -55,8 +55,8 @@ public class ControllerServerManager {
      * @return true if should
      */
     private boolean shouldStart() {
-        if (settings.isAutostart()) {
-            return runningThread == null;
+        if (settings.isAutostart() && runningThread == null) {
+            return true;
         }
         return runningThread != null && runningThread.isDone() && server.getStatus() == ServerState.SHUTDOWN;
     }

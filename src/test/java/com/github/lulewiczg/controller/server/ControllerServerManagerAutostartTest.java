@@ -42,8 +42,25 @@ public class ControllerServerManagerAutostartTest {
     @Test
     @DisplayName("Server autostart")
     public void testStart() throws Exception {
+        mockServerStart();
         Thread.sleep(500);
+
         Mockito.verify(server).start();
+    }
+
+    /**
+     * Mocks server to change state to UP when started.
+     */
+    private void mockServerStart() {
+        Mockito.when(server.getStatus()).thenAnswer(i -> {
+            long count = Mockito.mockingDetails(server).getInvocations().stream()
+                    .filter(j -> j.getMethod().getName().equals("start")).count();
+            if (count != 0) {
+                return ServerState.WAITING;
+            } else {
+                return ServerState.SHUTDOWN;
+            }
+        });
     }
 
 }

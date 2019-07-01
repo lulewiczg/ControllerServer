@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Lazy;
 
+import com.github.lulewiczg.controller.server.ControllerServerManager;
+import com.github.lulewiczg.controller.server.ServerState;
 import com.github.lulewiczg.controller.ui.ServerWindow;
 
 /**
@@ -22,6 +24,9 @@ public class ControllerServerApplication implements CommandLineRunner {
     @Autowired
     private ServerWindow window;
 
+    @Autowired
+    private ControllerServerManager manager;
+
     /**
      * Runs server either in windowed or in console mode.
      *
@@ -36,6 +41,10 @@ public class ControllerServerApplication implements CommandLineRunner {
         if (args.length < 1 || !args[0].equals(CONSOLE)) {
             window.startUI();
         }
+        while (manager.getStatus() != ServerState.FORCED_SHUTDOWN) {
+            Thread.sleep(2000);
+        }
+        System.exit(0);
     }
 
 }
