@@ -12,14 +12,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.lulewiczg.controller.MockPropertiesConfiguration;
 import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
@@ -36,7 +34,6 @@ import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
  *
  */
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { MockServerConfiguration.class, MockRequiredUIConfiguration.class, MockPropertiesConfiguration.class,
         TestUtilConfiguration.class, ControllerServerManager.class, ObjectStreamClientConnection.class })
 @EnableAutoConfiguration

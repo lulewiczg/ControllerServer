@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -21,7 +20,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.lulewiczg.controller.MockPropertiesConfiguration;
 import com.github.lulewiczg.controller.MockServerConfiguration;
@@ -45,7 +43,6 @@ import com.github.lulewiczg.controller.server.ControllerServer;
  *
  */
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { MockServerConfiguration.class, MockPropertiesConfiguration.class, TestUtilConfiguration.class,
         ActionProcessor.class })
 @EnableAutoConfiguration

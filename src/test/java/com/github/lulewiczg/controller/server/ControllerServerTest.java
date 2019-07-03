@@ -13,7 +13,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -21,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
@@ -36,7 +34,6 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
  *
  */
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { MockRequiredUIConfiguration.class, ObjectStreamClientConnection.class, ControllerServer.class,
         ExceptionLoggingService.class })
 @EnableAutoConfiguration

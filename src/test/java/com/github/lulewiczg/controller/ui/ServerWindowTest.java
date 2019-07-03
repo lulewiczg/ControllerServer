@@ -28,7 +28,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -36,7 +35,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.lulewiczg.controller.AWTTestConfiguration;
 import com.github.lulewiczg.controller.EagerConfiguration;
@@ -52,7 +50,6 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
  * @author Grzegurz
  */
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, UIConfiguration.class, ServerWindow.class,
         ServerWindowAdapter.class })
 @EnableAutoConfiguration

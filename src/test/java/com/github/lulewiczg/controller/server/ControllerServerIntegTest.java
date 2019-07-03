@@ -17,7 +17,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.opentest4j.AssertionFailedError;
@@ -28,10 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.github.lulewiczg.controller.AWTSpringApplicationContextLoader;
 import com.github.lulewiczg.controller.AWTTestConfiguration;
 import com.github.lulewiczg.controller.EagerConfiguration;
 import com.github.lulewiczg.controller.MainConfiguration;
@@ -60,8 +56,6 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
  */
 @ActiveProfiles("testInteg")
 @EnableAutoConfiguration
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader = AWTSpringApplicationContextLoader.class)
 @SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, MainConfiguration.class,
         ControllerServerManager.class, TestUtilConfiguration.class, JNAMouseMovingService.class, JTextAreaAppender.class,
         ControllerServer.class, ObjectStreamClientConnection.class, ActionProcessor.class })
