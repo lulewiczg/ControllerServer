@@ -40,11 +40,12 @@ public class ControllerServerApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
         if (args.length < 1 || !args[0].equals(CONSOLE)) {
             window.startUI();
+        } else {
+            while (manager.getStatus() != ServerState.FORCED_SHUTDOWN) {
+                Thread.sleep(2000);
+            }
+            System.exit(0);
         }
-        while (manager.getStatus() != ServerState.FORCED_SHUTDOWN) {
-            Thread.sleep(2000);
-        }
-        System.exit(0);
     }
 
 }
