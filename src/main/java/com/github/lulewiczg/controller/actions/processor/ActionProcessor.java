@@ -63,7 +63,7 @@ public class ActionProcessor implements Closeable {
                 res.getCallback().accept(server);
             }
         } catch (Exception e) {
-            handleException(server, e);
+            handleException(e);
         }
     }
 
@@ -75,7 +75,7 @@ public class ActionProcessor implements Closeable {
      * @throws Exception
      *             the Exception
      */
-    private void handleException(ControllerServer server, Exception e) throws Exception {
+    private void handleException(Exception e) throws Exception {
         Status status = Status.NOT_OK;
         if (e instanceof LoginException) {
             LoginException le = (LoginException) e;

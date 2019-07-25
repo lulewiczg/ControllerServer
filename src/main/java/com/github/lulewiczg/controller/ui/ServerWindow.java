@@ -32,10 +32,10 @@ public class ServerWindow extends JFrame {
     private static final long serialVersionUID = 1L;
 
     @Autowired
-    private ExceptionLoggingService exceptionService;
+    private transient ExceptionLoggingService exceptionService;
 
     @Autowired
-    private JTextAreaAppender appender;
+    private transient JTextAreaAppender appender;
 
     @Autowired
     private JButton stopButton;
@@ -59,7 +59,7 @@ public class ServerWindow extends JFrame {
     private JPanel logPanel;
 
     @Autowired
-    private ServerWindowAdapter adapter;
+    private transient ServerWindowAdapter adapter;
 
     public ServerWindow() {
         try {

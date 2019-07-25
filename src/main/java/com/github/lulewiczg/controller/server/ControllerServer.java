@@ -121,7 +121,7 @@ public class ControllerServer {
     private void setupSocket() throws IOException {
         server = context.getBean(ServerSocket.class);
         setStatus(ServerState.WAITING);
-        log.info(String.format("Waiting for connection on port %s...", config.getPort()));
+        log.info("Waiting for connection on port {}...", config.getPort());
         socket = server.accept();
         socket.setReuseAddress(false);
         socket.setKeepAlive(true);
@@ -181,6 +181,7 @@ public class ControllerServer {
         try {
             semaphore.acquire();
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new SemaphoreException(e);
         }
     }
@@ -197,7 +198,7 @@ public class ControllerServer {
 
     public void setStatus(ServerState state) {
         if (status != state) {
-            log.debug(String.format("Status changed from %s to %s.", status, state));
+            log.debug("Status changed from {} to {}.", status, state);
         }
         this.status = state;
         updateUI();

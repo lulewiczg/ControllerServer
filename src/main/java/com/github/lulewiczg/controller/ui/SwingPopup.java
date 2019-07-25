@@ -35,8 +35,8 @@ public class SwingPopup {
      * @return selected option
      */
     public int showExitConfirm() {
-        String ObjButtons[] = { "Yes", "No" };
+        String[] objButtons = { "Yes", "No" };
         return JOptionPane.showOptionDialog(null, "Server is still running, are you sure you want to exit?", CONTROLLER_SERVER,
-                JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
+                JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, objButtons, objButtons[1]);
     }
 }

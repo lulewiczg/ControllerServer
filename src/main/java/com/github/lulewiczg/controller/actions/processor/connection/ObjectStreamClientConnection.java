@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.common.Common;
 import com.github.lulewiczg.controller.common.Response;
+import com.github.lulewiczg.controller.exception.ConnectionException;
 
 /**
  * Communication with client using serialization..
@@ -36,7 +37,7 @@ public class ObjectStreamClientConnection implements ClientConnection {
             this.in = new ObjectInputStream(in);
             this.out = new ObjectOutputStream(out);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ConnectionException(e);
         }
     }
 

@@ -5,6 +5,7 @@ import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
+import com.github.lulewiczg.controller.server.ControllerServer;
 
 /**
  * Action to disconnect from server.
@@ -20,7 +21,7 @@ public class DisconnectAction extends LoginRequiredAction {
      */
     @Override
     protected Response doAction(ControllingService controllingService) throws ActionException {
-        return new Response(Status.OK, i -> i.logout());
+        return new Response(Status.OK, ControllerServer::logout);
     }
 
 }

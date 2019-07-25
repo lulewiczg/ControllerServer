@@ -1,5 +1,8 @@
 package com.github.lulewiczg.controller.server;
 
+import java.util.concurrent.TimeUnit;
+
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +43,7 @@ public class ControllerServerManagerAutostartTest {
     @DisplayName("Server autostart")
     public void testStart() throws Exception {
         mockServerStart();
-        Thread.sleep(500);
+        Awaitility.await().atMost(1, TimeUnit.SECONDS).until(() -> server.getStatus().isRunning());
 
         Mockito.verify(server).start();
     }

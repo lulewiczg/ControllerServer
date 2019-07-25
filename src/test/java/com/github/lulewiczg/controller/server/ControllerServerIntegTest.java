@@ -12,7 +12,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +29,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
+import com.github.lulewiczg.controller.AWTSpringApplicationContextLoader;
 import com.github.lulewiczg.controller.AWTTestConfiguration;
 import com.github.lulewiczg.controller.EagerConfiguration;
 import com.github.lulewiczg.controller.MainConfiguration;
@@ -56,9 +60,10 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
  */
 @ActiveProfiles("testInteg")
 @EnableAutoConfiguration
+@ContextConfiguration(loader = AWTSpringApplicationContextLoader.class)
 @SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, MainConfiguration.class,
-        ControllerServerManager.class, TestUtilConfiguration.class, JNAMouseMovingService.class, JTextAreaAppender.class,
-        ControllerServer.class, ObjectStreamClientConnection.class, ActionProcessor.class })
+        ControllerServerManager.class, TestUtilConfiguration.class, JNAMouseMovingService.class,
+        JTextAreaAppender.class, ControllerServer.class, ObjectStreamClientConnection.class, ActionProcessor.class })
 public class ControllerServerIntegTest {
 
     private Client client;
@@ -269,8 +274,8 @@ public class ControllerServerIntegTest {
             Response response2 = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON2_DOWN_MASK));
             assertOK(response2);
         }
-        System.out.println(
-                "--------> Time needed for 20000 actions: " + Duration.between(then, Instant.now()).getNano() / 1000000.0);
+        System.out.println("--------> Time needed for 20000 actions: "
+                + Duration.between(then, Instant.now()).getNano() / 1000000.0);
     }
 
     @Test
@@ -363,9 +368,7 @@ public class ControllerServerIntegTest {
      * @throws InterruptedException
      */
     private void waitForState(ServerState state) throws InterruptedException {
-        for (int i = 0; i < 10 && serverRunner.getStatus() != state; i++) {
-            Thread.sleep(100);
-        }
+        Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> serverRunner.getStatus() == state);
         assertEquals(state, serverRunner.getStatus(), "Invalid server state");
     }
 

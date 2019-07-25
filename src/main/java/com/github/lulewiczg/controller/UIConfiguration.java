@@ -4,12 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -56,14 +53,14 @@ public class UIConfiguration {
     @Bean
     public JTextField passwordInput(SettingsComponent settings, JButton startButton, SwingPopup popup) {
         JTextField passwordInput = new JTextField(String.valueOf(settings.getPassword()));
-        passwordInput.addActionListener(buildListener(e -> {
+        passwordInput.addActionListener(e -> {
             String text = passwordInput.getText();
             if (text.isEmpty()) {
                 popup.invalidValuePopup(INVALID_PASSWORD, startButton);
             } else {
                 settings.setPassword(text);
             }
-        }));
+        });
         return passwordInput;
     }
 
@@ -74,13 +71,13 @@ public class UIConfiguration {
         JComboBox<Level> levels = new JComboBox<>(values);
         levels.setSelectedItem(settings.getLogLevel());
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-        levels.addActionListener(buildListener(e -> {
+        levels.addActionListener(e -> {
             Level level = (Level) levels.getSelectedItem();
             settings.setLogLevel(level);
             appender.updateFilter(level);
             log.info("Logger level changed to: " + level);
             ctx.updateLoggers();
-        }));
+        });
         levels.setMaximumSize(new Dimension(50, 20));
         return levels;
     }
@@ -88,7 +85,7 @@ public class UIConfiguration {
     @Bean
     public JTextField portInput(SettingsComponent settings, JButton startButton, SwingPopup popup) {
         JTextField portInput = new JTextField(String.valueOf(settings.getPort()));
-        portInput.addActionListener(buildListener(e -> {
+        portInput.addActionListener(e -> {
             String text = portInput.getText();
             if (!text.isEmpty()) {
                 try {
@@ -99,7 +96,7 @@ public class UIConfiguration {
             } else {
                 popup.invalidValuePopup(INVALID_PORT, startButton);
             }
-        }));
+        });
         return portInput;
     }
 
@@ -114,21 +111,21 @@ public class UIConfiguration {
     @Bean
     public JCheckBox autostartCheckbox(SettingsComponent settings) {
         JCheckBox autostart = new JCheckBox("Auto start server on startup", settings.isAutostart());
-        autostart.addActionListener(buildListener(e -> settings.setAutostart(autostart.isSelected())));
+        autostart.addActionListener(e -> settings.setAutostart(autostart.isSelected()));
         return autostart;
     }
 
     @Bean
     public JButton startButton() {
         JButton start = new JButton("Start");
-        start.addActionListener(buildListener(e -> server.start()));
+        start.addActionListener(e -> server.start());
         return start;
     }
 
     @Bean
     public JButton stopButton() {
         JButton stop = new JButton("Stop");
-        stop.addActionListener(buildListener(e -> server.stop()));
+        stop.addActionListener(e -> server.stop());
         return stop;
     }
 
@@ -143,13 +140,13 @@ public class UIConfiguration {
     @Bean
     public JButton clearLogsButton(JTextArea logsArea) {
         JButton clearLogsBtn = new JButton("Clear logs");
-        clearLogsBtn.addActionListener(buildListener(e -> logsArea.setText("")));
+        clearLogsBtn.addActionListener(e -> logsArea.setText(""));
         return clearLogsBtn;
     }
 
     @Bean
-    public JPanel settingsPanel(JComboBox<String> ipCombobox, JTextField portInput, JTextField passwordInput, JCheckBox autostart,
-            JLabel stateIndicator, JButton startButton, JButton stopButton) {
+    public JPanel settingsPanel(JComboBox<String> ipCombobox, JTextField portInput, JTextField passwordInput,
+            JCheckBox autostart, JLabel stateIndicator, JButton startButton, JButton stopButton) {
         JPanel panel = new JPanel(new GridLayout(6, 3));
         panel.setBorder(BorderFactory.createTitledBorder("Server settings"));
         JLabel ip = new JLabel("IP");
@@ -190,22 +187,6 @@ public class UIConfiguration {
         panel.add(scrollPanel);
 
         return panel;
-    }
-
-    /**
-     * Builds ActionListener from lambda.
-     *
-     * @param consumer
-     *            lambda
-     * @return action listener
-     */
-    private ActionListener buildListener(Consumer<ActionEvent> consumer) {
-        return new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                consumer.accept(e);
-            }
-        };
     }
 
     /**

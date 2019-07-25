@@ -3,8 +3,10 @@ package com.github.lulewiczg.controller.server;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,8 +36,9 @@ import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
  *
  */
 @ActiveProfiles("test")
-@SpringBootTest(classes = { MockServerConfiguration.class, MockRequiredUIConfiguration.class, MockPropertiesConfiguration.class,
-        TestUtilConfiguration.class, ControllerServerManager.class, ObjectStreamClientConnection.class })
+@SpringBootTest(classes = { MockServerConfiguration.class, MockRequiredUIConfiguration.class,
+        MockPropertiesConfiguration.class, TestUtilConfiguration.class, ControllerServerManager.class,
+        ObjectStreamClientConnection.class })
 @EnableAutoConfiguration
 public class ControllerServerManagerTest {
 
@@ -57,16 +60,18 @@ public class ControllerServerManagerTest {
 
         serverRunner.start();
 
-        Thread.sleep(100);
+        waitForServer();
         Mockito.verify(server).start();
     }
 
     @Test
     @DisplayName("Server start after stop")
     public void testStartAfterStop() throws Exception {
+        mockServerStart();
+
         serverRunner.start();
 
-        Thread.sleep(100);
+        waitForServer();
         Mockito.verify(server).start();
     }
 
@@ -87,7 +92,7 @@ public class ControllerServerManagerTest {
 
         serverRunner.stop();
 
-        Thread.sleep(100);
+        waitForServer();
         Mockito.verify(server).stop();
     }
 
@@ -140,5 +145,15 @@ public class ControllerServerManagerTest {
     private static Stream<Arguments> testActionHandledException() {
         return Stream.of(Arguments.of(ServerState.WAITING, true), Arguments.of(ServerState.CONNECTED, true),
                 Arguments.of(ServerState.SHUTDOWN, false), Arguments.of(ServerState.FORCED_SHUTDOWN, false));
+    }
+
+    /**
+     * Waits for server to change state.
+     * 
+     * @throws InterruptedException
+     *             the InterruptedException
+     */
+    private void waitForServer() throws InterruptedException {
+        Awaitility.await().atMost(200, TimeUnit.MILLISECONDS).until(() -> server.getStatus().isRunning());
     }
 }

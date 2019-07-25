@@ -7,7 +7,9 @@ import java.io.OutputStream;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,8 +36,8 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
  *
  */
 @ActiveProfiles("test")
-@SpringBootTest(classes = { MockRequiredUIConfiguration.class, ObjectStreamClientConnection.class, ControllerServer.class,
-        ExceptionLoggingService.class })
+@SpringBootTest(classes = { MockRequiredUIConfiguration.class, ObjectStreamClientConnection.class,
+        ControllerServer.class, ExceptionLoggingService.class })
 @EnableAutoConfiguration
 public class ControllerServerTest {
 
@@ -89,7 +91,7 @@ public class ControllerServerTest {
         Mockito.when(input.available()).thenReturn(1);
         Mockito.when(socket.isClosed()).thenReturn(true);
 
-        startAndWait();
+        startAndWait(true);
 
         Mockito.verify(server).softStop();
         Mockito.verify(processor, Mockito.never()).processAction(server);
@@ -101,7 +103,7 @@ public class ControllerServerTest {
     public void testConnectWait() throws Exception {
         Mockito.when(socket.isConnected()).thenReturn(false);
 
-        startAndWait();
+        startAndWait(true);
 
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.WAITING));
     }
@@ -113,7 +115,7 @@ public class ControllerServerTest {
         Mockito.when(input.available()).thenReturn(0);
         Mockito.when(socket.isClosed()).thenReturn(true);
 
-        startAndWait();
+        startAndWait(true);
 
         Mockito.verify(server).softStop();
         Mockito.verify(processor, Mockito.never()).processAction(server);
@@ -127,7 +129,7 @@ public class ControllerServerTest {
         Mockito.when(input.available()).thenReturn(1);
         Mockito.when(socket.isClosed()).thenReturn(false, true);
 
-        startAndWait();
+        startAndWait(true);
 
         Mockito.verify(server).softStop();
         Mockito.verify(processor).processAction(server);
@@ -142,7 +144,7 @@ public class ControllerServerTest {
         Mockito.when(socket.isClosed()).thenReturn(false);
         Mockito.when(server.getStatus()).thenReturn(ServerState.CONNECTED, ServerState.SHUTDOWN);
 
-        startAndWait();
+        startAndWait(true);
 
         Mockito.verify(server).softStop();
         Mockito.verify(processor).processAction(server);
@@ -156,7 +158,7 @@ public class ControllerServerTest {
         Mockito.when(input.available()).thenReturn(1);
         Mockito.when(socket.isClosed()).thenReturn(false, false, false, true);
 
-        startAndWait();
+        startAndWait(true);
 
         Mockito.verify(server).softStop();
         Mockito.verify(processor, Mockito.times(3)).processAction(server);
@@ -171,7 +173,7 @@ public class ControllerServerTest {
         Mockito.when(input.available()).thenReturn(1);
         Mockito.when(socket.isClosed()).thenReturn(false);
 
-        startAndWait();
+        startAndWait(false);
 
         Mockito.verify(server).stop();
         Mockito.verify(socket, Mockito.never()).getInputStream();
@@ -186,7 +188,7 @@ public class ControllerServerTest {
         Mockito.when(socket.isClosed()).thenReturn(false);
         Mockito.doThrow(Exception.class).when(processor).processAction(server);
 
-        startAndWait();
+        startAndWait(true);
 
         Mockito.verify(server).softStop();
         Mockito.verify(processor).processAction(server);
@@ -213,10 +215,12 @@ public class ControllerServerTest {
     /**
      * Starts server and waits for start.
      *
+     * @param started
+     *            should start
      * @throws InterruptedException
      *             the InterruptedException
      */
-    private void startAndWait() throws InterruptedException {
+    private void startAndWait(boolean started) throws InterruptedException {
         server.start();
         Thread.sleep(100);
     }

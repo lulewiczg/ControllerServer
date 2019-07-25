@@ -9,6 +9,7 @@ import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
 import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.LoginException;
+import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ServerState;
 
 /**
@@ -45,8 +46,8 @@ public class LoginAction extends Action {
         if (password == null || !password.equals(controllingService.getSettings().getPassword())) {
             throw new LoginException(info, ip);
         }
-        log.info(String.format("Connected: %s, %s", info, ip));
-        return new Response(Status.OK, i -> i.login());
+        log.info("Connected: {}, {}", info, ip);
+        return new Response(Status.OK, ControllerServer::login);
     }
 
     /**

@@ -15,6 +15,9 @@ import org.apache.logging.log4j.Logger;
 public class Common {
     private static final Logger log = LogManager.getLogger(Common.class);
 
+    private Common() {
+    }
+
     /**
      * Closes resources.
      *
