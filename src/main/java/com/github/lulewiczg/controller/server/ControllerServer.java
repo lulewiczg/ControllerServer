@@ -3,7 +3,6 @@ package com.github.lulewiczg.controller.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -12,6 +11,7 @@ import java.util.concurrent.Semaphore;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
@@ -64,7 +64,7 @@ public class ControllerServer {
             setupSocket();
             doActions();
             softStop();
-        } catch (BindException e) {
+        } catch (BeanCreationException e) {
             exceptionService.error(log, "Address is already in use", e);
             stop();
         } catch (Exception e) {

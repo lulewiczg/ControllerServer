@@ -4,12 +4,9 @@ import static org.junit.Assert.assertThat;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.TimeUnit;
 
-import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -36,8 +34,8 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
  *
  */
 @ActiveProfiles("test")
-@SpringBootTest(classes = { MockRequiredUIConfiguration.class, ObjectStreamClientConnection.class,
-        ControllerServer.class, ExceptionLoggingService.class })
+@SpringBootTest(classes = { MockRequiredUIConfiguration.class, ObjectStreamClientConnection.class, ControllerServer.class,
+        ExceptionLoggingService.class })
 @EnableAutoConfiguration
 public class ControllerServerTest {
 
@@ -168,7 +166,7 @@ public class ControllerServerTest {
     @Test
     @DisplayName("Server does not start when port is already used")
     public void testPortAlreadyUsed() throws Exception {
-        Mockito.when(socketServer.accept()).thenThrow(BindException.class);
+        Mockito.when(socketServer.accept()).thenThrow(BeanCreationException.class);
         Mockito.when(socket.isConnected()).thenReturn(true);
         Mockito.when(input.available()).thenReturn(1);
         Mockito.when(socket.isClosed()).thenReturn(false);
