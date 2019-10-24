@@ -1,0 +1,39 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body style="width: 100%; height: 100%;">
+    <div style="width: 100%; height: 100%;"></div>
+</body>
+<script>
+    var last = {
+        x : 0,
+        y : 0
+    };
+    var dupa = function(e) {
+        $.post("/rest/mouse/move", {
+            x : e.pageX - last.x,
+            y : e.pageY - last.y
+        });
+        last.x = e.pageX;
+        last.y = e.pageY;
+    };
+    $("div").mousemove(dupa);
+    if ($("div").touchmove) {
+        alert("OK");
+        $("div").touchmove(dupa);
+    }
+
+    $("div").mousedown(function() {
+        $.post("/rest/mouse/press", {
+            key : 1
+        });
+    });
+
+    $("div").mouseup(function() {
+        $.post("/rest/mouse/release", {
+            key : 1
+        });
+    });
+</script>
+</html>
