@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -86,7 +87,7 @@ public class ServerWindow extends JFrame {
     private void initUI() {
         setTitle(CONTROLLER_SERVER);
         setSize(400, 600);
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setVisible(true);
         setLayout(new BorderLayout());
         add(settingsPanel, BorderLayout.NORTH);

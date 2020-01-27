@@ -9,4 +9,8 @@ public class ServerExitException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
+    public ServerExitException() {
+        super("Client requested server to stop");
+    }
+
 }
