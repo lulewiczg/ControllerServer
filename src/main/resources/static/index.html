@@ -3,13 +3,16 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 <body style="width: 100%; height: 100%;">
-    <div style="width: 100%; height: 100%;"></div>
+    <div ontouchmove="touchMove(event)" style="width: 100%; height: 100%; background-color: red;"></div>
 </body>
 <script>
+    var isTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
+
     var last = {
         x : 0,
         y : 0
     };
+
     var dupa = function(e) {
         $.post("/rest/mouse/move", {
             x : e.pageX - last.x,
@@ -18,10 +21,21 @@
         last.x = e.pageX;
         last.y = e.pageY;
     };
-    $("div").mousemove(dupa);
-    if ($("div").touchmove) {
-        alert("OK");
-        $("div").touchmove(dupa);
+    if (!isTouch) {
+        $("div").mousemove(dupa);
+    } else {
+        setInterval(function() {
+            if (last.x && last.y) {
+                $.post("/rest/mouse/move", {
+                    x : parseInt(last.x / 100),
+                    y : parseInt(last.y / 100)
+                });
+                last = {
+                    x : 0,
+                    y : 0
+                };
+            }
+        }, 30);
     }
 
     $("div").mousedown(function() {
@@ -35,5 +49,13 @@
             key : 1
         });
     });
+
+    function touchMove(event) {
+        var x = event.touches[0].clientX - $(window).width() / 2;
+        var y = event.touches[0].clientY - $(window).height() / 2;
+        console.log(x, y);
+        last.x += x;
+        last.y += y;
+    }
 </script>
 </html>

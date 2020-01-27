@@ -16,6 +16,7 @@ public class MouseController {
 
     @PostMapping("move")
     public void move(long x, long y) {
+        System.out.println(x + "  " + y);
         service.getMouseService().move(x, y);
     }
 
