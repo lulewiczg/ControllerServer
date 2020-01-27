@@ -29,6 +29,9 @@ public class MockServerConfiguration {
     @MockBean
     private Clipboard clipboard;
 
+    @MockBean
+    private Thread serverThread;
+
     @SpyBean
     private ControllerServer server;
 
@@ -40,4 +43,5 @@ public class MockServerConfiguration {
     public ServerSocket serverSocket(SettingsComponent settings) throws IOException {
         return new ServerSocket(settings.getPort());
     }
+
 }

@@ -14,7 +14,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
@@ -38,6 +40,8 @@ public class ControllerServer {
     private ExecutorService exec;
     private Semaphore semaphore = new Semaphore(1, true);
     private Semaphore listenerSemaphore = new Semaphore(1, true);
+
+    Thread serverThread = new Thread();// dummy thread
 
     private ServerSocket server;
 
@@ -63,13 +67,13 @@ public class ControllerServer {
         try {
             setupSocket();
             doActions();
-            softStop();
+            serverThread.interrupt();
         } catch (BeanCreationException e) {
             exceptionService.error(log, "Address is already in use", e);
             stop();
         } catch (Exception e) {
             exceptionService.error(log, e);
-            softStop();
+            serverThread.interrupt();
         } finally {
             release(listenerSemaphore);
         }
@@ -81,25 +85,9 @@ public class ControllerServer {
     public void start() {
         acquire(semaphore);
         exec = Executors.newSingleThreadExecutor();
-        exec.submit(this::doServer);
+        serverThread = context.getBean(ControllerServerThread.class, new Thread(this::doServer));// TODO skip new
+        exec.submit(serverThread);
         log.info("Server started");
-        release(semaphore);
-    }
-
-    /**
-     * Performs soft stop. Server will restart.
-     */
-    void softStop() {
-        acquire(semaphore);
-        if (server != null && !server.isClosed()) {
-            Common.close(server);
-            Common.close(processor);
-            Common.close(socket);
-        }
-        if (status != ServerState.FORCED_SHUTDOWN) {
-            setStatus(ServerState.SHUTDOWN);
-        }
-        log.info("Server stopped");
         release(semaphore);
     }
 
@@ -108,7 +96,7 @@ public class ControllerServer {
      */
     public void stop() {
         setStatus(ServerState.FORCED_SHUTDOWN);
-        softStop();
+        serverThread.interrupt();
         exec.shutdownNow();
     }
 
@@ -148,6 +136,22 @@ public class ControllerServer {
     }
 
     /**
+     * Closes resources used by server and changes status.
+     */
+    void closeServer() {
+        acquire(semaphore);
+        if (server != null && !server.isClosed()) {
+            Common.close(server);
+            Common.close(processor);
+            Common.close(socket);
+        }
+        if (status != ServerState.FORCED_SHUTDOWN) {
+            setStatus(ServerState.SHUTDOWN);
+        }
+        release(semaphore);
+    }
+
+    /**
      * Changes server state to connected.
      */
     public void login() {
@@ -158,7 +162,7 @@ public class ControllerServer {
      * Disconnects client.
      */
     public void logout() {
-        softStop();
+        serverThread.interrupt();
         log.info("Disconnected");
     }
 
@@ -214,4 +218,42 @@ public class ControllerServer {
         window.updateUI(status);
     }
 
+    @Bean
+    @Scope(value = "prototype")
+    private ControllerServerThread getThread(Runnable lambda) {
+        return new ControllerServerThread(lambda);
+    }
+
+    /**
+     * Class for handling server thread, handling non-interruptible socket.
+     *
+     * @author Grzegorz
+     */
+    public class ControllerServerThread extends Thread {
+
+        private Runnable lambda;
+
+        private ControllerServerThread(Runnable lambda) {
+            this.lambda = lambda;
+        }
+
+        /**
+         * Runs lambda expression.
+         */
+        @Override
+        public void run() {
+            this.lambda.run();
+        }
+
+        /**
+         * Fixes Socket blocking read, which ignores interruptions.
+         */
+        @Override
+        public void interrupt() {
+            super.interrupt();
+            closeServer();
+            log.info("Server stopped");
+        }
+
+    }
 }

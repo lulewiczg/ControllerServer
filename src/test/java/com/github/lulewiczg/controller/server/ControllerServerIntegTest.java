@@ -62,8 +62,8 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
 @EnableAutoConfiguration
 @ContextConfiguration(loader = AWTSpringApplicationContextLoader.class)
 @SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, MainConfiguration.class,
-        ControllerServerManager.class, TestUtilConfiguration.class, JNAMouseMovingService.class,
-        JTextAreaAppender.class, ControllerServer.class, ObjectStreamClientConnection.class, ActionProcessor.class })
+        ControllerServerManager.class, TestUtilConfiguration.class, JNAMouseMovingService.class, JTextAreaAppender.class,
+        ControllerServer.class, ObjectStreamClientConnection.class, ActionProcessor.class })
 public class ControllerServerIntegTest {
 
     private Client client;
@@ -116,7 +116,7 @@ public class ControllerServerIntegTest {
     }
 
     @Test
-    @DisplayName("Server not restart after logout")
+    @DisplayName("Server restart after logout")
     public void testStateAfterLogout() throws Exception {
         startServer();
         client = new Client(port);
@@ -238,7 +238,7 @@ public class ControllerServerIntegTest {
     }
 
     @Test
-    @DisplayName("Sends action after logout")
+    @DisplayName("Send action after logout")
     public void testSendActionAfterLogout() throws Exception {
         startServer();
         client = new Client(port);
@@ -274,8 +274,8 @@ public class ControllerServerIntegTest {
             Response response2 = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON2_DOWN_MASK));
             assertOK(response2);
         }
-        System.out.println("--------> Time needed for 20000 actions: "
-                + Duration.between(then, Instant.now()).getNano() / 1000000.0);
+        System.out.println(
+                "--------> Time needed for 20000 actions: " + Duration.between(then, Instant.now()).getNano() / 1000000.0);
     }
 
     @Test
@@ -368,7 +368,10 @@ public class ControllerServerIntegTest {
      * @throws InterruptedException
      */
     private void waitForState(ServerState state) throws InterruptedException {
-        Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> serverRunner.getStatus() == state);
+        Awaitility.await().atMost(20000, TimeUnit.SECONDS).until(() -> {
+            System.out.println(serverRunner.getStatus());
+            return serverRunner.getStatus() == state;
+        });
         assertEquals(state, serverRunner.getStatus(), "Invalid server state");
     }
 

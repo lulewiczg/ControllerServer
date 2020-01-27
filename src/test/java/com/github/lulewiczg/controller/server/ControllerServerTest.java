@@ -91,7 +91,7 @@ public class ControllerServerTest {
 
         startAndWait(true);
 
-        Mockito.verify(server).softStop();
+        Mockito.verify(server).closeServer();
         Mockito.verify(processor, Mockito.never()).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
     }
@@ -115,7 +115,7 @@ public class ControllerServerTest {
 
         startAndWait(true);
 
-        Mockito.verify(server).softStop();
+        Mockito.verify(server).closeServer();
         Mockito.verify(processor, Mockito.never()).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
     }
@@ -129,7 +129,7 @@ public class ControllerServerTest {
 
         startAndWait(true);
 
-        Mockito.verify(server).softStop();
+        Mockito.verify(server).closeServer();
         Mockito.verify(processor).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
     }
@@ -144,7 +144,7 @@ public class ControllerServerTest {
 
         startAndWait(true);
 
-        Mockito.verify(server).softStop();
+        Mockito.verify(server).closeServer();
         Mockito.verify(processor).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
     }
@@ -158,7 +158,7 @@ public class ControllerServerTest {
 
         startAndWait(true);
 
-        Mockito.verify(server).softStop();
+        Mockito.verify(server).closeServer();
         Mockito.verify(processor, Mockito.times(3)).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
     }
@@ -188,7 +188,7 @@ public class ControllerServerTest {
 
         startAndWait(true);
 
-        Mockito.verify(server).softStop();
+        Mockito.verify(server).closeServer();
         Mockito.verify(processor).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
     }
@@ -207,7 +207,7 @@ public class ControllerServerTest {
         server.logout();
 
         Mockito.verify(server, Mockito.atLeastOnce()).setStatus(ServerState.SHUTDOWN);
-        Mockito.verify(server).softStop();
+        Mockito.verify(server).closeServer();
     }
 
     /**
