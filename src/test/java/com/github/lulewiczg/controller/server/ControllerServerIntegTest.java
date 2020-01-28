@@ -98,8 +98,8 @@ public class ControllerServerIntegTest {
     public void after() throws Exception {
         if (serverRunner.isRunning()) {
             serverRunner.stop();
+            waitForState(ServerState.FORCED_SHUTDOWN);
         }
-        waitForState(ServerState.FORCED_SHUTDOWN);
         if (client != null) {
             client.close();
         }
@@ -368,7 +368,7 @@ public class ControllerServerIntegTest {
      * @throws InterruptedException
      */
     private void waitForState(ServerState state) throws InterruptedException {
-        Awaitility.await().atMost(20000, TimeUnit.SECONDS).until(() -> {
+        Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
             System.out.println(serverRunner.getStatus());
             return serverRunner.getStatus() == state;
         });

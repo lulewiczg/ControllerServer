@@ -29,7 +29,8 @@ import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
 public class ControllerServerManager {
 
     private static final Logger log = LogManager.getLogger(ControllerServerManager.class);
-    private ExecutorService stateRunner = Executors.newSingleThreadExecutor();
+    private ExecutorService serverRunner = Executors.newSingleThreadExecutor();
+    private ExecutorService jobRunner = Executors.newCachedThreadPool();
     private ScheduledExecutorService restarterRunner = Executors.newScheduledThreadPool(1);
     private Future<?> runningThread;
 
@@ -69,7 +70,7 @@ public class ControllerServerManager {
         if (server.getStatus().isRunning()) {
             throw new ServerAlreadyRunningException();
         }
-        runningThread = stateRunner.submit(() -> server.start());
+        runningThread = serverRunner.submit(new ControllerServerThread(server::start));
     }
 
     /**
@@ -79,7 +80,7 @@ public class ControllerServerManager {
         if (!server.getStatus().isRunning()) {
             throw new ServerAlreadyStoppedException();
         }
-        stateRunner.submit(() -> server.stop());
+        jobRunner.submit(() -> server.stop());
     }
 
     /**
@@ -95,4 +96,39 @@ public class ControllerServerManager {
         return server.getStatus();
     }
 
+    /**
+     * Class for handling server thread, handling non-interruptible socket.
+     *
+     * @author Grzegorz
+     */
+    class ControllerServerThread extends Thread {
+
+        private Runnable lambda;
+
+        private boolean sockedInterrupted;
+
+        ControllerServerThread(Runnable lambda) {
+            this.lambda = lambda;
+        }
+
+        /**
+         * Runs lambda expression.
+         */
+        @Override
+        public void run() {
+            this.lambda.run();
+        }
+
+        /**
+         * Fixes Socket blocking read, which ignores interruptions.
+         */
+        @Override
+        public void interrupt() {
+            super.interrupt();
+            if (!sockedInterrupted) {
+                server.closeServer();
+                sockedInterrupted = true;
+            }
+        }
+    }
 }

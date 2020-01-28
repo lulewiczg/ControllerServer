@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
@@ -66,14 +68,14 @@ public class ControllerServerTest {
     @Mock
     private OutputStream out;
 
+    private Executor exec = Executors.newCachedThreadPool();
+
     @BeforeEach
     public void before() throws Exception {
         Mockito.when(socket.getInputStream()).thenReturn(input);
         Mockito.when(socket.getOutputStream()).thenReturn(out);
 
         Mockito.when(socketServer.accept()).thenReturn(socket);
-        server.serverThread = server.new ControllerServerThread(() -> {
-        });// dummy thread
     }
 
     @AfterEach
@@ -220,7 +222,7 @@ public class ControllerServerTest {
      *             the InterruptedException
      */
     private void startAndWait(boolean started) throws InterruptedException {
-        server.start();
+        exec.execute(server::start);
         Thread.sleep(100);
     }
 

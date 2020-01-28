@@ -5,24 +5,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
+import java.net.SocketException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
 import com.github.lulewiczg.controller.common.Common;
-import com.github.lulewiczg.controller.exception.SemaphoreException;
 import com.github.lulewiczg.controller.ui.ServerWindow;
 
 /**
@@ -37,14 +32,9 @@ public class ControllerServer {
     private static final Logger log = LogManager.getLogger(ControllerServer.class);
     private ServerState status = ServerState.SHUTDOWN;
     private Socket socket;
-    private ExecutorService exec;
-    private Semaphore semaphore = new Semaphore(1, true);
-    private Semaphore listenerSemaphore = new Semaphore(1, true);
-
-    Thread serverThread = new ControllerServerThread(() -> {
-    });// dummy thread
-
     private ServerSocket server;
+    private Object startLock = new Object();
+    private Object stopLock = new Object();
 
     @Autowired
     private SettingsComponent config;
@@ -60,45 +50,47 @@ public class ControllerServer {
     // context.getBean
     private ActionProcessor processor;
 
-    /**
-     * Handles server logic.
-     */
-    private void doServer() {
-        acquire(listenerSemaphore);
-        try {
-            setupSocket();
-            doActions();
-            serverThread.interrupt();
-        } catch (BeanCreationException e) {
-            exceptionService.error(log, "Address is already in use", e);
-            stop();
-        } catch (Exception e) {
-            exceptionService.error(log, e);
-            serverThread.interrupt();
-        } finally {
-            release(listenerSemaphore);
-        }
-    }
+    private Thread serverThread = new Thread();// dummy thread
 
     /**
      * Starts server.
      */
-    public void start() {
-        acquire(semaphore);
-        exec = Executors.newSingleThreadExecutor();
-        serverThread = context.getBean(ControllerServerThread.class, (Runnable) this::doServer);
-        exec.submit(serverThread);
-        log.info("Server started");
-        release(semaphore);
+    void start() {
+        synchronized (startLock) {
+            log.info("Server started");
+            this.serverThread = Thread.currentThread();
+            try {
+                setupSocket();
+                doActions();
+                closeServer();
+            } catch (BeanCreationException e) {
+                exceptionService.error(log, "Address is already in use", e);
+                stop();
+            } catch (SocketException e) {
+                exceptionService.debug(log, e);
+                closeServer();
+            } catch (Exception e) {
+                exceptionService.error(log, e);
+                closeServer();
+            }
+            log.info("Server stopped");
+        }
+    }
+
+    /**
+     * Disconnects client.
+     */
+    public void logout() {
+        closeServer();
+        log.info("Disconnected");
     }
 
     /**
      * Forces server to stop. Will not restart.
      */
-    public void stop() {
+    void stop() {
         setStatus(ServerState.FORCED_SHUTDOWN);
-        serverThread.interrupt();
-        exec.shutdownNow();
+        closeServer();
     }
 
     /**
@@ -140,16 +132,17 @@ public class ControllerServer {
      * Closes resources used by server and changes status.
      */
     void closeServer() {
-        acquire(semaphore);
-        if (server != null && !server.isClosed()) {
-            Common.close(server);
-            Common.close(processor);
-            Common.close(socket);
+        synchronized (stopLock) {
+            if (server != null && !server.isClosed()) {
+                Common.close(server);
+                Common.close(processor);
+                Common.close(socket);
+            }
+            if (status != ServerState.FORCED_SHUTDOWN) {
+                setStatus(ServerState.SHUTDOWN);
+            }
+            serverThread.interrupt();
         }
-        if (status != ServerState.FORCED_SHUTDOWN) {
-            setStatus(ServerState.SHUTDOWN);
-        }
-        release(semaphore);
     }
 
     /**
@@ -160,45 +153,12 @@ public class ControllerServer {
     }
 
     /**
-     * Disconnects client.
-     */
-    public void logout() {
-        serverThread.interrupt();
-        log.info("Disconnected");
-    }
-
-    /**
-     * Updates UI.
+     * Updates UI if window is present.
      */
     private void updateUI() {
         if (window != null) {
             window.updateUI(status);
         }
-    }
-
-    /**
-     * Acquires lock.
-     *
-     * @param semaphore
-     *            semaphore to lock
-     */
-    private void acquire(Semaphore semaphore) {
-        try {
-            semaphore.acquire();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new SemaphoreException(e);
-        }
-    }
-
-    /**
-     * Releases lock.
-     *
-     * @param semaphore
-     *            to release
-     */
-    private void release(Semaphore semaphore) {
-        semaphore.release();
     }
 
     public void setStatus(ServerState state) {
@@ -219,47 +179,4 @@ public class ControllerServer {
         window.updateUI(status);
     }
 
-    @Bean
-    @Scope(value = "prototype")
-    private ControllerServerThread getThread(Runnable lambda) {
-        return new ControllerServerThread(lambda);
-    }
-
-    /**
-     * Class for handling server thread, handling non-interruptible socket.
-     *
-     * @author Grzegorz
-     */
-    class ControllerServerThread extends Thread {
-
-        private Runnable lambda;
-
-        private boolean sockedInterrupted;
-
-        ControllerServerThread(Runnable lambda) {
-            this.lambda = lambda;
-        }
-
-        /**
-         * Runs lambda expression.
-         */
-        @Override
-        public void run() {
-            this.lambda.run();
-        }
-
-        /**
-         * Fixes Socket blocking read, which ignores interruptions.
-         */
-        @Override
-        public void interrupt() {
-            super.interrupt();
-            if (!sockedInterrupted) {
-                closeServer();
-                log.info("Server stopped");
-                sockedInterrupted = true;
-            }
-        }
-
-    }
 }
