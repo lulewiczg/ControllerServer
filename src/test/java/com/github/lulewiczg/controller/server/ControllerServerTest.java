@@ -72,6 +72,8 @@ public class ControllerServerTest {
         Mockito.when(socket.getOutputStream()).thenReturn(out);
 
         Mockito.when(socketServer.accept()).thenReturn(socket);
+        server.serverThread = server.new ControllerServerThread(() -> {
+        });// dummy thread
     }
 
     @AfterEach
@@ -205,9 +207,8 @@ public class ControllerServerTest {
     @DisplayName("User logout")
     public void testLogout() throws Exception {
         server.logout();
-
-        Mockito.verify(server, Mockito.atLeastOnce()).setStatus(ServerState.SHUTDOWN);
         Mockito.verify(server).closeServer();
+        Mockito.verify(server).setStatus(ServerState.SHUTDOWN);
     }
 
     /**

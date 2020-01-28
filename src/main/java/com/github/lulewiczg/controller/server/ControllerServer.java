@@ -41,7 +41,8 @@ public class ControllerServer {
     private Semaphore semaphore = new Semaphore(1, true);
     private Semaphore listenerSemaphore = new Semaphore(1, true);
 
-    Thread serverThread = new Thread();// dummy thread
+    Thread serverThread = new ControllerServerThread(() -> {
+    });// dummy thread
 
     private ServerSocket server;
 
@@ -85,7 +86,7 @@ public class ControllerServer {
     public void start() {
         acquire(semaphore);
         exec = Executors.newSingleThreadExecutor();
-        serverThread = context.getBean(ControllerServerThread.class, new Thread(this::doServer));// TODO skip new
+        serverThread = context.getBean(ControllerServerThread.class, (Runnable) this::doServer);
         exec.submit(serverThread);
         log.info("Server started");
         release(semaphore);
@@ -229,11 +230,13 @@ public class ControllerServer {
      *
      * @author Grzegorz
      */
-    public class ControllerServerThread extends Thread {
+    class ControllerServerThread extends Thread {
 
         private Runnable lambda;
 
-        private ControllerServerThread(Runnable lambda) {
+        private boolean sockedInterrupted;
+
+        ControllerServerThread(Runnable lambda) {
             this.lambda = lambda;
         }
 
@@ -251,8 +254,11 @@ public class ControllerServer {
         @Override
         public void interrupt() {
             super.interrupt();
-            closeServer();
-            log.info("Server stopped");
+            if (!sockedInterrupted) {
+                closeServer();
+                log.info("Server stopped");
+                sockedInterrupted = true;
+            }
         }
 
     }
