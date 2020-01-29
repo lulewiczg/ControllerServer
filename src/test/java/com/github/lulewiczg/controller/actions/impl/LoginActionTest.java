@@ -38,7 +38,9 @@ public class LoginActionTest extends ActionTestTemplate {
     public void testLoginWithInvalidPassword() throws Exception {
         Mockito.when(settings.getPassword()).thenReturn("different pwd");
         Mockito.when(server.getStatus()).thenReturn(ServerState.WAITING);
+
         processor.processAction(server);
+
         Mockito.verify(server, Mockito.never()).login();
         assertStatus(Status.INVALID_PASSWORD, LoginException.class);
     }
@@ -46,7 +48,9 @@ public class LoginActionTest extends ActionTestTemplate {
     @Override
     protected void doTestInWaiting() throws Exception {
         Mockito.when(settings.getPassword()).thenReturn(PASSWORD);
+
         processor.processAction(server);
+
         Mockito.verify(server).login();
         assertStatusOK();
     }
@@ -54,6 +58,7 @@ public class LoginActionTest extends ActionTestTemplate {
     @Override
     protected void doTestInConencted() throws Exception {
         processor.processAction(server);
+
         Mockito.verify(server, Mockito.never()).login();
         assertStatusNotOK(AlreadyLoggedInException.class);
     }
@@ -61,6 +66,7 @@ public class LoginActionTest extends ActionTestTemplate {
     @Override
     protected void doTestInShutdown() throws Exception {
         processor.processAction(server);
+
         Mockito.verify(server, Mockito.never()).login();
         assertStatusNotOK(AlreadyLoggedInException.class);
     }

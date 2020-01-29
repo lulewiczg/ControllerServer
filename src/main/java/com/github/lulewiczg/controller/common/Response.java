@@ -18,11 +18,14 @@ public class Response implements Serializable {
 
     private Exception exception;
 
+    private String exceptionStr;
+
     private transient Consumer<ControllerServer> callback;
 
     public Response(Status status, Exception exception) {
         this.status = status;
         this.exception = exception;
+        this.exceptionStr = exception.toString();
     }
 
     public Response(Status status, Consumer<ControllerServer> callback) {
@@ -83,5 +86,13 @@ public class Response implements Serializable {
             return false;
         }
         return ((Response) obj).status == status;
+    }
+
+    public String getExceptionStr() {
+        return exceptionStr;
+    }
+
+    public void setExceptionStr(String exceptionStr) {
+        this.exceptionStr = exceptionStr;
     }
 }
