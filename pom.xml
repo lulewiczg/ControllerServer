@@ -4,7 +4,7 @@
     <groupId>Controller</groupId>
     <artifactId>Controller</artifactId>
     <name>Controller</name>
-    <version>0.9</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
     <description>Server to control PC</description>
     <properties>

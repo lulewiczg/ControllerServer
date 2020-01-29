@@ -116,14 +116,14 @@ public abstract class ActionTestTemplate {
 
     @Test
     @DisplayName("Test action in SHUTDOWN state")
-    public void testDisconnectShutdown() throws Exception {
+    public void testInShutdownState() throws Exception {
         Mockito.when(server.getStatus()).thenReturn(ServerState.SHUTDOWN);
         doTestInShutdown();
     }
 
     @Test
     @DisplayName("Test action in CONNECTED state")
-    public void testDisconnectConnected() throws Exception {
+    public void testinConnectedState() throws Exception {
         Mockito.when(server.getStatus()).thenReturn(ServerState.CONNECTED);
         doTestInConencted();
     }

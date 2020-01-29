@@ -56,6 +56,19 @@ public class ExceptionLoggingService {
     }
 
     /**
+     * Logs exception with INFO level.
+     *
+     * @param log
+     *            logger
+     * @param e
+     *            exception
+     */
+    public void info(Logger log, Exception e) {
+        log.info(e.getMessage());
+        log.catching(Level.DEBUG, e);
+    }
+
+    /**
      * Logs exception with DEBUG level.
      *
      * @param log

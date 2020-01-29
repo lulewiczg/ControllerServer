@@ -34,7 +34,7 @@ public class RobotMouseMovingServiceTest {
 
     @Test
     @DisplayName("Mouse move")
-    public void testStateAfterLogout() throws Exception {
+    public void testMoueMove() throws Exception {
         PointerInfo a = MouseInfo.getPointerInfo();
         Point b = a.getLocation();
         int x = (int) b.getX();

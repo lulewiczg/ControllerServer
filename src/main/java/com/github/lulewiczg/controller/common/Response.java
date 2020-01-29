@@ -5,6 +5,11 @@ import java.util.function.Consumer;
 
 import com.github.lulewiczg.controller.server.ControllerServer;
 
+/**
+ * Response sent to client after performing action.
+ *
+ * @author Grzegorz
+ */
 public class Response implements Serializable {
 
     private static final long serialVersionUID = 1L;

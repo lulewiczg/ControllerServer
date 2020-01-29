@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
 import com.github.lulewiczg.controller.common.Common;
+import com.github.lulewiczg.controller.exception.ServerExitException;
 import com.github.lulewiczg.controller.ui.ServerWindow;
 
 /**
@@ -69,6 +70,9 @@ public class ControllerServer {
             } catch (SocketException e) {
                 exceptionService.debug(log, e);
                 closeServer();
+            } catch (ServerExitException e) {
+                exceptionService.info(log, e);
+                stop();
             } catch (Exception e) {
                 exceptionService.error(log, e);
                 closeServer();
@@ -161,7 +165,7 @@ public class ControllerServer {
         }
     }
 
-    public void setStatus(ServerState state) {
+    void setStatus(ServerState state) {
         if (status != state) {
             log.debug("Status changed from {} to {}.", status, state);
         }
