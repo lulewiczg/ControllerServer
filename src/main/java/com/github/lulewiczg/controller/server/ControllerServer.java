@@ -6,9 +6,13 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -50,10 +54,26 @@ public class ControllerServer {
 
     private ServerWindow window;
 
+    @Value("${com.github.lulewiczg.setting.serverTimeout}")
+    private long timeout;
+
+    private volatile long lastAcionTime;
+
     // context.getBean
     private ActionProcessor processor;
 
     private Thread serverThread = new Thread();// dummy thread
+
+    private ScheduledExecutorService timeoutExecutor = Executors.newScheduledThreadPool(1);
+
+    public ControllerServer() {
+        timeoutExecutor.scheduleAtFixedRate(() -> {
+            if (status == ServerState.CONNECTED && lastAcionTime != 0 && System.currentTimeMillis() - lastAcionTime > timeout) {
+                log.info("Client connection timeout");
+                logout();
+            }
+        }, 1L, 1L, TimeUnit.SECONDS);
+    }
 
     /**
      * Starts server.
@@ -131,6 +151,7 @@ public class ControllerServer {
         processor = context.getBean(ActionProcessor.class, clientConnection);
         while (!socket.isClosed() && getStatus() != ServerState.SHUTDOWN) {
             processor.processAction(this);
+            lastAcionTime = System.currentTimeMillis();
         }
     }
 
