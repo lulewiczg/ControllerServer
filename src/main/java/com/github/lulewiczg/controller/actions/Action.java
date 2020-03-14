@@ -3,9 +3,6 @@ package com.github.lulewiczg.controller.actions;
 import java.io.Serializable;
 import java.util.EnumSet;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.exception.ActionException;
@@ -20,7 +17,6 @@ import com.github.lulewiczg.controller.server.ServerState;
 public abstract class Action implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    protected static final transient Logger log = LogManager.getLogger(Action.class);
 
     /**
      * Returns proper server states for this action.
@@ -33,6 +29,7 @@ public abstract class Action implements Serializable {
 
     /**
      * Executes action.
+     * 
      * @param controllingService
      *            controlling service
      *

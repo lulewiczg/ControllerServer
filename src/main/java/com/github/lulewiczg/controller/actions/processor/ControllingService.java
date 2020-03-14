@@ -9,11 +9,14 @@ import org.springframework.stereotype.Service;
 import com.github.lulewiczg.controller.actions.processor.mouse.MouseMovingService;
 import com.github.lulewiczg.controller.server.SettingsComponent;
 
+import lombok.Getter;
+
 /**
  * Service for controlling PC.
  *
  * @author Grzegurz
  */
+@Getter
 @Service
 public class ControllingService {
 
@@ -28,21 +31,5 @@ public class ControllingService {
 
     @Autowired
     private SettingsComponent settings;
-
-    public MouseMovingService getMouseService() {
-        return mouseService;
-    }
-
-    public Robot getRobot() {
-        return robot;
-    }
-
-    public Clipboard getClipboard() {
-        return clipboard;
-    }
-
-    public SettingsComponent getSettings() {
-        return settings;
-    }
 
 }

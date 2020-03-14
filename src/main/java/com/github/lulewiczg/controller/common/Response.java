@@ -5,11 +5,16 @@ import java.util.function.Consumer;
 
 import com.github.lulewiczg.controller.server.ControllerServer;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Response sent to client after performing action.
  *
  * @author Grzegorz
  */
+@Getter
+@Setter
 public class Response implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -37,22 +42,6 @@ public class Response implements Serializable {
         this.status = status;
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public Exception getException() {
-        return exception;
-    }
-
-    public void setException(Exception exception) {
-        this.exception = exception;
-    }
-
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
@@ -65,14 +54,6 @@ public class Response implements Serializable {
             }
         }
         return str.toString();
-    }
-
-    public Consumer<ControllerServer> getCallback() {
-        return callback;
-    }
-
-    public void setEvent(Consumer<ControllerServer> callback) {
-        this.callback = callback;
     }
 
     @Override
@@ -88,11 +69,4 @@ public class Response implements Serializable {
         return ((Response) obj).status == status;
     }
 
-    public String getExceptionStr() {
-        return exceptionStr;
-    }
-
-    public void setExceptionStr(String exceptionStr) {
-        this.exceptionStr = exceptionStr;
-    }
 }

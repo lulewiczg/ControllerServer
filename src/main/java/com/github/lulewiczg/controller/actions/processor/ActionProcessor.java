@@ -3,8 +3,6 @@ package com.github.lulewiczg.controller.actions.processor;
 import java.io.Closeable;
 import java.io.IOException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
@@ -21,6 +19,8 @@ import com.github.lulewiczg.controller.exception.ServerExitException;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 
+import lombok.extern.log4j.Log4j2;
+
 /**
  * Class for processing client actions.
  *
@@ -29,8 +29,8 @@ import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 @Lazy
 @Service
 @Scope("prototype")
+@Log4j2
 public class ActionProcessor implements Closeable {
-    protected static final Logger log = LogManager.getLogger();
 
     @Autowired
     private ControllingService controllingService;

@@ -11,8 +11,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -20,15 +18,17 @@ import org.springframework.stereotype.Component;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.ServerState;
 
+import lombok.extern.log4j.Log4j2;
+
 /**
  * GUI for server.
  *
  * @author Grzegurz
  */
 @Lazy
+@Log4j2
 @Component
 public class ServerWindow extends JFrame {
-    private static final Logger log = LogManager.getLogger(ServerWindow.class);
     private static final String CONTROLLER_SERVER = "Controller server";
     private static final long serialVersionUID = 1L;
 

@@ -7,8 +7,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -21,16 +19,20 @@ import com.github.lulewiczg.controller.common.Common;
 import com.github.lulewiczg.controller.exception.ServerExitException;
 import com.github.lulewiczg.controller.ui.ServerWindow;
 
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
+
 /**
  * Server implementation.
  *
  * @author Grzegurz
  */
 @Lazy
+@Log4j2
 @Service
 public class ControllerServer {
 
-    private static final Logger log = LogManager.getLogger(ControllerServer.class);
+    @Getter
     private ServerState status = ServerState.SHUTDOWN;
     private Socket socket;
     private ServerSocket server;
@@ -171,10 +173,6 @@ public class ControllerServer {
         }
         this.status = state;
         updateUI();
-    }
-
-    public ServerState getStatus() {
-        return status;
     }
 
     @Autowired(required = false)

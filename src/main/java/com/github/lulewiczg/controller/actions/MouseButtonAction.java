@@ -1,18 +1,17 @@
 package com.github.lulewiczg.controller.actions;
 
+import lombok.AllArgsConstructor;
+
 /**
  * Abstract action for mouse button event.
  *
  * @author Grzegurz
  */
+@AllArgsConstructor
 public abstract class MouseButtonAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
     protected int key;
-
-    public MouseButtonAction(int key) {
-        this.key = key;
-    }
 
     @Override
     public String toString() {

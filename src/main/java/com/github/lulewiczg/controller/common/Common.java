@@ -4,19 +4,18 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import lombok.experimental.UtilityClass;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Common utility class.
  *
  * @author Grzegurz
  */
+@Log4j2
+@UtilityClass
 public class Common {
-    private static final Logger log = LogManager.getLogger(Common.class);
-
-    private Common() {
-    }
 
     /**
      * Closes resources.
@@ -24,7 +23,7 @@ public class Common {
      * @param c
      *            resource
      */
-    public static void close(Closeable c) {
+    public void close(Closeable c) {
         if (c != null) {
             try {
                 c.close();

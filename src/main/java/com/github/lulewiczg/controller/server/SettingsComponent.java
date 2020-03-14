@@ -8,21 +8,22 @@ import java.util.Properties;
 import javax.annotation.Resource;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Component for holding settings.
  *
  * @author Grzegurz
  */
+@Log4j2
+@Getter
 @Component
 public class SettingsComponent {
-
-    private static final Logger log = LogManager.getLogger(SettingsComponent.class);
 
     @Value("${com.github.lulewiczg.setting.password}")
     private String password;
@@ -42,12 +43,8 @@ public class SettingsComponent {
     @Resource(name = "userProperties")
     private Properties userProperties;
 
+    @Setter
     private ExceptionLoggingService loggingService;
-
-    @Autowired
-    public SettingsComponent(ExceptionLoggingService loggingService) {
-        this.loggingService = loggingService;
-    }
 
     /**
      * Saves settings.
@@ -69,17 +66,9 @@ public class SettingsComponent {
         }
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         userProperties.setProperty("com.github.lulewiczg.setting.password", password);
         this.password = password;
-    }
-
-    public int getPort() {
-        return port;
     }
 
     public void setPort(int port) {
@@ -87,17 +76,9 @@ public class SettingsComponent {
         this.port = port;
     }
 
-    public boolean isAutostart() {
-        return autostart;
-    }
-
     public void setAutostart(boolean autostart) {
         userProperties.setProperty("com.github.lulewiczg.setting.autostart", autostart + "");
         this.autostart = autostart;
-    }
-
-    public Level getLogLevel() {
-        return logLevel;
     }
 
     public void setLogLevel(Level logLevel) {

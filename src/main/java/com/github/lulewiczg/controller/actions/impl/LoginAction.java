@@ -12,23 +12,22 @@ import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ServerState;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+
 /**
  * Aciton for login.
  *
  * @author Grzegurz
  */
+@Log4j2
+@AllArgsConstructor
 public class LoginAction extends Action {
 
     private static final long serialVersionUID = 1L;
     private String password;
     private String info;
     private String ip;
-
-    public LoginAction(String password, String info, String ip) {
-        this.password = password;
-        this.info = info;
-        this.ip = ip;
-    }
 
     /**
      * @see com.github.lulewiczg.controller.actions.Action#getProperStates()

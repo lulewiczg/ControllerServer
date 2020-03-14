@@ -22,6 +22,9 @@ import org.springframework.stereotype.Component;
 
 import com.github.lulewiczg.controller.server.SettingsComponent;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Component for displaying logs.
  *
@@ -35,6 +38,8 @@ public class JTextAreaAppender extends AbstractAppender {
 
     private StringBuffer buffer = new StringBuffer();
 
+    @Getter
+    @Setter
     private boolean enableOutput;
 
     @Autowired
@@ -78,14 +83,6 @@ public class JTextAreaAppender extends AbstractAppender {
         String logMsg = buffer.toString();
         buffer.delete(0, buffer.length());
         SwingUtilities.invokeLater(() -> textArea.append(logMsg));
-    }
-
-    public void setEnableOutput(boolean enableOutput) {
-        this.enableOutput = enableOutput;
-    }
-
-    public boolean isEnableOutput() {
-        return enableOutput;
     }
 
 }

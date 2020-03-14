@@ -10,20 +10,19 @@ import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
 
+import lombok.AllArgsConstructor;
+
 /**
  * Action for sending text.
  *
  * @author Grzegurz
  */
+@AllArgsConstructor
 public class TextAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
 
     private String text;
-
-    public TextAction(String text) {
-        this.text = text;
-    }
 
     /**
      * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)

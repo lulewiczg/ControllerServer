@@ -1,18 +1,17 @@
 package com.github.lulewiczg.controller.actions;
 
+import lombok.AllArgsConstructor;
+
 /**
  * Abstract action for key event.
  *
  * @author Grzegurz
  */
+@AllArgsConstructor
 public abstract class KeyAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
     protected int key;
-
-    public KeyAction(int key) {
-        this.key = key;
-    }
 
     @Override
     public String toString() {

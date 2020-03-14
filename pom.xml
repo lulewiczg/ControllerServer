@@ -66,6 +66,11 @@
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -97,6 +102,7 @@
                         <version>5.5.2</version>
                     </dependency>
                 </dependencies>
+
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
