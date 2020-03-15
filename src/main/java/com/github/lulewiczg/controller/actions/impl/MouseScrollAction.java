@@ -6,19 +6,18 @@ import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
 
+import lombok.AllArgsConstructor;
+
 /**
  * Action for mouse scroll event.
  *
  * @author Grzegurz
  */
+@AllArgsConstructor
 public class MouseScrollAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
     private int lines;
-
-    public MouseScrollAction(int lines) {
-        this.lines = lines;
-    }
 
     /**
      * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)
