@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Scope;
 import com.github.lulewiczg.controller.actions.processor.mouse.JNAMouseMovingService;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.SettingsComponent;
+import com.github.lulewiczg.controller.server.TimeoutWatcher;
 
 /**
  * Configuration for mocking properties.
@@ -37,6 +38,9 @@ public class MockServerConfiguration {
 
     @MockBean
     private JNAMouseMovingService mouseMovingService;
+
+    @MockBean
+    private TimeoutWatcher timeoutWatcher;
 
     @Bean
     @Scope("prototype")

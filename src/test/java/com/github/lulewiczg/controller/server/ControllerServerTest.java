@@ -59,6 +59,9 @@ public class ControllerServerTest {
     @MockBean
     private ClientConnection connection;
 
+    @MockBean
+    private TimeoutWatcher watcher;
+
     @Mock
     private Socket socket;
 
@@ -211,6 +214,21 @@ public class ControllerServerTest {
         server.logout();
         Mockito.verify(server).closeServer();
         Mockito.verify(server).setStatus(ServerState.SHUTDOWN);
+    }
+
+    @Test
+    @DisplayName("Call for timeout watcher")
+    public void testTimeout() throws Exception {
+        Mockito.when(socket.isConnected()).thenReturn(true);
+        Mockito.when(input.available()).thenReturn(1);
+        Mockito.when(socket.isClosed()).thenReturn(false);
+        long time = System.currentTimeMillis();
+
+        exec.execute(server::start);
+
+        Mockito.verify(watcher, Mockito.timeout(1000)).watch(Mockito.any());// Mockito bug
+        Mockito.verify(server, Mockito.atLeast(1)).updateLastTime();
+        assertThat(server.getLastAcionTime(), Matchers.greaterThan(time));
     }
 
     /**

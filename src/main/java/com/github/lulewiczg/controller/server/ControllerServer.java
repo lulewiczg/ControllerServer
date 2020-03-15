@@ -10,9 +10,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -52,12 +53,13 @@ public class ControllerServer {
     @Autowired
     private ApplicationContext context;
 
+    @Autowired
+    private TimeoutWatcher watcher;
+
     private ServerWindow window;
 
-    @Value("${com.github.lulewiczg.setting.serverTimeout}")
-    private long timeout;
-
-    private volatile long lastAcionTime;
+    @Getter
+    private Long lastAcionTime;
 
     // context.getBean
     private ActionProcessor processor;
@@ -66,13 +68,9 @@ public class ControllerServer {
 
     private ScheduledExecutorService timeoutExecutor = Executors.newScheduledThreadPool(1);
 
-    public ControllerServer() {
-        timeoutExecutor.scheduleAtFixedRate(() -> {
-            if (status == ServerState.CONNECTED && lastAcionTime != 0 && System.currentTimeMillis() - lastAcionTime > timeout) {
-                log.info("Client connection timeout");
-                logout();
-            }
-        }, 1L, 1L, TimeUnit.SECONDS);
+    @PostConstruct
+    public void createTimeoutThread() {
+        timeoutExecutor.scheduleAtFixedRate(() -> watcher.watch(this), 1L, 1L, TimeUnit.SECONDS);
     }
 
     /**
@@ -151,8 +149,15 @@ public class ControllerServer {
         processor = context.getBean(ActionProcessor.class, clientConnection);
         while (!socket.isClosed() && getStatus() != ServerState.SHUTDOWN) {
             processor.processAction(this);
-            lastAcionTime = System.currentTimeMillis();
+            updateLastTime();
         }
+    }
+
+    /**
+     * Updates time when last action was invkoed.
+     */
+    public void updateLastTime() {
+        lastAcionTime = System.currentTimeMillis();
     }
 
     /**

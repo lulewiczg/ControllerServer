@@ -63,7 +63,7 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
 @ContextConfiguration(loader = AWTSpringApplicationContextLoader.class)
 @SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, MainConfiguration.class,
         ControllerServerManager.class, TestUtilConfiguration.class, JNAMouseMovingService.class, JTextAreaAppender.class,
-        ControllerServer.class, ObjectStreamClientConnection.class, ActionProcessor.class })
+        ControllerServer.class, ObjectStreamClientConnection.class, ActionProcessor.class, TimeoutWatcher.class })
 public class ControllerServerIntegTest {
 
     private Client client;
@@ -369,7 +369,7 @@ public class ControllerServerIntegTest {
      */
     private void waitForState(ServerState state) throws InterruptedException {
         Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
-            System.out.println(serverRunner.getStatus());
+            System.out.println(String.format("Waiting for state %s, current %s", state, serverRunner.getStatus()));
             return serverRunner.getStatus() == state;
         });
         assertEquals(state, serverRunner.getStatus(), "Invalid server state");
