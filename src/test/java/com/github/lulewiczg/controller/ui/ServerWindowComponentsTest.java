@@ -3,7 +3,8 @@ package com.github.lulewiczg.controller.ui;
 import static org.junit.Assert.assertThat;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
+import java.awt.GridLayout;
+import java.awt.event.FocusEvent;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
@@ -15,15 +16,13 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JViewport;
 
 import org.apache.logging.log4j.Level;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +33,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.github.lulewiczg.controller.AWTTestConfiguration;
@@ -49,11 +49,12 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
  *
  * @author Grzegurz
  */
+@DirtiesContext
 @ActiveProfiles("test")
 @SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, UIConfiguration.class, ServerWindow.class,
         ServerWindowAdapter.class })
 @EnableAutoConfiguration
-class ServerWindowTest {
+class ServerWindowComponentsTest {
 
     private static final String TEST = "test";
 
@@ -112,13 +113,12 @@ class ServerWindowTest {
     private JCheckBox autostart;
 
     @Autowired
-    private JLabel stateIndicator;
-
-    @Autowired
     private JButton startButton;
 
     @Autowired
     private JButton stopButton;
+
+    private static JFrame frame = new JFrame();
 
     @BeforeEach
     void before() {
@@ -128,6 +128,15 @@ class ServerWindowTest {
         Mockito.when(settings.getPort()).thenReturn(151515);
         Mockito.when(settings.getLogLevel()).thenReturn(Level.FATAL);
         startButton.setEnabled(true);
+        if (frame.getComponentCount() == 1) {
+            JPanel jPanel = new JPanel(new GridLayout(5, 5));
+            jPanel.add(portInput);
+            jPanel.add(passwordInput);
+            jPanel.add(timeoutInput);
+            frame.add(jPanel);
+            frame.setSize(10, 10);
+            frame.setVisible(true);
+        }
     }
 
     @AfterEach
@@ -136,52 +145,9 @@ class ServerWindowTest {
         window.dispose();
     }
 
-    @Test
-    @DisplayName("Logs panel is created properly")
-    void testLogsPanel() throws Exception {
-        assertThat(logPanel.getComponentCount(), Matchers.equalTo(2));
-
-        JPanel panel = (JPanel) logPanel.getComponent(0);
-        assertThat(panel.getComponentCount(), Matchers.equalTo(2));
-        assertThat(panel.getComponent(0), Matchers.equalTo(clearLogsButton));
-        assertThat(panel.getComponent(1), Matchers.equalTo(logLevelsCombobox));
-
-        JScrollPane panel2 = (JScrollPane) logPanel.getComponent(1);
-        assertThat(panel2.getComponentCount(), Matchers.greaterThanOrEqualTo(1));
-        JViewport view = (JViewport) panel2.getComponent(0);
-        assertThat(view.getComponentCount(), Matchers.equalTo(1));
-        assertThat(view.getComponent(0), Matchers.equalTo(textArea));
-    }
-
-    @Test
-    @DisplayName("Settings panel is creating properly")
-    void testSettingsPanel() throws Exception {
-        assertThat(settingsPanel.getComponentCount(), Matchers.equalTo(14));
-
-        JLabel label = (JLabel) settingsPanel.getComponent(0);
-        assertThat(label.getText(), Matchers.equalTo("IP"));
-        assertThat(settingsPanel.getComponent(1), Matchers.equalTo(ipCombobox));
-
-        JLabel label2 = (JLabel) settingsPanel.getComponent(2);
-        assertThat(label2.getText(), Matchers.equalTo("Port"));
-        assertThat(settingsPanel.getComponent(3), Matchers.equalTo(portInput));
-
-        JLabel label3 = (JLabel) settingsPanel.getComponent(4);
-        assertThat(label3.getText(), Matchers.equalTo("Password"));
-        assertThat(settingsPanel.getComponent(5), Matchers.equalTo(passwordInput));
-
-        JLabel label4 = (JLabel) settingsPanel.getComponent(6);
-        assertThat(label4.getText(), Matchers.equalTo("Timeout"));
-        assertThat(settingsPanel.getComponent(7), Matchers.equalTo(timeoutInput));
-
-        assertThat(settingsPanel.getComponent(8), Matchers.equalTo(autostart));
-
-        JLabel label5 = (JLabel) settingsPanel.getComponent(10);
-        assertThat(label5.getText(), Matchers.equalTo("Server state"));
-        assertThat(settingsPanel.getComponent(11), Matchers.equalTo(stateIndicator));
-
-        assertThat(settingsPanel.getComponent(12), Matchers.equalTo(stopButton));
-        assertThat(settingsPanel.getComponent(13), Matchers.equalTo(startButton));
+    @AfterAll
+    static void afterAll() {
+        frame.setVisible(false);
     }
 
     @Test
@@ -237,11 +203,13 @@ class ServerWindowTest {
 
     @Test
     @DisplayName("Port input")
-    void testPortInput() {
+    void testPortInput() throws InterruptedException {
+        portInput.requestFocus();
         portInput.setText("12345");
-        portInput.dispatchEvent(new ActionEvent(portInput, 1, TEST));
-        portInput.postActionEvent();
+        Thread.sleep(50);
+        portInput.dispatchEvent(new FocusEvent(portInput, FocusEvent.FOCUS_LOST));
 
+        Thread.sleep(50);
         Mockito.verify(popup, Mockito.never()).invalidValuePopup(Mockito.anyString(), Mockito.any());
         Mockito.verify(settings).setPort(12345);
         assertThat(startButton.isEnabled(), Matchers.equalTo(true));
@@ -249,33 +217,39 @@ class ServerWindowTest {
 
     @Test
     @DisplayName("Port input - invalid port")
-    void testPortInputInvalidPort() {
+    void testPortInputInvalidPort() throws InterruptedException {
+        portInput.requestFocus();
         portInput.setText("qwertyu");
-        portInput.dispatchEvent(new ActionEvent(portInput, 1, TEST));
-        portInput.postActionEvent();
+        Thread.sleep(50);
+        portInput.dispatchEvent(new FocusEvent(portInput, FocusEvent.FOCUS_LOST));
 
+        Thread.sleep(50);
         Mockito.verify(popup).invalidValuePopup("Invalid port!", startButton);
         Mockito.verify(settings, Mockito.never()).setPort(Mockito.anyInt());
     }
 
     @Test
     @DisplayName("Port input - empty")
-    void testPortInputEmpty() {
+    void testPortInputEmpty() throws InterruptedException {
+        portInput.requestFocus();
         portInput.setText("");
-        portInput.dispatchEvent(new ActionEvent(portInput, 1, TEST));
-        portInput.postActionEvent();
+        Thread.sleep(50);
+        portInput.dispatchEvent(new FocusEvent(portInput, FocusEvent.FOCUS_LOST));
 
+        Thread.sleep(50);
         Mockito.verify(popup).invalidValuePopup("Invalid port!", startButton);
         Mockito.verify(settings, Mockito.never()).setPort(Mockito.anyInt());
     }
 
     @Test
     @DisplayName("Password input")
-    void testPasswordInput() {
+    void testPasswordInput() throws InterruptedException {
+        passwordInput.requestFocus();
         passwordInput.setText(TEST);
-        passwordInput.dispatchEvent(new ActionEvent(passwordInput, 1, TEST));
-        passwordInput.postActionEvent();
+        Thread.sleep(50);
+        passwordInput.dispatchEvent(new FocusEvent(passwordInput, FocusEvent.FOCUS_LOST));
 
+        Thread.sleep(50);
         Mockito.verify(popup, Mockito.never()).invalidValuePopup(Mockito.anyString(), Mockito.any());
         Mockito.verify(settings).setPassword(TEST);
         assertThat(startButton.isEnabled(), Matchers.equalTo(true));
@@ -283,22 +257,26 @@ class ServerWindowTest {
 
     @Test
     @DisplayName("Password input - empty")
-    void testPasswordInputEmpty() {
+    void testPasswordInputEmpty() throws InterruptedException {
+        passwordInput.requestFocus();
         passwordInput.setText("");
-        passwordInput.dispatchEvent(new ActionEvent(passwordInput, 1, TEST));
-        passwordInput.postActionEvent();
+        Thread.sleep(50);
+        passwordInput.dispatchEvent(new FocusEvent(passwordInput, FocusEvent.FOCUS_LOST));
 
+        Thread.sleep(50);
         Mockito.verify(popup).invalidValuePopup("Invalid password!", startButton);
         Mockito.verify(settings, Mockito.never()).setPassword(Mockito.anyString());
     }
 
     @Test
     @DisplayName("Timeout input")
-    void testTimeoutInput() {
+    void testTimeoutInput() throws InterruptedException {
+        timeoutInput.requestFocus();
         timeoutInput.setText("12345");
-        timeoutInput.dispatchEvent(new ActionEvent(timeoutInput, 1, TEST));
-        timeoutInput.postActionEvent();
+        Thread.sleep(50);
+        timeoutInput.dispatchEvent(new FocusEvent(timeoutInput, FocusEvent.FOCUS_LOST));
 
+        Thread.sleep(50);
         Mockito.verify(popup, Mockito.never()).invalidValuePopup(Mockito.anyString(), Mockito.any());
         Mockito.verify(settings).setTimeout(12345);
         assertThat(startButton.isEnabled(), Matchers.equalTo(true));
@@ -306,22 +284,26 @@ class ServerWindowTest {
 
     @Test
     @DisplayName("Timeout input - empty")
-    void testTimeoutInputEmpty() {
+    void testTimeoutInputEmpty() throws InterruptedException {
+        timeoutInput.requestFocus();
         timeoutInput.setText("");
-        timeoutInput.dispatchEvent(new ActionEvent(timeoutInput, 1, TEST));
-        timeoutInput.postActionEvent();
+        Thread.sleep(50);
+        timeoutInput.dispatchEvent(new FocusEvent(timeoutInput, FocusEvent.FOCUS_LOST));
 
+        Thread.sleep(50);
         Mockito.verify(popup).invalidValuePopup("Invalid timeout!", startButton);
         Mockito.verify(settings, Mockito.never()).setTimeout(Mockito.anyInt());
     }
 
     @Test
     @DisplayName("Timeout input - invalid port")
-    void testTimeoutInputInvalidPort() {
+    void testTimeoutInputInvalidPort() throws InterruptedException {
+        timeoutInput.requestFocus();
         timeoutInput.setText("qwertyu");
-        timeoutInput.dispatchEvent(new ActionEvent(timeoutInput, 1, TEST));
-        timeoutInput.postActionEvent();
+        Thread.sleep(50);
+        timeoutInput.dispatchEvent(new FocusEvent(passwordInput, FocusEvent.FOCUS_LOST));
 
+        Thread.sleep(50);
         Mockito.verify(popup).invalidValuePopup("Invalid timeout!", startButton);
         Mockito.verify(settings, Mockito.never()).setTimeout(Mockito.anyInt());
     }

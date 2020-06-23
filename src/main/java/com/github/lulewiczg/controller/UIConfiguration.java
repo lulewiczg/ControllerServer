@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -58,7 +60,7 @@ public class UIConfiguration {
     @Bean
     public JTextField passwordInput(SettingsComponent settings, JButton startButton, SwingPopup popup) {
         JTextField passwordInput = new JTextField(String.valueOf(settings.getPassword()));
-        passwordInput.addActionListener(e -> {
+        passwordInput.addFocusListener(createListener(() -> {
             String text = passwordInput.getText();
             if (text.isEmpty()) {
                 popup.invalidValuePopup(INVALID_PASSWORD, startButton);
@@ -66,7 +68,7 @@ public class UIConfiguration {
                 settings.setPassword(text);
                 startButton.setEnabled(true);
             }
-        });
+        }));
         return passwordInput;
     }
 
@@ -91,7 +93,7 @@ public class UIConfiguration {
     @Bean
     public JTextField portInput(SettingsComponent settings, JButton startButton, SwingPopup popup) {
         JTextField portInput = new JTextField(String.valueOf(settings.getPort()));
-        portInput.addActionListener(e -> {
+        portInput.addFocusListener(createListener(() -> {
             String text = portInput.getText();
             if (!text.isEmpty()) {
                 try {
@@ -104,14 +106,14 @@ public class UIConfiguration {
             } else {
                 popup.invalidValuePopup(INVALID_PORT, startButton);
             }
-        });
+        }));
         return portInput;
     }
 
     @Bean
     public JTextField timeoutInput(SettingsComponent settings, JButton startButton, SwingPopup popup) {
         JTextField timeoutInput = new JTextField(String.valueOf(settings.getTimeout()));
-        timeoutInput.addActionListener(e -> {
+        timeoutInput.addFocusListener(createListener(() -> {
             String text = timeoutInput.getText();
             if (!text.isEmpty()) {
                 try {
@@ -124,7 +126,7 @@ public class UIConfiguration {
             } else {
                 popup.invalidValuePopup(INVALID_TIMEOUT, startButton);
             }
-        });
+        }));
         return timeoutInput;
     }
 
@@ -235,6 +237,27 @@ public class UIConfiguration {
             exceptionService.error(log, "Could not obtain computer address", e);
         }
         return localIps;
+    }
+
+    /**
+     * Creates blur listener.
+     *
+     * @param lambda
+     *            lambda to execute
+     * @return listener
+     */
+    private FocusListener createListener(Runnable lambda) {
+        return new FocusListener() {
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                lambda.run();
+            }
+
+            @Override
+            public void focusGained(FocusEvent e) {
+            }
+        };
     }
 
 }
