@@ -21,7 +21,7 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
  * @author Grzegurz
  */
 @EnableAutoConfiguration
-public class TextActionTest extends ActionTestTemplate {
+class TextActionTest extends ActionTestTemplate {
 
     private static final String TXT = "test txt";
 

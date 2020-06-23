@@ -18,7 +18,6 @@ public class TimeoutWatcher {
     private long timeout;
 
     public void watch(ControllerServer server) {
-        // System.out.println(server.getStatus());
         if (server.getStatus() == ServerState.CONNECTED && server.getLastAcionTime() != 0
                 && System.currentTimeMillis() - server.getLastAcionTime() > timeout) {
             log.info("Client connection timeout");

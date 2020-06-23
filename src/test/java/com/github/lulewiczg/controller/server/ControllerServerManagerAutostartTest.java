@@ -26,7 +26,7 @@ import com.github.lulewiczg.controller.MockUtilConfiguration;
 @SpringBootTest(classes = { MockPropertiesConfiguration.class, MockRequiredUIConfiguration.class, MockUtilConfiguration.class,
         ControllerServer.class, ControllerServerManager.class })
 @EnableAutoConfiguration
-public class ControllerServerManagerAutostartTest {
+class ControllerServerManagerAutostartTest {
 
     @MockBean
     private ControllerServer server;
@@ -41,7 +41,7 @@ public class ControllerServerManagerAutostartTest {
 
     @Test
     @DisplayName("Server autostart")
-    public void testStart() throws Exception {
+    void testStart() throws Exception {
         mockServerStart();
         Awaitility.await().atMost(1, TimeUnit.SECONDS).until(() -> server.getStatus().isRunning());
 

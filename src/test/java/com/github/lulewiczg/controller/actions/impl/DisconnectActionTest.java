@@ -12,7 +12,7 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
  * @author Grzegurz
  */
 @EnableAutoConfiguration
-public class DisconnectActionTest extends ActionTestTemplate {
+class DisconnectActionTest extends ActionTestTemplate {
 
     @Override
     protected Action getAction() {

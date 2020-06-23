@@ -22,14 +22,14 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
 @ActiveProfiles("test")
 @SpringBootTest(classes = { MockPropertiesConfiguration.class })
 @EnableAutoConfiguration
-public class LoginRequiredActionTest {
+class LoginRequiredActionTest {
 
     @Spy
     private LoginRequiredAction action;
 
     @Test
     @DisplayName("Action run in proper state")
-    public void testRunInProperState() throws Exception {
+    void testRunInProperState() throws Exception {
         Exception e = assertThrows(AuthorizationException.class, () -> action.doThrowException());
         assertThat(e.getMessage(),
                 Matchers.equalTo(String.format("Action %s requires login", action.getClass().getSimpleName())));

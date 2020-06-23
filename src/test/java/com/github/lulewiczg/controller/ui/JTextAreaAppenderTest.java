@@ -34,7 +34,7 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
 @ActiveProfiles("test")
 @SpringBootTest(classes = { AWTTestConfiguration.class, SettingsComponent.class, MockRequiredUIConfiguration.class })
 @EnableAutoConfiguration
-public class JTextAreaAppenderTest {
+class JTextAreaAppenderTest {
 
     private static final String TEST_LOG = "Test Log";
 
@@ -52,7 +52,7 @@ public class JTextAreaAppenderTest {
 
     @Test
     @DisplayName("Appender is not appending logs when texteara is not rendered")
-    public void testAppendTextAreaNotVisible() throws Exception {
+    void testAppendTextAreaNotVisible() throws Exception {
         Mockito.when(textArea.isDisplayable()).thenReturn(false);
 
         appender.append(event);
@@ -63,7 +63,7 @@ public class JTextAreaAppenderTest {
 
     @Test
     @DisplayName("Appender is not appending when disabled")
-    public void testAppendOutputDisabled() throws Exception {
+    void testAppendOutputDisabled() throws Exception {
         Mockito.when(textArea.isDisplayable()).thenReturn(true);
 
         appender.append(event);
@@ -74,7 +74,7 @@ public class JTextAreaAppenderTest {
 
     @Test
     @DisplayName("Appender is appending logs to textarea")
-    public void textAreaAppend() throws Exception {
+    void textAreaAppend() throws Exception {
         Mockito.when(textArea.isDisplayable()).thenReturn(true);
         Mockito.when(appender.isEnableOutput()).thenReturn(true);
         appender.start();
@@ -87,7 +87,7 @@ public class JTextAreaAppenderTest {
 
     @Test
     @DisplayName("Filter is updated to proper level")
-    public void testFilterUpdate() throws Exception {
+    void testFilterUpdate() throws Exception {
         Level level = Level.WARN;
         Filter filter = appender.getFilter();
 

@@ -19,7 +19,7 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
  * @author Grzegurz
  */
 @EnableAutoConfiguration
-public class LoginActionTest extends ActionTestTemplate {
+class LoginActionTest extends ActionTestTemplate {
 
     private static final String INFO = "Hello there,";
     private static final String IP = "General Kenobi!";
@@ -35,7 +35,7 @@ public class LoginActionTest extends ActionTestTemplate {
 
     @Test
     @DisplayName("Login with invalid password")
-    public void testLoginWithInvalidPassword() throws Exception {
+    void testLoginWithInvalidPassword() throws Exception {
         Mockito.when(settings.getPassword()).thenReturn("different pwd");
         Mockito.when(server.getStatus()).thenReturn(ServerState.WAITING);
 

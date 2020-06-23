@@ -14,7 +14,7 @@ import com.github.lulewiczg.controller.exception.ServerExitException;
  * @author Grzegurz
  */
 @EnableAutoConfiguration
-public class ServerStopActionTest extends ActionTestTemplate {
+class ServerStopActionTest extends ActionTestTemplate {
 
     @Override
     protected Action getAction() {

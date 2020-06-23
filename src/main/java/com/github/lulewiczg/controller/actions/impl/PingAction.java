@@ -17,7 +17,6 @@ public class PingAction extends Action {
 
     @Override
     protected Response doAction(ControllingService controllingService) throws ActionException {
-        // Do nothing
         return new Response(Status.OK);
     }
 

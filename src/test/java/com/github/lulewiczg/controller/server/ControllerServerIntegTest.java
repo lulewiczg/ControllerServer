@@ -64,7 +64,7 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
 @SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, MainConfiguration.class,
         ControllerServerManager.class, TestUtilConfiguration.class, JNAMouseMovingService.class, JTextAreaAppender.class,
         ControllerServer.class, ObjectStreamClientConnection.class, ActionProcessor.class, TimeoutWatcher.class })
-public class ControllerServerIntegTest {
+class ControllerServerIntegTest {
 
     private Client client;
 
@@ -95,7 +95,7 @@ public class ControllerServerIntegTest {
      *             the Exception
      */
     @AfterEach
-    public void after() throws Exception {
+    void after() throws Exception {
         if (serverRunner.isRunning()) {
             serverRunner.stop();
             waitForState(ServerState.FORCED_SHUTDOWN);
@@ -111,13 +111,13 @@ public class ControllerServerIntegTest {
     }
 
     @BeforeEach
-    public void before() {
+    void before() {
         server.setStatus(ServerState.FORCED_SHUTDOWN);
     }
 
     @Test
     @DisplayName("Server restart after logout")
-    public void testStateAfterLogout() throws Exception {
+    void testStateAfterLogout() throws Exception {
         startServer();
         client = new Client(port);
         client.login(password);
@@ -131,7 +131,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Server is stopped after stop")
-    public void testServerStateAfterStop() throws Exception {
+    void testServerStateAfterStop() throws Exception {
         startServer();
         server.stop();
         waitForState(ServerState.FORCED_SHUTDOWN);
@@ -139,7 +139,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Server can't be started twice")
-    public void test() throws Exception {
+    void test() throws Exception {
         startServer();
         waitForState(ServerState.WAITING);
         assertThrows(ServerAlreadyRunningException.class, () -> startServer());
@@ -147,7 +147,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Server loses connection to client")
-    public void testServerConnectionLost() throws Exception {
+    void testServerConnectionLost() throws Exception {
         startServer();
         client = new Client(port);
         client.login(password);
@@ -157,14 +157,14 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Connect to server in down state")
-    public void testConnectToDownServer() throws Exception {
+    void testConnectToDownServer() throws Exception {
         assertThrows(ConnectException.class, () -> new Client(port));
         waitForState(ServerState.FORCED_SHUTDOWN);
     }
 
     @Test
     @DisplayName("Connect to server in up state")
-    public void testLoginToUpServer() throws Exception {
+    void testLoginToUpServer() throws Exception {
         startServer();
         client = new Client(port);
         Response response = client.login(password);
@@ -173,7 +173,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Connect to server wiith invalid password")
-    public void testLoginWithInvalidPassword() throws Exception {
+    void testLoginWithInvalidPassword() throws Exception {
         startServer();
         client = new Client(port);
         Response response = client.login("qwerty");
@@ -183,7 +183,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Log in when already logged in")
-    public void testLoginWhenLoggedIn() throws Exception {
+    void testLoginWhenLoggedIn() throws Exception {
         startServer();
         client = new Client(port);
         client.login(password);
@@ -195,7 +195,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Disconnects when not connected")
-    public void testDisconnectWhenNotConnected() throws Exception {
+    void testDisconnectWhenNotConnected() throws Exception {
         startServer();
         client = new Client(port);
         Response response = client.logout();
@@ -206,7 +206,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Relog")
-    public void testRelogin() throws Exception {
+    void testRelogin() throws Exception {
         startServer();
         client = new Client(port);
         Response response = client.login(password);
@@ -222,14 +222,14 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Connects to server using invalid port")
-    public void testConnectToInvalidPort() throws Exception {
+    void testConnectToInvalidPort() throws Exception {
         startServer();
         assertThrows(ConnectException.class, () -> client = new Client(4321));
     }
 
     @Test
     @DisplayName("Sends action without login")
-    public void testSendActionWithoutLogin() throws Exception {
+    void testSendActionWithoutLogin() throws Exception {
         startServer();
         client = new Client(port);
         Response response = client.doAction(new MouseButtonPressAction(1));
@@ -239,7 +239,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Send action after logout")
-    public void testSendActionAfterLogout() throws Exception {
+    void testSendActionAfterLogout() throws Exception {
         startServer();
         client = new Client(port);
         client.login(password);
@@ -253,7 +253,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Sends action")
-    public void testSendAction() throws Exception {
+    void testSendAction() throws Exception {
         startServer();
         client = new Client(port);
         client.login(password);
@@ -263,7 +263,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Send multiple actions")
-    public void testSendMultipleActions() throws Exception {
+    void testSendMultipleActions() throws Exception {
         startServer();
         client = new Client(port);
         client.login(password);
@@ -280,7 +280,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Two clients connect")
-    public void testConnectTwoClients() throws Exception {
+    void testConnectTwoClients() throws Exception {
         startServer();
         client = new Client(port);
         client.login(password);
@@ -293,7 +293,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Server does not restart after stop action")
-    public void testStopAction() throws Exception {
+    void testStopAction() throws Exception {
         startServer();
         client = new Client(port);
         client.login(password);
@@ -306,7 +306,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Reconnect after connection lost")
-    public void testReconnectAfterConnectionLost() throws Exception {
+    void testReconnectAfterConnectionLost() throws Exception {
         startServer();
         client = new Client(port);
         client.login(password);
@@ -322,7 +322,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Actions are executed in order")
-    public void testActionsInOrder() throws Exception {
+    void testActionsInOrder() throws Exception {
         startServer();
         client = new Client(port);
         client.login(password);
@@ -342,7 +342,7 @@ public class ControllerServerIntegTest {
 
     @Test
     @DisplayName("State in UI is updated")
-    public void testUpdateStateInUI() throws Exception {
+    void testUpdateStateInUI() throws Exception {
         startServer();
         waitForState(ServerState.WAITING);
         Mockito.verify(window).updateUI(ServerState.WAITING);

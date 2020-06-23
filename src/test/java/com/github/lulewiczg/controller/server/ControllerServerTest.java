@@ -39,7 +39,7 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
 @SpringBootTest(classes = { MockRequiredUIConfiguration.class, ObjectStreamClientConnection.class, ControllerServer.class,
         ExceptionLoggingService.class })
 @EnableAutoConfiguration
-public class ControllerServerTest {
+class ControllerServerTest {
 
     @SpyBean
     private ControllerServer server;
@@ -74,7 +74,7 @@ public class ControllerServerTest {
     private Executor exec = Executors.newCachedThreadPool();
 
     @BeforeEach
-    public void before() throws Exception {
+    void before() throws Exception {
         Mockito.when(socket.getInputStream()).thenReturn(input);
         Mockito.when(socket.getOutputStream()).thenReturn(out);
 
@@ -82,7 +82,7 @@ public class ControllerServerTest {
     }
 
     @AfterEach
-    public void after() {
+    void after() {
         if (server.getStatus().isRunning()) {
             server.stop();
         }
@@ -91,7 +91,7 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("Server waits for connect")
-    public void testConnectNothing() throws Exception {
+    void testConnectNothing() throws Exception {
         Mockito.when(socket.isConnected()).thenReturn(false);
         Mockito.when(input.available()).thenReturn(1);
         Mockito.when(socket.isClosed()).thenReturn(true);
@@ -105,7 +105,7 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("Server waits for connection forever")
-    public void testConnectWait() throws Exception {
+    void testConnectWait() throws Exception {
         Mockito.when(socket.isConnected()).thenReturn(false);
 
         startAndWait(true);
@@ -115,7 +115,7 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("Server waits for input")
-    public void testConnectWaitForInput() throws Exception {
+    void testConnectWaitForInput() throws Exception {
         Mockito.when(socket.isConnected()).thenReturn(true);
         Mockito.when(input.available()).thenReturn(0);
         Mockito.when(socket.isClosed()).thenReturn(true);
@@ -129,7 +129,7 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("Connect to server and perform 1 action")
-    public void testPerformSingleAction() throws Exception {
+    void testPerformSingleAction() throws Exception {
         Mockito.when(socket.isConnected()).thenReturn(true);
         Mockito.when(input.available()).thenReturn(1);
         Mockito.when(socket.isClosed()).thenReturn(false, true);
@@ -143,7 +143,7 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("Connect to server and perform 1 action that stops server")
-    public void testPerformSingleActionStateChange() throws Exception {
+    void testPerformSingleActionStateChange() throws Exception {
         Mockito.when(socket.isConnected()).thenReturn(true);
         Mockito.when(input.available()).thenReturn(1);
         Mockito.when(socket.isClosed()).thenReturn(false);
@@ -158,7 +158,7 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("Connect to server and perform multiple actions")
-    public void testPerformMultipleAction() throws Exception {
+    void testPerformMultipleAction() throws Exception {
         Mockito.when(socket.isConnected()).thenReturn(true);
         Mockito.when(input.available()).thenReturn(1);
         Mockito.when(socket.isClosed()).thenReturn(false, false, false, true);
@@ -172,7 +172,7 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("Server does not start when port is already used")
-    public void testPortAlreadyUsed() throws Exception {
+    void testPortAlreadyUsed() throws Exception {
         Mockito.when(socketServer.accept()).thenThrow(BeanCreationException.class);
         Mockito.when(socket.isConnected()).thenReturn(true);
         Mockito.when(input.available()).thenReturn(1);
@@ -187,7 +187,7 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("Action throws exception")
-    public void testActionException() throws Exception {
+    void testActionException() throws Exception {
         Mockito.when(socket.isConnected()).thenReturn(true);
         Mockito.when(input.available()).thenReturn(1);
         Mockito.when(socket.isClosed()).thenReturn(false);
@@ -202,7 +202,7 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("User login")
-    public void testLogin() throws Exception {
+    void testLogin() throws Exception {
         server.login();
 
         Mockito.verify(server).setStatus(ServerState.CONNECTED);
@@ -210,7 +210,7 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("User logout")
-    public void testLogout() throws Exception {
+    void testLogout() throws Exception {
         server.logout();
         Mockito.verify(server).closeServer();
         Mockito.verify(server).setStatus(ServerState.SHUTDOWN);
@@ -218,7 +218,7 @@ public class ControllerServerTest {
 
     @Test
     @DisplayName("Call for timeout watcher")
-    public void testTimeout() throws Exception {
+    void testTimeout() throws Exception {
         Mockito.when(socket.isConnected()).thenReturn(true);
         Mockito.when(input.available()).thenReturn(1);
         Mockito.when(socket.isClosed()).thenReturn(false);

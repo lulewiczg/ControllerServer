@@ -24,7 +24,7 @@ import com.github.lulewiczg.controller.AWTTestConfiguration;
 @ActiveProfiles("testLinux")
 @SpringBootTest(classes = { AWTTestConfiguration.class, RobotMouseMovingService.class })
 @EnableAutoConfiguration
-public class RobotMouseMovingServiceTest {
+class RobotMouseMovingServiceTest {
 
     @MockBean
     private Robot robot;
@@ -34,7 +34,7 @@ public class RobotMouseMovingServiceTest {
 
     @Test
     @DisplayName("Mouse move")
-    public void testMoueMove() throws Exception {
+    void testMouseMove() throws Exception {
         PointerInfo a = MouseInfo.getPointerInfo();
         Point b = a.getLocation();
         int x = (int) b.getX();

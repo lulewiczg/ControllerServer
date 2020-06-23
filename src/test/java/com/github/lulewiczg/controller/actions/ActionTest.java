@@ -31,7 +31,7 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
 @SpringBootTest(classes = { MockPropertiesConfiguration.class, MockServerConfiguration.class, ControllingService.class,
         SettingsComponent.class, ExceptionLoggingService.class, })
 @EnableAutoConfiguration
-public class ActionTest {
+class ActionTest {
 
     @Spy
     private Action action;
@@ -44,7 +44,7 @@ public class ActionTest {
 
     @Test
     @DisplayName("Action run in proper state")
-    public void testRunInProperState() throws Exception {
+    void testRunInProperState() throws Exception {
         Mockito.when(action.getProperStates()).thenReturn(EnumSet.of(ServerState.WAITING));
         Mockito.when(server.getStatus()).thenReturn(ServerState.WAITING);
 
@@ -55,7 +55,7 @@ public class ActionTest {
 
     @Test
     @DisplayName("Action run in inproper state")
-    public void testRunInInproperState() throws Exception {
+    void testRunInInproperState() throws Exception {
         Mockito.when(action.getProperStates()).thenReturn(EnumSet.of(ServerState.CONNECTED, ServerState.SHUTDOWN));
         Mockito.when(server.getStatus()).thenReturn(ServerState.WAITING);
 
@@ -66,7 +66,7 @@ public class ActionTest {
 
     @Test
     @DisplayName("Action requires CONNECTED state by default")
-    public void testProperStates() throws Exception {
+    void testProperStates() throws Exception {
         EnumSet<ServerState> properStates = action.getProperStates();
 
         assertThat(properStates, Matchers.hasSize(1));

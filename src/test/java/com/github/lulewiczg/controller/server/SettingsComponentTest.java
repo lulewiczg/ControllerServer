@@ -32,7 +32,7 @@ import com.github.lulewiczg.controller.TestPropertiesConfiguration;
 @ActiveProfiles("test")
 @SpringBootTest(classes = { TestPropertiesConfiguration.class, MockUtilConfiguration.class })
 @EnableAutoConfiguration
-public class SettingsComponentTest {
+class SettingsComponentTest {
 
     private static final String PORT = "com.github.lulewiczg.setting.port";
 
@@ -55,19 +55,19 @@ public class SettingsComponentTest {
     private Properties properties;
 
     @BeforeEach
-    public void before() throws IOException {
+    void before() throws IOException {
         properties.clear();
         createProps();
     }
 
     @AfterEach
-    public void after() {
+    void after() {
         removeIfExists();
     }
 
     @Test
     @DisplayName("Save empty properties when file is missing")
-    public void testSaveEmptyNoUserFile() throws Exception {
+    void testSaveEmptyNoUserFile() throws Exception {
         removeIfExists();
 
         settings.saveSettings();
@@ -77,7 +77,7 @@ public class SettingsComponentTest {
 
     @Test
     @DisplayName("Save empty properties when file is empty")
-    public void testSaveEmptyEmptyUserFile() throws Exception {
+    void testSaveEmptyEmptyUserFile() throws Exception {
         settings.saveSettings();
 
         Properties saved = loadProps();
@@ -86,7 +86,7 @@ public class SettingsComponentTest {
 
     @Test
     @DisplayName("Save other property")
-    public void testSaveOtherProperty() throws Exception {
+    void testSaveOtherProperty() throws Exception {
         properties.setProperty(TEST, TEST);
 
         settings.saveSettings();
@@ -98,7 +98,7 @@ public class SettingsComponentTest {
 
     @Test
     @DisplayName("Save properties when file is missing")
-    public void testSaveModifiedNoFile() throws Exception {
+    void testSaveModifiedNoFile() throws Exception {
         settings.setAutostart(true);
         settings.setLogLevel(Level.FATAL);
         settings.setPassword("pwd");
@@ -116,7 +116,7 @@ public class SettingsComponentTest {
 
     @Test
     @DisplayName("Modify properties but don't save")
-    public void testNoSave() throws Exception {
+    void testNoSave() throws Exception {
         removeIfExists();
         settings.setAutostart(true);
         settings.setLogLevel(Level.FATAL);
@@ -128,7 +128,7 @@ public class SettingsComponentTest {
 
     @Test
     @DisplayName("Save properties when propeties are not empty")
-    public void testSaveModifiedAndOld() throws Exception {
+    void testSaveModifiedAndOld() throws Exception {
         removeIfExists();
         properties.setProperty(TEST, TEST);
         settings.setAutostart(true);
@@ -149,7 +149,7 @@ public class SettingsComponentTest {
 
     @Test
     @DisplayName("Modify existing property")
-    public void testModifyProperty() throws Exception {
+    void testModifyProperty() throws Exception {
         removeIfExists();
         properties.setProperty(PORT, "123");
         settings.setPort(11111);
@@ -163,7 +163,7 @@ public class SettingsComponentTest {
 
     @Test
     @DisplayName("Properties are not saved when there is nothing to save")
-    public void testSaveNoProps() throws Exception {
+    void testSaveNoProps() throws Exception {
         removeIfExists();
 
         settings.saveSettings();

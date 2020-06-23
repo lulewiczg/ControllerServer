@@ -46,7 +46,7 @@ import com.github.lulewiczg.controller.server.ControllerServer;
 @SpringBootTest(classes = { MockServerConfiguration.class, MockPropertiesConfiguration.class, TestUtilConfiguration.class,
         ActionProcessor.class })
 @EnableAutoConfiguration
-public class ActionProcessorTest {
+class ActionProcessorTest {
 
     private static final String TEST = "test";
 
@@ -67,7 +67,7 @@ public class ActionProcessorTest {
 
     @Test
     @DisplayName("Action is invoked")
-    public void testActionIsInvoked() throws Exception {
+    void testActionIsInvoked() throws Exception {
         Mockito.when(connection.getNext()).thenReturn(action);
         Response response = new Response(Status.OK);
         Mockito.when(action.run(Mockito.any(), Mockito.any())).thenReturn(response);
@@ -80,7 +80,7 @@ public class ActionProcessorTest {
 
     @Test
     @DisplayName("Response callback is invoked")
-    public void testCallbackIsInvoked() throws Exception {
+    void testCallbackIsInvoked() throws Exception {
         Mockito.when(connection.getNext()).thenReturn(action);
         Response response = new Response(Status.OK, i -> i.getStatus());
         Mockito.when(action.run(Mockito.any(), Mockito.any())).thenReturn(response);
@@ -95,7 +95,7 @@ public class ActionProcessorTest {
 
     @Test
     @DisplayName("Action throws unexpected exception")
-    public void testActionUnhandledException() throws Exception {
+    void testActionUnhandledException() throws Exception {
         Exception expected = new RuntimeException(TEST);
         Mockito.when(connection.getNext()).thenReturn(action);
         Mockito.when(action.run(Mockito.any(), Mockito.any())).thenThrow(expected);
@@ -108,7 +108,7 @@ public class ActionProcessorTest {
 
     @Test
     @DisplayName("Action throws ServerStopException")
-    public void testActionServerStopException() throws Exception {
+    void testActionServerStopException() throws Exception {
         Exception expected = new ServerExitException();
         Mockito.when(connection.getNext()).thenReturn(action);
         Mockito.when(action.run(Mockito.any(), Mockito.any())).thenThrow(expected);
@@ -122,7 +122,7 @@ public class ActionProcessorTest {
     @MethodSource
     @DisplayName("Exceptions return proper status")
     @ParameterizedTest(name = "''{0}'' should return status ''{1}''")
-    public void testActionHandledException(Exception expected, Status status) throws Exception {
+    void testActionHandledException(Exception expected, Status status) throws Exception {
         Mockito.when(connection.getNext()).thenReturn(action);
         Mockito.when(action.run(Mockito.any(), Mockito.any())).thenThrow(expected);
 
@@ -133,7 +133,7 @@ public class ActionProcessorTest {
 
     @Test
     @DisplayName("Processor close")
-    public void testClose() throws Exception {
+    void testClose() throws Exception {
         processor.close();
 
         Mockito.verify(connection).close();
@@ -141,7 +141,7 @@ public class ActionProcessorTest {
 
     @Test
     @DisplayName("Error when sending response to client")
-    public void testConnectionError() throws Exception {
+    void testConnectionError() throws Exception {
         Mockito.when(connection.getNext()).thenReturn(action);
         Mockito.doThrow(IOException.class).when(connection).write(Mockito.any());
         Response response = new Response(Status.OK);

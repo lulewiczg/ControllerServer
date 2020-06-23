@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.github.lulewiczg.controller.MockPropertiesConfiguration;
@@ -25,7 +24,6 @@ import com.github.lulewiczg.controller.TestUtilConfiguration;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
 import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
-import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
 import com.github.lulewiczg.controller.actions.processor.mouse.JNAMouseMovingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
@@ -39,9 +37,9 @@ import com.github.lulewiczg.controller.server.ServerState;
  */
 @ActiveProfiles("test")
 @SpringBootTest(classes = { MockServerConfiguration.class, MockPropertiesConfiguration.class, TestUtilConfiguration.class,
-        ObjectStreamClientConnection.class })
+        ActionProcessor.class })
 @EnableAutoConfiguration
-public abstract class ActionTestTemplate {
+abstract class ActionTestTemplate {
 
     @Autowired
     protected ControllerServer server;
@@ -58,7 +56,7 @@ public abstract class ActionTestTemplate {
     @Autowired
     protected Clipboard clipboard;
 
-    @SpyBean
+    @Autowired
     protected ActionProcessor processor;
 
     /**
@@ -69,7 +67,7 @@ public abstract class ActionTestTemplate {
     protected abstract Action getAction();
 
     @BeforeEach
-    public void before() throws Exception {
+    void before() throws Exception {
         Mockito.when(connection.getNext()).thenReturn(getAction());
         additionalBefore();
     }
@@ -109,21 +107,21 @@ public abstract class ActionTestTemplate {
 
     @Test
     @DisplayName("Test action in WAITING state")
-    public void testInWaitingState() throws Exception {
+    void testInWaitingState() throws Exception {
         Mockito.when(server.getStatus()).thenReturn(ServerState.WAITING);
         doTestInWaiting();
     }
 
     @Test
     @DisplayName("Test action in SHUTDOWN state")
-    public void testInShutdownState() throws Exception {
+    void testInShutdownState() throws Exception {
         Mockito.when(server.getStatus()).thenReturn(ServerState.SHUTDOWN);
         doTestInShutdown();
     }
 
     @Test
     @DisplayName("Test action in CONNECTED state")
-    public void testinConnectedState() throws Exception {
+    void testinConnectedState() throws Exception {
         Mockito.when(server.getStatus()).thenReturn(ServerState.CONNECTED);
         doTestInConencted();
     }

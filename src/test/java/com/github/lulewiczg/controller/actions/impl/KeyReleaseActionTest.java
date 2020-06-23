@@ -12,7 +12,7 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
  * @author Grzegurz
  */
 @EnableAutoConfiguration
-public class KeyReleaseActionTest extends ActionTestTemplate {
+class KeyReleaseActionTest extends ActionTestTemplate {
 
     private static final int KEY = 321;
 

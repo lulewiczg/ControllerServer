@@ -12,7 +12,7 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
  * @author Grzegurz
  */
 @EnableAutoConfiguration
-public class MouseButtonReleaseActionTest extends ActionTestTemplate {
+class MouseButtonReleaseActionTest extends ActionTestTemplate {
 
     private static final int KEY = 5;
 

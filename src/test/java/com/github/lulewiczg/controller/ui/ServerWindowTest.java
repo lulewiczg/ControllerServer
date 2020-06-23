@@ -53,7 +53,7 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
 @SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, UIConfiguration.class, ServerWindow.class,
         ServerWindowAdapter.class })
 @EnableAutoConfiguration
-public class ServerWindowTest {
+class ServerWindowTest {
 
     private static final String TEST = "test";
 
@@ -118,7 +118,7 @@ public class ServerWindowTest {
     private JButton stopButton;
 
     @BeforeEach
-    public void before() {
+    void before() {
         Mockito.when(settings.isAutostart()).thenReturn(true);
         Mockito.when(settings.getPassword()).thenReturn("password");
         Mockito.when(settings.getPort()).thenReturn(151515);
@@ -127,14 +127,14 @@ public class ServerWindowTest {
     }
 
     @AfterEach
-    public void after() {
+    void after() {
         window.setVisible(false);
         window.dispose();
     }
 
     @Test
     @DisplayName("Logs panel is created properly")
-    public void testLogsPanel() throws Exception {
+    void testLogsPanel() throws Exception {
         assertThat(logPanel.getComponentCount(), Matchers.equalTo(2));
 
         JPanel panel = (JPanel) logPanel.getComponent(0);
@@ -151,7 +151,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Settings panel is creating properly")
-    public void testSettingsPanel() throws Exception {
+    void testSettingsPanel() throws Exception {
         assertThat(settingsPanel.getComponentCount(), Matchers.equalTo(12));
 
         JLabel label = (JLabel) settingsPanel.getComponent(0);
@@ -178,7 +178,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Clear logs button")
-    public void testClearLogsButton() throws Exception {
+    void testClearLogsButton() throws Exception {
         assertThat(clearLogsButton.getText(), Matchers.equalTo("Clear logs"));
         textArea.setText("test text");
         clearLogsButton.doClick();
@@ -187,7 +187,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("IP combobox")
-    public void testIpCombobox() throws Exception {
+    void testIpCombobox() throws Exception {
         assertThat(ipCombobox.isEditable(), Matchers.equalTo(false));
         InetAddress[] ips = InetAddress.getAllByName(InetAddress.getLocalHost().getHostName());
         List<String> localIps = Arrays.stream(ips).map(InetAddress::getHostAddress).sorted().collect(Collectors.toList());
@@ -198,7 +198,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Stop button")
-    public void testStopButton() {
+    void testStopButton() {
         assertThat(stopButton.getText(), Matchers.equalTo("Stop"));
         stopButton.doClick();
         Mockito.verify(manager).stop();
@@ -206,7 +206,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Start button")
-    public void testStartButton() {
+    void testStartButton() {
         assertThat(startButton.getText(), Matchers.equalTo("Start"));
         startButton.doClick();
         Mockito.verify(manager).start();
@@ -214,7 +214,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Autostart checkbox")
-    public void testAutostartCheckbox() {
+    void testAutostartCheckbox() {
         assertThat(autostart.getText(), Matchers.equalTo("Auto start server on startup"));
         boolean selected = autostart.isSelected();
 
@@ -229,7 +229,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Port input")
-    public void testPortInput() {
+    void testPortInput() {
         portInput.setText("12345");
         portInput.dispatchEvent(new ActionEvent(portInput, 1, TEST));
         portInput.postActionEvent();
@@ -241,7 +241,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Port input - invalid port")
-    public void testPortInputInvalidPort() {
+    void testPortInputInvalidPort() {
         portInput.setText("qwertyu");
         portInput.dispatchEvent(new ActionEvent(portInput, 1, TEST));
         portInput.postActionEvent();
@@ -252,7 +252,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Port input - empty")
-    public void testPortInputEmpty() {
+    void testPortInputEmpty() {
         portInput.setText("");
         portInput.dispatchEvent(new ActionEvent(portInput, 1, TEST));
         portInput.postActionEvent();
@@ -263,7 +263,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Password input")
-    public void testPasswordInput() {
+    void testPasswordInput() {
         passwordInput.setText(TEST);
         passwordInput.dispatchEvent(new ActionEvent(passwordInput, 1, TEST));
         passwordInput.postActionEvent();
@@ -275,7 +275,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Password input - empty")
-    public void testPasswordInputEmpty() {
+    void testPasswordInputEmpty() {
         passwordInput.setText("");
         passwordInput.dispatchEvent(new ActionEvent(passwordInput, 1, TEST));
         passwordInput.postActionEvent();
@@ -286,7 +286,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Logs levels combobox")
-    public void testLogLevelsCombobox() {
+    void testLogLevelsCombobox() {
         Level[] levels = Level.values();
         Arrays.sort(levels);
         assertThat(logLevelsCombobox.getModel().getSize(), Matchers.equalTo(levels.length));
@@ -300,7 +300,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Update server status - SHUTDOWN")
-    public void testUpdateServerStateShutdown() throws InterruptedException {
+    void testUpdateServerStateShutdown() throws InterruptedException {
         window.updateUI(ServerState.SHUTDOWN);
         verifyNotChangedComponents();
 
@@ -313,7 +313,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Update server status - WAITING")
-    public void testUpdateServerStateWaiting() throws InterruptedException {
+    void testUpdateServerStateWaiting() throws InterruptedException {
         window.updateUI(ServerState.WAITING);
         verifyNotChangedComponents();
 
@@ -326,7 +326,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("Update server status - CONNECTED")
-    public void testUpdateServerStateConnected() throws InterruptedException {
+    void testUpdateServerStateConnected() throws InterruptedException {
         window.updateUI(ServerState.CONNECTED);
         verifyNotChangedComponents();
 
@@ -339,7 +339,7 @@ public class ServerWindowTest {
 
     @Test
     @DisplayName("UI configuration")
-    public void testUIConfig() throws InterruptedException {
+    void testUIConfig() throws InterruptedException {
         window.startUI();
 
         Mockito.verify(appender).setEnableOutput(true);

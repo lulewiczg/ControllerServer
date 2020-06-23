@@ -6,21 +6,19 @@ import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
 
+import lombok.AllArgsConstructor;
+
 /**
  * Action for mouse move event.
  *
  * @author Grzegurz
  */
+@AllArgsConstructor
 public class MouseMoveAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
     private long dx;
     private long dy;
-
-    public MouseMoveAction(long dx, long dy) {
-        this.dx = dx;
-        this.dy = dy;
-    }
 
     /**
      * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)

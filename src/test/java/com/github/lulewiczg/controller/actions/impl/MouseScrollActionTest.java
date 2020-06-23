@@ -12,7 +12,7 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
  * @author Grzegurz
  */
 @EnableAutoConfiguration
-public class MouseScrollActionTest extends ActionTestTemplate {
+class MouseScrollActionTest extends ActionTestTemplate {
 
     private static final int LINES = 333;
 

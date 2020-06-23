@@ -29,7 +29,7 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
 @SpringBootTest(classes = { AWTTestConfiguration.class, MockPropertiesConfiguration.class, MockRequiredUIConfiguration.class,
         SettingsComponent.class, ExceptionLoggingService.class, ServerWindowAdapter.class, })
 @EnableAutoConfiguration
-public class ServerWindowAdapterTest {
+class ServerWindowAdapterTest {
 
     @SpyBean
     private ServerWindowAdapter adapter;
@@ -50,7 +50,7 @@ public class ServerWindowAdapterTest {
 
     @Test
     @DisplayName("App exit when server is not running")
-    public void testExitServerStopped() throws InterruptedException {
+    void testExitServerStopped() throws InterruptedException {
         Mockito.when(manager.isRunning()).thenReturn(false);
 
         adapter.windowClosing(null);
@@ -61,7 +61,7 @@ public class ServerWindowAdapterTest {
 
     @Test
     @DisplayName("App exit when server is running")
-    public void testExitServerRunning() throws InterruptedException {
+    void testExitServerRunning() throws InterruptedException {
         Mockito.when(manager.isRunning()).thenReturn(true);
         Mockito.when(popup.showExitConfirm()).thenReturn(JOptionPane.YES_OPTION);
 
@@ -73,7 +73,7 @@ public class ServerWindowAdapterTest {
 
     @Test
     @DisplayName("App exit when server is running and cancel")
-    public void testExitServerRunningCancel() throws InterruptedException {
+    void testExitServerRunningCancel() throws InterruptedException {
         Mockito.when(manager.isRunning()).thenReturn(true);
         Mockito.when(popup.showExitConfirm()).thenReturn(JOptionPane.NO_OPTION);
 

@@ -12,7 +12,7 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
  * @author Grzegurz
  */
 @EnableAutoConfiguration
-public class MouseMoveActionTest extends ActionTestTemplate {
+class MouseMoveActionTest extends ActionTestTemplate {
 
     private static final long X = 567;
     private static final long Y = 890;
