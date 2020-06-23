@@ -54,6 +54,9 @@ public class ServerWindow extends JFrame {
     private JTextField passwordInput;
 
     @Autowired
+    private JTextField timeoutInput;
+
+    @Autowired
     private JPanel settingsPanel;
 
     @Autowired
@@ -106,6 +109,7 @@ public class ServerWindow extends JFrame {
             boolean running = state.isRunning();
             portInput.setEnabled(!running);
             passwordInput.setEnabled(!running);
+            timeoutInput.setEnabled(!running);
             startButton.setEnabled(!running);
             stopButton.setEnabled(running);
             stateIndicator.setText(state.getMsg());

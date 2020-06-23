@@ -38,6 +38,8 @@ class SettingsComponentTest {
 
     private static final String PASSWORD = "com.github.lulewiczg.setting.password";
 
+    private static final String TIMEOUT = "com.github.lulewiczg.setting.serverTimeout";
+
     private static final String LOG_LEVEL = "com.github.lulewiczg.setting.logLevel";
 
     private static final String AUTOSTART = "com.github.lulewiczg.setting.autostart";
@@ -103,15 +105,17 @@ class SettingsComponentTest {
         settings.setLogLevel(Level.FATAL);
         settings.setPassword("pwd");
         settings.setPort(11111);
+        settings.setTimeout(1122);
 
         settings.saveSettings();
 
         Properties saved = loadProps();
-        assertThat(saved.size(), Matchers.equalTo(4));
+        assertThat(saved.size(), Matchers.equalTo(5));
         assertThat(saved.getProperty(AUTOSTART), Matchers.equalTo("true"));
         assertThat(saved.getProperty(LOG_LEVEL), Matchers.equalTo(Level.FATAL.toString()));
         assertThat(saved.getProperty(PASSWORD), Matchers.equalTo("pwd"));
         assertThat(saved.getProperty(PORT), Matchers.equalTo("11111"));
+        assertThat(saved.getProperty(TIMEOUT), Matchers.equalTo("1122"));
     }
 
     @Test
@@ -122,6 +126,7 @@ class SettingsComponentTest {
         settings.setLogLevel(Level.FATAL);
         settings.setPassword("pwd");
         settings.setPort(11111);
+        settings.setTimeout(1122);
 
         assertThat(new File(propsFile).exists(), Matchers.equalTo(false));
     }
@@ -135,16 +140,18 @@ class SettingsComponentTest {
         settings.setLogLevel(Level.FATAL);
         settings.setPassword("pwd");
         settings.setPort(11111);
+        settings.setTimeout(1122);
 
         settings.saveSettings();
 
         Properties saved = loadProps();
-        assertThat(saved.size(), Matchers.equalTo(5));
+        assertThat(saved.size(), Matchers.equalTo(6));
         assertThat(saved.getProperty(AUTOSTART), Matchers.equalTo("true"));
         assertThat(saved.getProperty(LOG_LEVEL), Matchers.equalTo(Level.FATAL.toString()));
         assertThat(saved.getProperty(PASSWORD), Matchers.equalTo("pwd"));
         assertThat(saved.getProperty(PORT), Matchers.equalTo("11111"));
         assertThat(saved.getProperty(TEST), Matchers.equalTo(TEST));
+        assertThat(saved.getProperty(TIMEOUT), Matchers.equalTo("1122"));
     }
 
     @Test

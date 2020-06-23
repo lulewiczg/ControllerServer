@@ -14,7 +14,7 @@ import lombok.extern.log4j.Log4j2;
 @Component
 public class TimeoutWatcher {
 
-    @Value("${com.github.lulewiczg.setting.serverTimeout:120000}")
+    @Value("${com.github.lulewiczg.setting.serverTimeout}")
     private long timeout;
 
     public void watch(ControllerServer server) {

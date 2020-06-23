@@ -106,6 +106,9 @@ class ServerWindowTest {
     private JTextField passwordInput;
 
     @Autowired
+    private JTextField timeoutInput;
+
+    @Autowired
     private JCheckBox autostart;
 
     @Autowired
@@ -121,6 +124,7 @@ class ServerWindowTest {
     void before() {
         Mockito.when(settings.isAutostart()).thenReturn(true);
         Mockito.when(settings.getPassword()).thenReturn("password");
+        Mockito.when(settings.getTimeout()).thenReturn(1122);
         Mockito.when(settings.getPort()).thenReturn(151515);
         Mockito.when(settings.getLogLevel()).thenReturn(Level.FATAL);
         startButton.setEnabled(true);
@@ -152,7 +156,7 @@ class ServerWindowTest {
     @Test
     @DisplayName("Settings panel is creating properly")
     void testSettingsPanel() throws Exception {
-        assertThat(settingsPanel.getComponentCount(), Matchers.equalTo(12));
+        assertThat(settingsPanel.getComponentCount(), Matchers.equalTo(14));
 
         JLabel label = (JLabel) settingsPanel.getComponent(0);
         assertThat(label.getText(), Matchers.equalTo("IP"));
@@ -166,14 +170,18 @@ class ServerWindowTest {
         assertThat(label3.getText(), Matchers.equalTo("Password"));
         assertThat(settingsPanel.getComponent(5), Matchers.equalTo(passwordInput));
 
-        assertThat(settingsPanel.getComponent(6), Matchers.equalTo(autostart));
+        JLabel label4 = (JLabel) settingsPanel.getComponent(6);
+        assertThat(label4.getText(), Matchers.equalTo("Timeout"));
+        assertThat(settingsPanel.getComponent(7), Matchers.equalTo(timeoutInput));
 
-        JLabel label4 = (JLabel) settingsPanel.getComponent(8);
-        assertThat(label4.getText(), Matchers.equalTo("Server state"));
-        assertThat(settingsPanel.getComponent(9), Matchers.equalTo(stateIndicator));
+        assertThat(settingsPanel.getComponent(8), Matchers.equalTo(autostart));
 
-        assertThat(settingsPanel.getComponent(10), Matchers.equalTo(stopButton));
-        assertThat(settingsPanel.getComponent(11), Matchers.equalTo(startButton));
+        JLabel label5 = (JLabel) settingsPanel.getComponent(10);
+        assertThat(label5.getText(), Matchers.equalTo("Server state"));
+        assertThat(settingsPanel.getComponent(11), Matchers.equalTo(stateIndicator));
+
+        assertThat(settingsPanel.getComponent(12), Matchers.equalTo(stopButton));
+        assertThat(settingsPanel.getComponent(13), Matchers.equalTo(startButton));
     }
 
     @Test
@@ -282,6 +290,40 @@ class ServerWindowTest {
 
         Mockito.verify(popup).invalidValuePopup("Invalid password!", startButton);
         Mockito.verify(settings, Mockito.never()).setPassword(Mockito.anyString());
+    }
+
+    @Test
+    @DisplayName("Timeout input")
+    void testTimeoutInput() {
+        timeoutInput.setText("12345");
+        timeoutInput.dispatchEvent(new ActionEvent(timeoutInput, 1, TEST));
+        timeoutInput.postActionEvent();
+
+        Mockito.verify(popup, Mockito.never()).invalidValuePopup(Mockito.anyString(), Mockito.any());
+        Mockito.verify(settings).setTimeout(12345);
+        assertThat(startButton.isEnabled(), Matchers.equalTo(true));
+    }
+
+    @Test
+    @DisplayName("Timeout input - empty")
+    void testTimeoutInputEmpty() {
+        timeoutInput.setText("");
+        timeoutInput.dispatchEvent(new ActionEvent(timeoutInput, 1, TEST));
+        timeoutInput.postActionEvent();
+
+        Mockito.verify(popup).invalidValuePopup("Invalid timeout!", startButton);
+        Mockito.verify(settings, Mockito.never()).setTimeout(Mockito.anyInt());
+    }
+
+    @Test
+    @DisplayName("Timeout input - invalid port")
+    void testTimeoutInputInvalidPort() {
+        timeoutInput.setText("qwertyu");
+        timeoutInput.dispatchEvent(new ActionEvent(timeoutInput, 1, TEST));
+        timeoutInput.postActionEvent();
+
+        Mockito.verify(popup).invalidValuePopup("Invalid timeout!", startButton);
+        Mockito.verify(settings, Mockito.never()).setTimeout(Mockito.anyInt());
     }
 
     @Test

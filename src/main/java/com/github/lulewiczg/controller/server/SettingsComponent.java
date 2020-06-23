@@ -31,6 +31,9 @@ public class SettingsComponent {
     @Value("${com.github.lulewiczg.setting.port}")
     private int port;
 
+    @Value("${com.github.lulewiczg.setting.serverTimeout}")
+    private int timeout;
+
     @Value("${com.github.lulewiczg.setting.autostart}")
     private boolean autostart;
 
@@ -74,6 +77,11 @@ public class SettingsComponent {
     public void setPort(int port) {
         userProperties.setProperty("com.github.lulewiczg.setting.port", port + "");
         this.port = port;
+    }
+
+    public void setTimeout(int timeout) {
+        userProperties.setProperty("com.github.lulewiczg.setting.serverTimeout", timeout + "");
+        this.timeout = timeout;
     }
 
     public void setAutostart(boolean autostart) {

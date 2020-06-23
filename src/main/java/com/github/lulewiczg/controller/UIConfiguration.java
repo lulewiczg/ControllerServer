@@ -38,11 +38,16 @@ import lombok.extern.log4j.Log4j2;
  *
  * @author Grzegurz
  */
+/**
+ * @author Grzegorz
+ *
+ */
 @Log4j2
 @Configuration
 public class UIConfiguration {
     private static final String INVALID_PASSWORD = "Invalid password!";
     private static final String INVALID_PORT = "Invalid port!";
+    private static final String INVALID_TIMEOUT = "Invalid timeout!";
 
     @Autowired
     private ExceptionLoggingService exceptionService;
@@ -59,6 +64,7 @@ public class UIConfiguration {
                 popup.invalidValuePopup(INVALID_PASSWORD, startButton);
             } else {
                 settings.setPassword(text);
+                startButton.setEnabled(true);
             }
         });
         return passwordInput;
@@ -90,6 +96,7 @@ public class UIConfiguration {
             if (!text.isEmpty()) {
                 try {
                     settings.setPort(Integer.valueOf(text));
+                    startButton.setEnabled(true);
                 } catch (Exception ex) {
                     exceptionService.debug(log, ex);
                     popup.invalidValuePopup(INVALID_PORT, startButton);
@@ -99,6 +106,26 @@ public class UIConfiguration {
             }
         });
         return portInput;
+    }
+
+    @Bean
+    public JTextField timeoutInput(SettingsComponent settings, JButton startButton, SwingPopup popup) {
+        JTextField timeoutInput = new JTextField(String.valueOf(settings.getTimeout()));
+        timeoutInput.addActionListener(e -> {
+            String text = timeoutInput.getText();
+            if (!text.isEmpty()) {
+                try {
+                    settings.setTimeout(Integer.valueOf(text));
+                    startButton.setEnabled(true);
+                } catch (Exception ex) {
+                    exceptionService.debug(log, ex);
+                    popup.invalidValuePopup(INVALID_TIMEOUT, startButton);
+                }
+            } else {
+                popup.invalidValuePopup(INVALID_TIMEOUT, startButton);
+            }
+        });
+        return timeoutInput;
     }
 
     @Bean
@@ -146,9 +173,9 @@ public class UIConfiguration {
     }
 
     @Bean
-    public JPanel settingsPanel(JComboBox<String> ipCombobox, JTextField portInput, JTextField passwordInput, JCheckBox autostart,
-            JLabel stateIndicator, JButton startButton, JButton stopButton) {
-        JPanel panel = new JPanel(new GridLayout(6, 3));
+    public JPanel settingsPanel(JComboBox<String> ipCombobox, JTextField portInput, JTextField passwordInput,
+            JTextField timeoutInput, JCheckBox autostart, JLabel stateIndicator, JButton startButton, JButton stopButton) {
+        JPanel panel = new JPanel(new GridLayout(7, 3));
         panel.setBorder(BorderFactory.createTitledBorder("Server settings"));
         JLabel ip = new JLabel("IP");
         panel.add(ip);
@@ -161,6 +188,10 @@ public class UIConfiguration {
         JLabel password = new JLabel("Password");
         panel.add(password);
         panel.add(passwordInput);
+
+        JLabel timeout = new JLabel("Timeout");
+        panel.add(timeout);
+        panel.add(timeoutInput);
 
         panel.add(autostart);
         panel.add(new JLabel());
@@ -205,4 +236,5 @@ public class UIConfiguration {
         }
         return localIps;
     }
+
 }
