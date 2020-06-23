@@ -158,6 +158,7 @@ public class ControllerServer {
      */
     public void updateLastTime() {
         lastAcionTime = System.currentTimeMillis();
+        log.info("Time update {}", lastAcionTime);
     }
 
     /**
