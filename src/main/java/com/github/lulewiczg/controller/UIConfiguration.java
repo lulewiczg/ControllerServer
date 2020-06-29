@@ -262,6 +262,7 @@ public class UIConfiguration {
 
             @Override
             public void focusGained(FocusEvent e) {
+                // Do nothing
             }
         };
     }

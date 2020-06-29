@@ -206,10 +206,10 @@ class ServerWindowComponentsTest {
     void testPortInput() throws InterruptedException {
         portInput.requestFocus();
         portInput.setText("12345");
-        Thread.sleep(50);
+        waitForAwt();
         portInput.dispatchEvent(new FocusEvent(portInput, FocusEvent.FOCUS_LOST));
 
-        Thread.sleep(50);
+        waitForAwt();
         Mockito.verify(popup, Mockito.never()).invalidValuePopup(Mockito.anyString(), Mockito.any());
         Mockito.verify(settings).setPort(12345);
         assertThat(startButton.isEnabled(), Matchers.equalTo(true));
@@ -220,10 +220,10 @@ class ServerWindowComponentsTest {
     void testPortInputInvalidPort() throws InterruptedException {
         portInput.requestFocus();
         portInput.setText("qwertyu");
-        Thread.sleep(50);
+        waitForAwt();
         portInput.dispatchEvent(new FocusEvent(portInput, FocusEvent.FOCUS_LOST));
 
-        Thread.sleep(50);
+        waitForAwt();
         Mockito.verify(popup).invalidValuePopup("Invalid port!", startButton);
         Mockito.verify(settings, Mockito.never()).setPort(Mockito.anyInt());
     }
@@ -233,10 +233,10 @@ class ServerWindowComponentsTest {
     void testPortInputEmpty() throws InterruptedException {
         portInput.requestFocus();
         portInput.setText("");
-        Thread.sleep(50);
+        waitForAwt();
         portInput.dispatchEvent(new FocusEvent(portInput, FocusEvent.FOCUS_LOST));
 
-        Thread.sleep(50);
+        waitForAwt();
         Mockito.verify(popup).invalidValuePopup("Invalid port!", startButton);
         Mockito.verify(settings, Mockito.never()).setPort(Mockito.anyInt());
     }
@@ -246,10 +246,10 @@ class ServerWindowComponentsTest {
     void testPasswordInput() throws InterruptedException {
         passwordInput.requestFocus();
         passwordInput.setText(TEST);
-        Thread.sleep(50);
+        waitForAwt();
         passwordInput.dispatchEvent(new FocusEvent(passwordInput, FocusEvent.FOCUS_LOST));
 
-        Thread.sleep(50);
+        waitForAwt();
         Mockito.verify(popup, Mockito.never()).invalidValuePopup(Mockito.anyString(), Mockito.any());
         Mockito.verify(settings).setPassword(TEST);
         assertThat(startButton.isEnabled(), Matchers.equalTo(true));
@@ -260,10 +260,10 @@ class ServerWindowComponentsTest {
     void testPasswordInputEmpty() throws InterruptedException {
         passwordInput.requestFocus();
         passwordInput.setText("");
-        Thread.sleep(50);
+        waitForAwt();
         passwordInput.dispatchEvent(new FocusEvent(passwordInput, FocusEvent.FOCUS_LOST));
 
-        Thread.sleep(50);
+        waitForAwt();
         Mockito.verify(popup).invalidValuePopup("Invalid password!", startButton);
         Mockito.verify(settings, Mockito.never()).setPassword(Mockito.anyString());
     }
@@ -273,10 +273,10 @@ class ServerWindowComponentsTest {
     void testTimeoutInput() throws InterruptedException {
         timeoutInput.requestFocus();
         timeoutInput.setText("12345");
-        Thread.sleep(50);
+        waitForAwt();
         timeoutInput.dispatchEvent(new FocusEvent(timeoutInput, FocusEvent.FOCUS_LOST));
 
-        Thread.sleep(50);
+        waitForAwt();
         Mockito.verify(popup, Mockito.never()).invalidValuePopup(Mockito.anyString(), Mockito.any());
         Mockito.verify(settings).setTimeout(12345);
         assertThat(startButton.isEnabled(), Matchers.equalTo(true));
@@ -287,10 +287,10 @@ class ServerWindowComponentsTest {
     void testTimeoutInputEmpty() throws InterruptedException {
         timeoutInput.requestFocus();
         timeoutInput.setText("");
-        Thread.sleep(50);
+        waitForAwt();
         timeoutInput.dispatchEvent(new FocusEvent(timeoutInput, FocusEvent.FOCUS_LOST));
 
-        Thread.sleep(50);
+        waitForAwt();
         Mockito.verify(popup).invalidValuePopup("Invalid timeout!", startButton);
         Mockito.verify(settings, Mockito.never()).setTimeout(Mockito.anyInt());
     }
@@ -300,10 +300,10 @@ class ServerWindowComponentsTest {
     void testTimeoutInputInvalidPort() throws InterruptedException {
         timeoutInput.requestFocus();
         timeoutInput.setText("qwertyu");
-        Thread.sleep(50);
+        waitForAwt();
         timeoutInput.dispatchEvent(new FocusEvent(passwordInput, FocusEvent.FOCUS_LOST));
 
-        Thread.sleep(50);
+        waitForAwt();
         Mockito.verify(popup).invalidValuePopup("Invalid timeout!", startButton);
         Mockito.verify(settings, Mockito.never()).setTimeout(Mockito.anyInt());
     }
@@ -328,7 +328,7 @@ class ServerWindowComponentsTest {
         window.updateUI(ServerState.SHUTDOWN);
         verifyNotChangedComponents();
 
-        Thread.sleep(500);
+        waitForState();
         assertThat(startButton.isEnabled(), Matchers.equalTo(true));
         assertThat(stopButton.isEnabled(), Matchers.equalTo(false));
         assertThat(portInput.isEnabled(), Matchers.equalTo(true));
@@ -341,7 +341,7 @@ class ServerWindowComponentsTest {
         window.updateUI(ServerState.WAITING);
         verifyNotChangedComponents();
 
-        Thread.sleep(500);
+        waitForState();
         assertThat(startButton.isEnabled(), Matchers.equalTo(false));
         assertThat(stopButton.isEnabled(), Matchers.equalTo(true));
         assertThat(portInput.isEnabled(), Matchers.equalTo(false));
@@ -354,7 +354,7 @@ class ServerWindowComponentsTest {
         window.updateUI(ServerState.CONNECTED);
         verifyNotChangedComponents();
 
-        Thread.sleep(500);
+        waitForState();
         assertThat(startButton.isEnabled(), Matchers.equalTo(false));
         assertThat(stopButton.isEnabled(), Matchers.equalTo(true));
         assertThat(portInput.isEnabled(), Matchers.equalTo(false));
@@ -389,4 +389,25 @@ class ServerWindowComponentsTest {
         assertThat(ipCombobox.isEnabled(), Matchers.equalTo(true));
         assertThat(logLevelsCombobox.isEnabled(), Matchers.equalTo(true));
     }
+
+    /**
+     * Waits a while for AWT.
+     *
+     * @throws InterruptedException
+     *             the InterruptedException
+     */
+    private void waitForAwt() throws InterruptedException {
+        Thread.sleep(50);
+    }
+
+    /**
+     * Waits for server to change state.
+     *
+     * @throws InterruptedException
+     *             InterruptedException
+     */
+    private void waitForState() throws InterruptedException {
+        Thread.sleep(500);
+    }
+
 }

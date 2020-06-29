@@ -41,7 +41,7 @@ import com.github.lulewiczg.controller.server.SettingsComponent;
 @SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, UIConfiguration.class, ServerWindow.class,
         ServerWindowAdapter.class })
 @EnableAutoConfiguration
-public class ServerWindowPanelsTest {
+class ServerWindowPanelsTest {
 
     @MockBean
     private ControllerServerManager manager;
