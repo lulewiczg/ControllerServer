@@ -141,6 +141,7 @@ public class UIConfiguration {
     @Bean
     public JCheckBox autostartCheckbox(SettingsComponent settings) {
         JCheckBox autostart = new JCheckBox("Auto start server on startup", settings.isAutostart());
+        autostart.setToolTipText("Start server automatically and wait for client after app start");
         autostart.addActionListener(e -> settings.setAutostart(autostart.isSelected()));
         return autostart;
     }
@@ -180,18 +181,22 @@ public class UIConfiguration {
         JPanel panel = new JPanel(new GridLayout(7, 3));
         panel.setBorder(BorderFactory.createTitledBorder("Server settings"));
         JLabel ip = new JLabel("IP");
+        ip.setToolTipText("Server IP, list contains all IPs that host PC has");
         panel.add(ip);
         panel.add(ipCombobox);
 
         JLabel port = new JLabel("Port");
+        port.setToolTipText("Server port");
         panel.add(port);
         panel.add(portInput);
 
         JLabel password = new JLabel("Password");
+        password.setToolTipText("Server passord");
         panel.add(password);
         panel.add(passwordInput);
 
         JLabel timeout = new JLabel("Timeout");
+        timeout.setToolTipText("Timeout in miliseconds after idle");
         panel.add(timeout);
         panel.add(timeoutInput);
 
@@ -199,6 +204,7 @@ public class UIConfiguration {
         panel.add(new JLabel());
 
         JLabel state = new JLabel("Server state");
+        state.setToolTipText("Current server state");
         panel.add(state);
         panel.add(stateIndicator);
 
