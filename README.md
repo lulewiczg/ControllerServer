@@ -14,6 +14,7 @@ To run this application, you need:
 
 ### Installing
 Build this app from IDE or directly, using Maven.
+Or [download latest version](https://github.com/lulewiczg/ControllerServer/releases/latest/download/Controller.jar).
 
 ## Usage
 To connect to this server as client, LoginAction should be sent with proper password. Then, actions can be sent to be processed by server.
