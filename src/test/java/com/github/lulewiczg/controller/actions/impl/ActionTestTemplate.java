@@ -150,7 +150,7 @@ abstract class ActionTestTemplate {
         ArgumentCaptor<Response> argument = ArgumentCaptor.forClass(Response.class);
         Mockito.verify(connection).write(argument.capture());
         assertThat(argument.getValue().getStatus(), Matchers.is(status));
-        assertThat(argument.getValue().getException(), Matchers.instanceOf(ex));
+        assertThat(argument.getValue().getException(), Matchers.is(ex.getSimpleName()));
     }
 
     /**

@@ -3,6 +3,19 @@ package com.github.lulewiczg.controller.actions;
 import java.io.Serializable;
 import java.util.EnumSet;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.github.lulewiczg.controller.actions.impl.DisconnectAction;
+import com.github.lulewiczg.controller.actions.impl.KeyPressAction;
+import com.github.lulewiczg.controller.actions.impl.KeyReleaseAction;
+import com.github.lulewiczg.controller.actions.impl.LoginAction;
+import com.github.lulewiczg.controller.actions.impl.MouseButtonPressAction;
+import com.github.lulewiczg.controller.actions.impl.MouseButtonReleaseAction;
+import com.github.lulewiczg.controller.actions.impl.MouseMoveAction;
+import com.github.lulewiczg.controller.actions.impl.MouseScrollAction;
+import com.github.lulewiczg.controller.actions.impl.PingAction;
+import com.github.lulewiczg.controller.actions.impl.ServerStopAction;
+import com.github.lulewiczg.controller.actions.impl.TextAction;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.exception.ActionException;
@@ -14,6 +27,14 @@ import com.github.lulewiczg.controller.server.ServerState;
  *
  * @author Grzegurz
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+@JsonSubTypes({ @JsonSubTypes.Type(value = LoginAction.class), @JsonSubTypes.Type(value = LoginRequiredAction.class),
+        @JsonSubTypes.Type(value = PingAction.class), @JsonSubTypes.Type(value = DisconnectAction.class),
+        @JsonSubTypes.Type(value = KeyAction.class), @JsonSubTypes.Type(value = MouseButtonAction.class),
+        @JsonSubTypes.Type(value = MouseButtonPressAction.class), @JsonSubTypes.Type(value = MouseButtonReleaseAction.class),
+        @JsonSubTypes.Type(value = MouseMoveAction.class), @JsonSubTypes.Type(value = MouseScrollAction.class),
+        @JsonSubTypes.Type(value = ServerStopAction.class), @JsonSubTypes.Type(value = TextAction.class),
+        @JsonSubTypes.Type(value = KeyPressAction.class), @JsonSubTypes.Type(value = KeyReleaseAction.class) })
 public abstract class Action implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -29,7 +50,7 @@ public abstract class Action implements Serializable {
 
     /**
      * Executes action.
-     * 
+     *
      * @param controllingService
      *            controlling service
      *

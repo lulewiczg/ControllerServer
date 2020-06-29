@@ -2,15 +2,18 @@ package com.github.lulewiczg.controller.client;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Scanner;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.impl.DisconnectAction;
 import com.github.lulewiczg.controller.actions.impl.LoginAction;
-import com.github.lulewiczg.controller.actions.impl.TextAction;
+import com.github.lulewiczg.controller.actions.impl.ServerStopAction;
+import com.github.lulewiczg.controller.actions.processor.connection.JSONClientConnection;
 import com.github.lulewiczg.controller.common.Response;
 
 /**
@@ -21,17 +24,22 @@ import com.github.lulewiczg.controller.common.Response;
 public class Client implements Closeable {
 
     private Socket socket;
-    private ObjectOutputStream out;
-    private ObjectInputStream in;
+    private OutputStream out;
+    private InputStream in;
+    private ObjectMapper mapper = new ObjectMapper();
+    private Scanner sc;
 
     public Client(int port) throws IOException, InterruptedException {
         socket = new Socket();
+        socket.setKeepAlive(true);
         socket.connect(new InetSocketAddress("localhost", port));
         while (!socket.isConnected()) {
             Thread.sleep(1000);
         }
-        out = new ObjectOutputStream(socket.getOutputStream());
-        in = new ObjectInputStream(socket.getInputStream());
+        out = socket.getOutputStream();
+        in = socket.getInputStream();
+        sc = new Scanner(in);
+        sc.useDelimiter(JSONClientConnection.DELIM);
     }
 
     /**
@@ -78,8 +86,9 @@ public class Client implements Closeable {
      *             the ClassNotFoundException
      */
     public Response doAction(Action action) throws IOException, ClassNotFoundException {
-        out.writeObject(action);
-        return (Response) in.readObject();
+        out.write((mapper.writeValueAsString(action) + JSONClientConnection.DELIM).getBytes());
+        out.flush();
+        return mapper.readValue(sc.next(), Response.class);
     }
 
     /**
@@ -104,10 +113,11 @@ public class Client implements Closeable {
      *             the Exception
      */
     public static void main(String[] args) throws Exception {
-        Client c = new Client(5555);
+        Client c = new Client(55552);
         try (c) {
-            c.login("1234");
-            c.doAction(new TextAction("abc"));
+            c.login("FajneHasloTakieNieZaLatweXD123");
+            // c.doAction(new TextAction("abc"));
+            c.doAction(new ServerStopAction());
             Thread.sleep(1000);
         }
     }

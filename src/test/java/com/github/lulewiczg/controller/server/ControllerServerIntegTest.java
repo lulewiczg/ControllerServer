@@ -41,7 +41,7 @@ import com.github.lulewiczg.controller.actions.impl.KeyReleaseAction;
 import com.github.lulewiczg.controller.actions.impl.MouseButtonPressAction;
 import com.github.lulewiczg.controller.actions.impl.ServerStopAction;
 import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
-import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
+import com.github.lulewiczg.controller.actions.processor.connection.JSONClientConnection;
 import com.github.lulewiczg.controller.actions.processor.mouse.JNAMouseMovingService;
 import com.github.lulewiczg.controller.client.Client;
 import com.github.lulewiczg.controller.common.Response;
@@ -63,7 +63,7 @@ import com.github.lulewiczg.controller.ui.ServerWindow;
 @ContextConfiguration(loader = AWTSpringApplicationContextLoader.class)
 @SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, MainConfiguration.class,
         ControllerServerManager.class, TestUtilConfiguration.class, JNAMouseMovingService.class, JTextAreaAppender.class,
-        ControllerServer.class, ObjectStreamClientConnection.class, ActionProcessor.class, TimeoutWatcher.class })
+        ControllerServer.class, JSONClientConnection.class, ActionProcessor.class, TimeoutWatcher.class })
 class ControllerServerIntegTest {
 
     private Client client;
@@ -386,7 +386,7 @@ class ControllerServerIntegTest {
     private void assertError(Response response, Class<? extends Exception> e) {
         assertEquals(Status.NOT_OK, response.getStatus());
         assertNotNull(response.getException());
-        assertEquals(e, response.getException().getClass());
+        assertEquals(e.getSimpleName(), response.getException());
     }
 
     /**

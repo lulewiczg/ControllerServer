@@ -25,7 +25,7 @@ import com.github.lulewiczg.controller.MockPropertiesConfiguration;
 import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
 import com.github.lulewiczg.controller.MockServerConfiguration;
 import com.github.lulewiczg.controller.TestUtilConfiguration;
-import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
+import com.github.lulewiczg.controller.actions.processor.connection.JSONClientConnection;
 import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
 import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
 
@@ -37,7 +37,7 @@ import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
  */
 @ActiveProfiles("test")
 @SpringBootTest(classes = { MockServerConfiguration.class, MockRequiredUIConfiguration.class, MockPropertiesConfiguration.class,
-        TestUtilConfiguration.class, ControllerServerManager.class, ObjectStreamClientConnection.class })
+        TestUtilConfiguration.class, ControllerServerManager.class, JSONClientConnection.class })
 @EnableAutoConfiguration
 class ControllerServerManagerTest {
 

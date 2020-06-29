@@ -2,38 +2,36 @@ package com.github.lulewiczg.controller.actions.processor.connection;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.Scanner;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.common.Common;
 import com.github.lulewiczg.controller.common.Response;
-import com.github.lulewiczg.controller.exception.ConnectionException;
 
-/**
- *
- * @author Grzegurz
- */
-// @Lazy
-// @Primary
-// @Scope("prototype")
-// @Service("objectStreamConnection")
-public class ObjectStreamClientConnection implements ClientConnection {
+@Lazy
+@Scope("prototype")
+@Service("jsonConnection")
+public class JSONClientConnection implements ClientConnection {
 
-    private ObjectInputStream in;
-    private ObjectOutputStream out;
+    public static final String DELIM = "||";
+    private InputStream in;
+    private OutputStream out;
+    private ObjectMapper mapper = new ObjectMapper();
+    private Scanner sc;
 
     @Autowired
-    public ObjectStreamClientConnection(InputStream in, OutputStream out) {
-        try {
-            this.in = new ObjectInputStream(in);
-            this.out = new ObjectOutputStream(out);
-        } catch (IOException e) {
-            throw new ConnectionException(e);
-        }
+    public JSONClientConnection(InputStream in, OutputStream out) {
+        this.in = in;
+        this.out = out;
+        sc = new Scanner(in);
+        sc.useDelimiter(DELIM);
     }
 
     /**
@@ -43,6 +41,7 @@ public class ObjectStreamClientConnection implements ClientConnection {
     public void close() throws IOException {
         Common.close(in);
         Common.close(out);
+        Common.close(sc);
     }
 
     /**
@@ -50,7 +49,8 @@ public class ObjectStreamClientConnection implements ClientConnection {
      */
     @Override
     public void write(Response r) throws IOException {
-        out.writeObject(r);
+        byte[] msg = (mapper.writeValueAsString(r) + DELIM).getBytes();
+        out.write(msg);
         out.flush();
     }
 
@@ -59,6 +59,6 @@ public class ObjectStreamClientConnection implements ClientConnection {
      */
     @Override
     public Action getNext() throws Exception {
-        return (Action) in.readObject();
+        return mapper.readValue(sc.next(), Action.class);
     }
 }
