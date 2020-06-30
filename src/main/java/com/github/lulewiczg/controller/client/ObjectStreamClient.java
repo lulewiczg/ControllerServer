@@ -7,9 +7,6 @@ import com.github.lulewiczg.controller.actions.impl.LoginAction;
 import com.github.lulewiczg.controller.actions.impl.TextAction;
 import com.github.lulewiczg.controller.common.Response;
 import lombok.SneakyThrows;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -22,16 +19,14 @@ import java.net.Socket;
  *
  * @author Grzegurz
  */
-@Lazy
-@Component
-@Scope("prototype")
 public class ObjectStreamClient implements Client {
 
     private final Socket socket;
     private final ObjectOutputStream out;
     private final ObjectInputStream in;
 
-    public ObjectStreamClient(int port) throws IOException, InterruptedException {
+    @SneakyThrows
+    public ObjectStreamClient(int port) {
         socket = new Socket();
         socket.connect(new InetSocketAddress("localhost", port));
         while (!socket.isConnected()) {

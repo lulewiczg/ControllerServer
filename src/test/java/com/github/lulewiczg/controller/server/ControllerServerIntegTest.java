@@ -1,10 +1,14 @@
 package com.github.lulewiczg.controller.server;
 
-import com.github.lulewiczg.controller.AWTSpringApplicationContextLoader;
+import com.github.lulewiczg.controller.*;
 import com.github.lulewiczg.controller.actions.impl.KeyPressAction;
 import com.github.lulewiczg.controller.actions.impl.KeyReleaseAction;
 import com.github.lulewiczg.controller.actions.impl.MouseButtonPressAction;
 import com.github.lulewiczg.controller.actions.impl.ServerStopAction;
+import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
+import com.github.lulewiczg.controller.actions.processor.connection.JsonClientConnection;
+import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
+import com.github.lulewiczg.controller.actions.processor.mouse.JNAMouseMovingService;
 import com.github.lulewiczg.controller.client.Client;
 import com.github.lulewiczg.controller.client.JsonClient;
 import com.github.lulewiczg.controller.common.Response;
@@ -12,6 +16,7 @@ import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.AuthorizationException;
 import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
+import com.github.lulewiczg.controller.ui.JTextAreaAppender;
 import com.github.lulewiczg.controller.ui.ServerWindow;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
@@ -23,6 +28,7 @@ import org.mockito.Mockito;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationContext;
@@ -44,6 +50,9 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Grzegurz
  */
+@SpringBootTest(classes = {AWTTestConfiguration.class, EagerConfiguration.class, MainConfiguration.class,
+        ControllerServerManager.class, TestUtilConfiguration.class, JNAMouseMovingService.class, JTextAreaAppender.class,
+        ControllerServer.class, JsonClientConnection.class, ObjectStreamClientConnection.class, ActionProcessor.class, TimeoutWatcher.class,})
 @ContextConfiguration(loader = AWTSpringApplicationContextLoader.class)
 abstract class ControllerServerIntegTest {
 

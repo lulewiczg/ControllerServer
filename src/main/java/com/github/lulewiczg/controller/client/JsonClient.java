@@ -35,7 +35,8 @@ public class JsonClient implements Client {
     private final ObjectMapper mapper = new ObjectMapper();
     private final Scanner sc;
 
-    public JsonClient(int port) throws IOException, InterruptedException {
+    @SneakyThrows
+    public JsonClient(int port) {
         socket = new Socket();
         socket.setKeepAlive(true);
         socket.connect(new InetSocketAddress("localhost", port));
