@@ -6,6 +6,10 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.exception.AuthorizationException;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+
 /**
  * Tests KeyReleaseAction.
  *
@@ -25,21 +29,21 @@ class MouseMoveActionTest extends ActionTestTemplate {
     @Override
     protected void doTestInWaiting() throws Exception {
         processor.processAction(server);
-        Mockito.verify(mouseMovingService, Mockito.never()).move(Mockito.anyInt(), Mockito.anyInt());
+        verify(mouseMovingService, Mockito.never()).move(anyInt(), anyInt());
         assertStatusNotOK(AuthorizationException.class);
     }
 
     @Override
-    protected void doTestInConencted() throws Exception {
+    protected void doTestInConnected() throws Exception {
         processor.processAction(server);
-        Mockito.verify(mouseMovingService).move(Mockito.eq(X), Mockito.eq(Y));
+        verify(mouseMovingService).move(eq(X), eq(Y));
         assertStatusOK();
     }
 
     @Override
     protected void doTestInShutdown() throws Exception {
         processor.processAction(server);
-        Mockito.verify(mouseMovingService, Mockito.never()).move(Mockito.anyInt(), Mockito.anyInt());
+        verify(mouseMovingService, Mockito.never()).move(anyInt(), anyInt());
         assertStatusNotOK(AuthorizationException.class);
     }
 }

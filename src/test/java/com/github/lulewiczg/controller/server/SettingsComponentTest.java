@@ -1,12 +1,8 @@
 package com.github.lulewiczg.controller.server;
 
-import static org.junit.Assert.assertThat;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
-
+import com.github.lulewiczg.controller.MockUtilConfiguration;
+import com.github.lulewiczg.controller.TestPropertiesConfiguration;
+import com.github.lulewiczg.controller.actions.processor.connection.JsonClientConnection;
 import org.apache.logging.log4j.Level;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
@@ -20,8 +16,12 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.github.lulewiczg.controller.MockUtilConfiguration;
-import com.github.lulewiczg.controller.TestPropertiesConfiguration;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests SettingsComponent class.
@@ -43,6 +43,8 @@ class SettingsComponentTest {
     private static final String LOG_LEVEL = "com.github.lulewiczg.setting.logLevel";
 
     private static final String AUTOSTART = "com.github.lulewiczg.setting.autostart";
+
+    private static final String CONNECTION_TYPE = "com.github.lulewiczg.setting.connectionType";
 
     private static final String TEST = "test";
 
@@ -106,27 +108,31 @@ class SettingsComponentTest {
         settings.setPassword("pwd");
         settings.setPort(11111);
         settings.setTimeout(1122);
+        settings.setConnectionType(JsonClientConnection.NAME);
+
 
         settings.saveSettings();
 
         Properties saved = loadProps();
-        assertThat(saved.size(), Matchers.equalTo(5));
+        assertThat(saved.size(), Matchers.equalTo(6));
         assertThat(saved.getProperty(AUTOSTART), Matchers.equalTo("true"));
         assertThat(saved.getProperty(LOG_LEVEL), Matchers.equalTo(Level.FATAL.toString()));
         assertThat(saved.getProperty(PASSWORD), Matchers.equalTo("pwd"));
         assertThat(saved.getProperty(PORT), Matchers.equalTo("11111"));
         assertThat(saved.getProperty(TIMEOUT), Matchers.equalTo("1122"));
+        assertThat(saved.getProperty(CONNECTION_TYPE), Matchers.equalTo(JsonClientConnection.NAME));
     }
 
     @Test
     @DisplayName("Modify properties but don't save")
-    void testNoSave() throws Exception {
+    void testNoSave() {
         removeIfExists();
         settings.setAutostart(true);
         settings.setLogLevel(Level.FATAL);
         settings.setPassword("pwd");
         settings.setPort(11111);
         settings.setTimeout(1122);
+        settings.setConnectionType(JsonClientConnection.NAME);
 
         assertThat(new File(propsFile).exists(), Matchers.equalTo(false));
     }
@@ -141,17 +147,19 @@ class SettingsComponentTest {
         settings.setPassword("pwd");
         settings.setPort(11111);
         settings.setTimeout(1122);
+        settings.setConnectionType(JsonClientConnection.NAME);
 
         settings.saveSettings();
 
         Properties saved = loadProps();
-        assertThat(saved.size(), Matchers.equalTo(6));
+        assertThat(saved.size(), Matchers.equalTo(7));
         assertThat(saved.getProperty(AUTOSTART), Matchers.equalTo("true"));
         assertThat(saved.getProperty(LOG_LEVEL), Matchers.equalTo(Level.FATAL.toString()));
         assertThat(saved.getProperty(PASSWORD), Matchers.equalTo("pwd"));
         assertThat(saved.getProperty(PORT), Matchers.equalTo("11111"));
         assertThat(saved.getProperty(TEST), Matchers.equalTo(TEST));
         assertThat(saved.getProperty(TIMEOUT), Matchers.equalTo("1122"));
+        assertThat(saved.getProperty(CONNECTION_TYPE), Matchers.equalTo(JsonClientConnection.NAME));
     }
 
     @Test
@@ -170,7 +178,7 @@ class SettingsComponentTest {
 
     @Test
     @DisplayName("Properties are not saved when there is nothing to save")
-    void testSaveNoProps() throws Exception {
+    void testSaveNoProps() {
         removeIfExists();
 
         settings.saveSettings();

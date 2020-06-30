@@ -1,12 +1,11 @@
 package com.github.lulewiczg.controller.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.lulewiczg.controller.server.ControllerServer;
+import lombok.*;
+
 import java.io.Serializable;
 import java.util.function.Consumer;
-
-import com.github.lulewiczg.controller.server.ControllerServer;
-
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Response sent to client after performing action.
@@ -15,21 +14,25 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@ToString
+@NoArgsConstructor
+@EqualsAndHashCode(of = "status")
 public class Response implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private Status status;
 
-    private Exception exception;
+    private String exception;
 
     private String exceptionStr;
 
+    @JsonIgnore
     private transient Consumer<ControllerServer> callback;
 
     public Response(Status status, Exception exception) {
         this.status = status;
-        this.exception = exception;
+        this.exception = exception.getClass().getSimpleName();
         this.exceptionStr = exception.toString();
     }
 
@@ -42,31 +45,5 @@ public class Response implements Serializable {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append("Response: ").append(status);
-        if (exception != null) {
-            str.append(", cause:\n").append(exception.toString());
-            for (StackTraceElement element : exception.getStackTrace()) {
-                str.append(element.toString());
-                str.append("\n");
-            }
-        }
-        return str.toString();
-    }
-
-    @Override
-    public int hashCode() {
-        return status.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Response)) {
-            return false;
-        }
-        return ((Response) obj).status == status;
-    }
 
 }

@@ -1,23 +1,27 @@
 package com.github.lulewiczg.controller.actions.impl;
 
-import java.awt.Robot;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.KeyEvent;
-
 import com.github.lulewiczg.controller.actions.LoginRequiredAction;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
-import com.github.lulewiczg.controller.exception.ActionException;
-
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
 
 /**
  * Action for sending text.
  *
  * @author Grzegurz
  */
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class TextAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
@@ -25,10 +29,10 @@ public class TextAction extends LoginRequiredAction {
     private String text;
 
     /**
-     * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)
+     * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.actions.processor.ControllingService)
      */
     @Override
-    protected Response doAction(ControllingService controllingService) throws ActionException {
+    protected Response doAction(ControllingService controllingService) {
         StringSelection stringSelection = new StringSelection(text);
         controllingService.getClipboard().setContents(stringSelection, null);
         Robot robot = controllingService.getRobot();
@@ -41,9 +45,6 @@ public class TextAction extends LoginRequiredAction {
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append(super.toString());
-        str.append(", ").append(text);
-        return str.toString();
+        return super.toString() + ", " + text;
     }
 }

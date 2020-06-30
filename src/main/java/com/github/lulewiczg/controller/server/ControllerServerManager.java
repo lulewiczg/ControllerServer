@@ -1,13 +1,7 @@
 package com.github.lulewiczg.controller.server;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-
+import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
+import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +9,8 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
-import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
+import javax.annotation.PostConstruct;
+import java.util.concurrent.*;
 
 /**
  * Manager for ControllerServer. Manages stopping and restarting server.
@@ -25,13 +19,13 @@ import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
  */
 @Lazy
 @Service
-@DependsOn({ "JTextAreaAppender" })
+@DependsOn({"JTextAreaAppender"})
 public class ControllerServerManager {
 
     private static final Logger log = LogManager.getLogger(ControllerServerManager.class);
-    private ExecutorService serverRunner = Executors.newSingleThreadExecutor();
-    private ExecutorService jobRunner = Executors.newCachedThreadPool();
-    private ScheduledExecutorService restarterRunner = Executors.newScheduledThreadPool(1);
+    private final ExecutorService serverRunner = Executors.newSingleThreadExecutor();
+    private final ExecutorService jobRunner = Executors.newCachedThreadPool();
+    private final ScheduledExecutorService restartedRunner = Executors.newScheduledThreadPool(1);
     private Future<?> runningThread;
 
     @Autowired
@@ -42,7 +36,7 @@ public class ControllerServerManager {
 
     @PostConstruct
     private void setupRunner() {
-        restarterRunner.scheduleWithFixedDelay(() -> {
+        restartedRunner.scheduleWithFixedDelay(() -> {
             if (shouldStart()) {
                 log.info("Starting server...");
                 start();
@@ -64,7 +58,6 @@ public class ControllerServerManager {
 
     /**
      * Starts server.
-     *
      */
     public void start() {
         if (server.getStatus().isRunning()) {
@@ -103,7 +96,7 @@ public class ControllerServerManager {
      */
     class ControllerServerThread extends Thread {
 
-        private Runnable lambda;
+        private final Runnable lambda;
 
         private boolean sockedInterrupted;
 

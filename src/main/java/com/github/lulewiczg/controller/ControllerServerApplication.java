@@ -30,7 +30,7 @@ public class ControllerServerApplication implements CommandLineRunner {
     /**
      * Runs server either in windowed or in console mode.
      *
-     * @param args
+     * @param args arguments
      */
     public static void main(String... args) {
         new SpringApplicationBuilder(ControllerServerApplication.class).headless(false).run(args);

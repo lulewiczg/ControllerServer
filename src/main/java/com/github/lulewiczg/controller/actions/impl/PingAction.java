@@ -4,7 +4,6 @@ import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
-import com.github.lulewiczg.controller.exception.ActionException;
 
 /**
  * Ping action to keep connection alive.
@@ -15,13 +14,17 @@ public class PingAction extends Action {
 
     private static final long serialVersionUID = 1L;
 
+
+    /**
+     * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.actions.processor.ControllingService)
+     */
     @Override
-    protected Response doAction(ControllingService controllingService) throws ActionException {
+    protected Response doAction(ControllingService controllingService) {
         return new Response(Status.OK);
     }
 
     @Override
-    protected void doThrowException() throws ActionException {
+    protected void doThrowException() {
         // Do nothing
     }
 

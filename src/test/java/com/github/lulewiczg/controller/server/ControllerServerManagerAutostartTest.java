@@ -1,7 +1,8 @@
 package com.github.lulewiczg.controller.server;
 
-import java.util.concurrent.TimeUnit;
-
+import com.github.lulewiczg.controller.MockPropertiesConfiguration;
+import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
+import com.github.lulewiczg.controller.MockUtilConfiguration;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,9 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.github.lulewiczg.controller.MockPropertiesConfiguration;
-import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
-import com.github.lulewiczg.controller.MockUtilConfiguration;
+import java.util.concurrent.TimeUnit;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests ControllerServerManager.
@@ -36,23 +38,23 @@ class ControllerServerManagerAutostartTest {
 
     @BeforeEach
     public void before() {
-        Mockito.when(server.getStatus()).thenReturn(ServerState.SHUTDOWN);
+        when(server.getStatus()).thenReturn(ServerState.SHUTDOWN);
     }
 
     @Test
     @DisplayName("Server autostart")
-    void testStart() throws Exception {
+    void testStart() {
         mockServerStart();
         Awaitility.await().atMost(1, TimeUnit.SECONDS).until(() -> server.getStatus().isRunning());
 
-        Mockito.verify(server).start();
+        verify(server).start();
     }
 
     /**
      * Mocks server to change state to UP when started.
      */
     private void mockServerStart() {
-        Mockito.when(server.getStatus()).thenAnswer(i -> {
+        when(server.getStatus()).thenAnswer(i -> {
             long count = Mockito.mockingDetails(server).getInvocations().stream()
                     .filter(j -> j.getMethod().getName().equals("start")).count();
             if (count != 0) {

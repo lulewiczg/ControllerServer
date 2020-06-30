@@ -1,15 +1,13 @@
 package com.github.lulewiczg.controller.ui;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-import javax.swing.JOptionPane;
-
+import com.github.lulewiczg.controller.server.ControllerServerManager;
+import com.github.lulewiczg.controller.server.SettingsComponent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.github.lulewiczg.controller.server.ControllerServerManager;
-import com.github.lulewiczg.controller.server.SettingsComponent;
+import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * Window adapter for handling window events.
@@ -42,7 +40,6 @@ public class ServerWindowAdapter extends WindowAdapter {
 
     /**
      * Saves settings and quits.
-     *
      */
     private void quit() {
         settings.saveSettings();

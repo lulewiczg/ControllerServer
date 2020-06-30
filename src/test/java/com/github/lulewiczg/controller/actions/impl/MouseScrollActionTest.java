@@ -1,10 +1,12 @@
 package com.github.lulewiczg.controller.actions.impl;
 
-import org.mockito.Mockito;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.exception.AuthorizationException;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests MouseScrollAction.
@@ -24,21 +26,21 @@ class MouseScrollActionTest extends ActionTestTemplate {
     @Override
     protected void doTestInWaiting() throws Exception {
         processor.processAction(server);
-        Mockito.verify(robot, Mockito.never()).mouseWheel(Mockito.anyInt());
+        verify(robot, never()).mouseWheel(anyInt());
         assertStatusNotOK(AuthorizationException.class);
     }
 
     @Override
-    protected void doTestInConencted() throws Exception {
+    protected void doTestInConnected() throws Exception {
         processor.processAction(server);
-        Mockito.verify(robot).mouseWheel(LINES);
+        verify(robot).mouseWheel(LINES);
         assertStatusOK();
     }
 
     @Override
     protected void doTestInShutdown() throws Exception {
         processor.processAction(server);
-        Mockito.verify(robot, Mockito.never()).mouseWheel(Mockito.anyInt());
+        verify(robot, never()).mouseWheel(anyInt());
         assertStatusNotOK(AuthorizationException.class);
     }
 }

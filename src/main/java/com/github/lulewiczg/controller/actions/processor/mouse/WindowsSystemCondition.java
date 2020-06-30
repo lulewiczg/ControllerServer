@@ -6,7 +6,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
  * Tests if OS is Windows.
- * 
+ *
  * @author Grzegurz
  */
 public class WindowsSystemCondition implements Condition {

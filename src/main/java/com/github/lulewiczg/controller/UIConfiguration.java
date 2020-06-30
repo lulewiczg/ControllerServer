@@ -1,25 +1,16 @@
 package com.github.lulewiczg.controller;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-
+import com.github.lulewiczg.controller.actions.processor.connection.JsonClientConnection;
+import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
+import com.github.lulewiczg.controller.server.ControllerServerManager;
+import com.github.lulewiczg.controller.server.ExceptionLoggingService;
+import com.github.lulewiczg.controller.server.SettingsComponent;
+import com.github.lulewiczg.controller.ui.JTextAreaAppender;
+import com.github.lulewiczg.controller.ui.SwingPopup;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -27,22 +18,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.github.lulewiczg.controller.server.ControllerServerManager;
-import com.github.lulewiczg.controller.server.ExceptionLoggingService;
-import com.github.lulewiczg.controller.server.SettingsComponent;
-import com.github.lulewiczg.controller.ui.JTextAreaAppender;
-import com.github.lulewiczg.controller.ui.SwingPopup;
-
-import lombok.extern.log4j.Log4j2;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 
 /**
  * Beans for UI.
  *
  * @author Grzegurz
  */
+
 /**
  * @author Grzegorz
- *
  */
 @Log4j2
 @Configuration
@@ -97,7 +88,7 @@ public class UIConfiguration {
             String text = portInput.getText();
             if (!text.isEmpty()) {
                 try {
-                    settings.setPort(Integer.valueOf(text));
+                    settings.setPort(Integer.parseInt(text));
                     startButton.setEnabled(true);
                 } catch (Exception ex) {
                     exceptionService.debug(log, ex);
@@ -117,7 +108,7 @@ public class UIConfiguration {
             String text = timeoutInput.getText();
             if (!text.isEmpty()) {
                 try {
-                    settings.setTimeout(Integer.valueOf(text));
+                    settings.setTimeout(Integer.parseInt(text));
                     startButton.setEnabled(true);
                 } catch (Exception ex) {
                     exceptionService.debug(log, ex);
@@ -128,6 +119,20 @@ public class UIConfiguration {
             }
         }));
         return timeoutInput;
+    }
+
+    @Bean
+    public JComboBox<ComboboxEntry> connectionTypeCombobox(SettingsComponent settings) {
+        JComboBox<ComboboxEntry> connectionTypes = new JComboBox<>(new ComboboxEntry[]{
+                new ComboboxEntry(ObjectStreamClientConnection.NAME, "Object stream"), new ComboboxEntry(JsonClientConnection.NAME, "JSON")});
+        connectionTypes.setSelectedItem(settings.getConnectionType());
+        connectionTypes.addActionListener(e -> {
+            ComboboxEntry type = (ComboboxEntry) connectionTypes.getSelectedItem();
+            settings.setConnectionType(type.getValue());
+            log.info("Conenction type change to {}", type);
+        });
+        connectionTypes.setMaximumSize(new Dimension(50, 20));
+        return connectionTypes;
     }
 
     @Bean
@@ -176,9 +181,12 @@ public class UIConfiguration {
     }
 
     @Bean
-    public JPanel settingsPanel(JComboBox<String> ipCombobox, JTextField portInput, JTextField passwordInput,
-            JTextField timeoutInput, JCheckBox autostart, JLabel stateIndicator, JButton startButton, JButton stopButton) {
-        JPanel panel = new JPanel(new GridLayout(7, 3));
+    public JPanel settingsPanel
+            (JComboBox<String> ipCombobox, JComboBox<ComboboxEntry> connectionTypeCombobox, JTextField
+                    portInput, JTextField passwordInput,
+             JTextField timeoutInput, JCheckBox autostart, JLabel stateIndicator, JButton startButton, JButton
+                     stopButton) {
+        JPanel panel = new JPanel(new GridLayout(8, 3));
         panel.setBorder(BorderFactory.createTitledBorder("Server settings"));
         JLabel ip = new JLabel("IP");
         ip.setToolTipText("Server IP, list contains all IPs that host PC has");
@@ -199,6 +207,11 @@ public class UIConfiguration {
         timeout.setToolTipText("Timeout in miliseconds after idle");
         panel.add(timeout);
         panel.add(timeoutInput);
+
+        JLabel connections = new JLabel("Connection Type");
+        connections.setToolTipText("Type of connection, which server uses to communicate");
+        panel.add(connections);
+        panel.add(connectionTypeCombobox);
 
         panel.add(autostart);
         panel.add(new JLabel());
@@ -235,7 +248,7 @@ public class UIConfiguration {
      * @return IPs
      */
     private String[] getIPs() {
-        String[] localIps = new String[] { "Unknown" };
+        String[] localIps = new String[]{"Unknown"};
         try {
             InetAddress[] ips = InetAddress.getAllByName(InetAddress.getLocalHost().getHostName());
             localIps = Arrays.stream(ips).map(InetAddress::getHostAddress).sorted().toArray(String[]::new);
@@ -248,8 +261,7 @@ public class UIConfiguration {
     /**
      * Creates blur listener.
      *
-     * @param lambda
-     *            lambda to execute
+     * @param lambda lambda to execute
      * @return listener
      */
     private FocusListener createListener(Runnable lambda) {
@@ -267,4 +279,18 @@ public class UIConfiguration {
         };
     }
 
+    @Getter
+    @EqualsAndHashCode
+    @AllArgsConstructor
+    public static class ComboboxEntry {
+
+        private final String value;
+
+        private final String displayValue;
+
+        @Override
+        public String toString() {
+            return displayValue;
+        }
+    }
 }

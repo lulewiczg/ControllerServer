@@ -1,11 +1,11 @@
 package com.github.lulewiczg.controller.server;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-
+import com.github.lulewiczg.controller.MockPropertiesConfiguration;
+import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
+import com.github.lulewiczg.controller.MockServerConfiguration;
+import com.github.lulewiczg.controller.TestUtilConfiguration;
+import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
+import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
 import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,13 +21,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.github.lulewiczg.controller.MockPropertiesConfiguration;
-import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
-import com.github.lulewiczg.controller.MockServerConfiguration;
-import com.github.lulewiczg.controller.TestUtilConfiguration;
-import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
-import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
-import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
+import java.io.ObjectOutputStream;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
+
+import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests controller ControllerServerManager.
@@ -37,7 +37,7 @@ import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
  */
 @ActiveProfiles("test")
 @SpringBootTest(classes = { MockServerConfiguration.class, MockRequiredUIConfiguration.class, MockPropertiesConfiguration.class,
-        TestUtilConfiguration.class, ControllerServerManager.class, ObjectStreamClientConnection.class })
+        TestUtilConfiguration.class, ControllerServerManager.class, ObjectOutputStream.class })
 @EnableAutoConfiguration
 class ControllerServerManagerTest {
 
@@ -49,63 +49,63 @@ class ControllerServerManagerTest {
 
     @BeforeEach
     public void before() {
-        Mockito.when(server.getStatus()).thenReturn(ServerState.FORCED_SHUTDOWN);
+        when(server.getStatus()).thenReturn(ServerState.FORCED_SHUTDOWN);
     }
 
     @Test
     @DisplayName("Server start")
-    void testStart() throws Exception {
+    void testStart() {
         mockServerStart();
 
         serverRunner.start();
 
         waitForServer();
-        Mockito.verify(server).start();
+        verify(server).start();
     }
 
     @Test
     @DisplayName("Server start when already started")
-    void testStartTwice() throws Exception {
-        Mockito.when(server.getStatus()).thenReturn(ServerState.WAITING);
+    void testStartTwice() {
+        when(server.getStatus()).thenReturn(ServerState.WAITING);
 
         assertThrows(ServerAlreadyRunningException.class, () -> serverRunner.start());
 
-        Mockito.verify(server, Mockito.never()).start();
+        verify(server, never()).start();
     }
 
     @Test
     @DisplayName("Server stop")
-    void testStop() throws Exception {
-        Mockito.when(server.getStatus()).thenReturn(ServerState.WAITING);
+    void testStop() {
+        when(server.getStatus()).thenReturn(ServerState.WAITING);
 
         serverRunner.stop();
 
         waitForServer();
-        Mockito.verify(server).stop();
+        verify(server).stop();
     }
 
     @Test
     @DisplayName("Server stop when stopped")
-    void testStopWhenStopped() throws Exception {
+    void testStopWhenStopped() {
         assertThrows(ServerAlreadyStoppedException.class, () -> serverRunner.stop());
 
-        Mockito.verify(server, Mockito.never()).stop();
+        verify(server, never()).stop();
     }
 
     @Test
     @DisplayName("Server stop when down")
-    void testStopWhenDown() throws Exception {
+    void testStopWhenDown() {
         mockServerStart();
         assertThrows(ServerAlreadyStoppedException.class, () -> serverRunner.stop());
 
-        Mockito.verify(server, Mockito.never()).stop();
+        verify(server, never()).stop();
     }
 
     @MethodSource
     @DisplayName("Server running check")
     @ParameterizedTest(name = "''{0}'' state is running: ''{1}''")
-    void testActionHandledException(ServerState state, boolean running) throws Exception {
-        Mockito.when(server.getStatus()).thenReturn(state);
+    void testActionHandledException(ServerState state, boolean running) {
+        when(server.getStatus()).thenReturn(state);
 
         assertThat(serverRunner.isRunning(), Matchers.equalTo(running));
     }
@@ -114,7 +114,7 @@ class ControllerServerManagerTest {
      * Mocks server to change state to UP when started.
      */
     private void mockServerStart() {
-        Mockito.when(server.getStatus()).thenAnswer(i -> {
+        when(server.getStatus()).thenAnswer(i -> {
             long count = Mockito.mockingDetails(server).getInvocations().stream()
                     .filter(j -> j.getMethod().getName().equals("start")).count();
             if (count != 0) {
@@ -138,10 +138,8 @@ class ControllerServerManagerTest {
     /**
      * Waits for server to change state.
      *
-     * @throws InterruptedException
-     *             the InterruptedException
      */
-    private void waitForServer() throws InterruptedException {
+    private void waitForServer() {
         Awaitility.await().atMost(200, TimeUnit.MILLISECONDS).until(() -> server.getStatus().isRunning());
     }
 }

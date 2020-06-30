@@ -1,20 +1,17 @@
 package com.github.lulewiczg.controller.actions.processor.mouse;
 
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.PointerInfo;
-import java.awt.Robot;
-
+import com.github.lulewiczg.controller.AWTTestConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.github.lulewiczg.controller.AWTTestConfiguration;
+import java.awt.*;
+
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for RobotMouseMovingService.
@@ -34,13 +31,13 @@ class RobotMouseMovingServiceTest {
 
     @Test
     @DisplayName("Mouse move")
-    void testMouseMove() throws Exception {
+    void testMouseMove() {
         PointerInfo a = MouseInfo.getPointerInfo();
         Point b = a.getLocation();
         int x = (int) b.getX();
         int y = (int) b.getY();
         service.move(10, 20);
-        Mockito.verify(robot).mouseMove(x + 10, y + 20);
+        verify(robot).mouseMove(x + 10, y + 20);
     }
 
 }

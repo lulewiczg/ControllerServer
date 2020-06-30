@@ -8,14 +8,14 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
  *
  * @author Grzegurz
  */
+
 public abstract class LoginRequiredAction extends Action {
     private static final long serialVersionUID = 1L;
 
     /**
      * Throws exception when action should not be executed.
      *
-     * @throws ActionException
-     *             the ActionException
+     * @throws ActionException the ActionException
      */
     @Override
     protected void doThrowException() throws ActionException {

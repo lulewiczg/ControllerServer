@@ -1,19 +1,17 @@
 package com.github.lulewiczg.controller.server;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Properties;
-
-import javax.annotation.Resource;
-
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
+import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Component for holding settings.
@@ -42,6 +40,9 @@ public class SettingsComponent {
 
     @Value("${com.github.lulewiczg.setting.userFile}")
     private String propsFile;
+
+    @Value("${com.github.lulewiczg.setting.connectionType}")
+    private String connectionType;
 
     @Resource(name = "userProperties")
     private Properties userProperties;
@@ -92,6 +93,11 @@ public class SettingsComponent {
     public void setLogLevel(Level logLevel) {
         userProperties.setProperty("com.github.lulewiczg.setting.logLevel", logLevel.toString());
         this.logLevel = logLevel;
+    }
+
+    public void setConnectionType(String connectionType) {
+        userProperties.setProperty("com.github.lulewiczg.setting.connectionType", connectionType);
+        this.connectionType = connectionType;
     }
 
 }

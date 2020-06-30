@@ -1,7 +1,5 @@
 package com.github.lulewiczg.controller.actions.impl;
 
-import java.util.EnumSet;
-
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
@@ -11,9 +9,13 @@ import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
 import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ServerState;
-
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+
+import java.util.EnumSet;
 
 /**
  * Aciton for login.
@@ -21,7 +23,9 @@ import lombok.extern.log4j.Log4j2;
  * @author Grzegurz
  */
 @Log4j2
+@Getter
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoginAction extends Action {
 
     private static final long serialVersionUID = 1L;
@@ -38,10 +42,10 @@ public class LoginAction extends Action {
     }
 
     /**
-     * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)
+     * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.actions.processor.ControllingService)
      */
     @Override
-    protected Response doAction(ControllingService controllingService) throws ActionException {
+    protected Response doAction(ControllingService controllingService) {
         if (password == null || !password.equals(controllingService.getSettings().getPassword())) {
             throw new LoginException(info, ip);
         }

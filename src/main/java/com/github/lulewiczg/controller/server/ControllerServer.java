@@ -1,5 +1,19 @@
 package com.github.lulewiczg.controller.server;
 
+import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
+import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
+import com.github.lulewiczg.controller.common.Common;
+import com.github.lulewiczg.controller.exception.ServerExitException;
+import com.github.lulewiczg.controller.ui.ServerWindow;
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,23 +23,6 @@ import java.net.SocketException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
-import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
-import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
-import com.github.lulewiczg.controller.common.Common;
-import com.github.lulewiczg.controller.exception.ServerExitException;
-import com.github.lulewiczg.controller.ui.ServerWindow;
-
-import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
 
 /**
  * Server implementation.
@@ -41,8 +38,8 @@ public class ControllerServer {
     private ServerState status = ServerState.SHUTDOWN;
     private Socket socket;
     private ServerSocket server;
-    private Object startLock = new Object();
-    private Object stopLock = new Object();
+    private final Object startLock = new Object();
+    private final Object stopLock = new Object();
 
     @Autowired
     private SettingsComponent config;
@@ -66,7 +63,7 @@ public class ControllerServer {
 
     private Thread serverThread = new Thread();// dummy thread
 
-    private ScheduledExecutorService timeoutExecutor = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService timeoutExecutor = Executors.newScheduledThreadPool(1);
 
     @PostConstruct
     public void createTimeoutThread() {
@@ -120,8 +117,7 @@ public class ControllerServer {
     /**
      * Sets up socket.
      *
-     * @throws IOException
-     *             when socket could not be set up
+     * @throws IOException when socket could not be set up
      */
     private void setupSocket() throws IOException {
         server = context.getBean(ServerSocket.class);
@@ -135,8 +131,7 @@ public class ControllerServer {
     /**
      * Listens for incoming connections.
      *
-     * @throws Exception
-     *             the Exception
+     * @throws Exception the Exception
      */
     private void doActions() throws Exception {
         InputStream inputStream = socket.getInputStream();
@@ -145,7 +140,7 @@ public class ControllerServer {
             Thread.sleep(500);
         }
         log.info("Trying to connect...");
-        ClientConnection clientConnection = context.getBean(ClientConnection.class, inputStream, outputStream);
+        ClientConnection clientConnection = (ClientConnection) context.getBean(config.getConnectionType(), inputStream, outputStream);
         processor = context.getBean(ActionProcessor.class, clientConnection);
         while (!socket.isClosed() && getStatus() != ServerState.SHUTDOWN) {
             processor.processAction(this);
@@ -158,7 +153,7 @@ public class ControllerServer {
      */
     public void updateLastTime() {
         lastAcionTime = System.currentTimeMillis();
-        log.info("Time update {}", lastAcionTime);
+        log.trace("Time update {}", lastAcionTime);
     }
 
     /**
