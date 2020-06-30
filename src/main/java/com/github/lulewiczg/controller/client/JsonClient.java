@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.impl.DisconnectAction;
 import com.github.lulewiczg.controller.actions.impl.LoginAction;
-import com.github.lulewiczg.controller.actions.impl.ServerStopAction;
 import com.github.lulewiczg.controller.actions.processor.connection.JsonClientConnection;
 import com.github.lulewiczg.controller.common.Response;
 import lombok.SneakyThrows;
@@ -76,21 +75,5 @@ public class JsonClient implements Client {
         in.close();
         out.close();
         socket.close();
-    }
-
-    /**
-     * Example connection to server.
-     *
-     * @param args args
-     * @throws Exception the Exception
-     */
-    public static void main(String[] args) throws Exception {
-        JsonClient c = new JsonClient(55552);
-        try (c) {
-            c.login("FajneHasloTakieNieZaLatweXD123");
-            // c.doAction(new TextAction("abc"));
-            c.doAction(new ServerStopAction());
-            Thread.sleep(1000);
-        }
     }
 }

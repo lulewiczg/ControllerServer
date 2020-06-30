@@ -4,7 +4,6 @@ package com.github.lulewiczg.controller.client;
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.impl.DisconnectAction;
 import com.github.lulewiczg.controller.actions.impl.LoginAction;
-import com.github.lulewiczg.controller.actions.impl.TextAction;
 import com.github.lulewiczg.controller.common.Response;
 import lombok.SneakyThrows;
 
@@ -62,21 +61,6 @@ public class ObjectStreamClient implements Client {
         in.close();
         out.close();
         socket.close();
-    }
-
-    /**
-     * Example connection to server.
-     *
-     * @param args args
-     * @throws Exception the Exception
-     */
-    public static void main(String[] args) throws Exception {
-        Client c = new ObjectStreamClient(5555);
-        try (c) {
-            c.login("1234");
-            c.doAction(new TextAction("abc"));
-            Thread.sleep(1000);
-        }
     }
 }
 
