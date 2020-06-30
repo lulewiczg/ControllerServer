@@ -1,15 +1,14 @@
 package com.github.lulewiczg.controller.common;
 
-import java.io.Serializable;
-import java.util.function.Consumer;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.lulewiczg.controller.server.ControllerServer;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.io.Serializable;
+import java.util.function.Consumer;
 
 /**
  * Response sent to client after performing action.
@@ -31,7 +30,7 @@ public class Response implements Serializable {
     private String exceptionStr;
 
     @JsonIgnore
-    private Consumer<ControllerServer> callback;
+    private transient Consumer<ControllerServer> callback;
 
     public Response(Status status, Exception exception) {
         this.status = status;

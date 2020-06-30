@@ -1,27 +1,24 @@
 package com.github.lulewiczg.controller.actions.impl;
 
-import java.awt.Robot;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.KeyEvent;
-
 import com.github.lulewiczg.controller.actions.LoginRequiredAction;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
-
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
 
 /**
  * Action for sending text.
  *
  * @author Grzegurz
  */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TextAction extends LoginRequiredAction {
