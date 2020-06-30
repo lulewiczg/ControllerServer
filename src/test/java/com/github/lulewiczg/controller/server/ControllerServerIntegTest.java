@@ -24,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
-import org.mockito.Mockito;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +43,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests controller server.
@@ -116,21 +116,21 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Server restart after logout")
-    void testStateAfterLogout() throws Exception {
+    void testStateAfterLogout() {
         startServer();
         client = getClient(port);
         client.login(password);
         client.logout();
 
-        Mockito.verify(server).login();
-        Mockito.verify(server).logout();
+        verify(server).login();
+        verify(server).logout();
 
         waitForState(ServerState.WAITING);
     }
 
     @Test
     @DisplayName("Server is stopped after stop")
-    void testServerStateAfterStop() throws Exception {
+    void testServerStateAfterStop() {
         startServer();
         server.stop();
         waitForState(ServerState.FORCED_SHUTDOWN);
@@ -138,10 +138,10 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Server can't be started twice")
-    void test() throws Exception {
+    void test() {
         startServer();
         waitForState(ServerState.WAITING);
-        assertThrows(ServerAlreadyRunningException.class, () -> startServer());
+        assertThrows(ServerAlreadyRunningException.class, this::startServer);
     }
 
     @Test
@@ -156,14 +156,14 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Connect to server in down state")
-    void testConnectToDownServer() throws Exception {
+    void testConnectToDownServer() {
         assertThrows(ConnectException.class, () -> new JsonClient(port));
         waitForState(ServerState.FORCED_SHUTDOWN);
     }
 
     @Test
     @DisplayName("Connect to server in up state")
-    void testLoginToUpServer() throws Exception {
+    void testLoginToUpServer() {
         startServer();
         client = getClient(port);
         Response response = client.login(password);
@@ -172,7 +172,7 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Connect to server with invalid password")
-    void testLoginWithInvalidPassword() throws Exception {
+    void testLoginWithInvalidPassword() {
         startServer();
         client = getClient(port);
         Response response = client.login("qwerty");
@@ -182,7 +182,7 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Log in when already logged in")
-    void testLoginWhenLoggedIn() throws Exception {
+    void testLoginWhenLoggedIn() {
         startServer();
         client = getClient(port);
         client.login(password);
@@ -194,7 +194,7 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Disconnects when not connected")
-    void testDisconnectWhenNotConnected() throws Exception {
+    void testDisconnectWhenNotConnected() {
         startServer();
         client = getClient(port);
         Response response = client.logout();
@@ -205,7 +205,7 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Relog")
-    void testRelogin() throws Exception {
+    void testRelogin() {
         startServer();
         client = getClient(port);
         Response response = client.login(password);
@@ -221,14 +221,14 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Connects to server using invalid port")
-    void testConnectToInvalidPort() throws Exception {
+    void testConnectToInvalidPort() {
         startServer();
         assertThrows(ConnectException.class, () -> client = new JsonClient(4321));
     }
 
     @Test
     @DisplayName("Sends action without login")
-    void testSendActionWithoutLogin() throws Exception {
+    void testSendActionWithoutLogin() {
         startServer();
         client = getClient(port);
         Response response = client.doAction(new MouseButtonPressAction(1));
@@ -238,7 +238,7 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Send action after logout")
-    void testSendActionAfterLogout() throws Exception {
+    void testSendActionAfterLogout() {
         startServer();
         client = getClient(port);
         client.login(password);
@@ -252,7 +252,7 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Sends action")
-    void testSendAction() throws Exception {
+    void testSendAction() {
         startServer();
         client = getClient(port);
         client.login(password);
@@ -262,7 +262,7 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Send multiple actions")
-    void testSendMultipleActions() throws Exception {
+    void testSendMultipleActions() {
         startServer();
         client = getClient(port);
         client.login(password);
@@ -279,7 +279,7 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("Two clients connect")
-    void testConnectTwoClients() throws Exception {
+    void testConnectTwoClients() {
         startServer();
         client = getClient(port);
         client.login(password);
@@ -287,7 +287,7 @@ abstract class ControllerServerIntegTest {
             client2 = getClient(port);
             client2.login(password);
         }));
-        Mockito.verify(server, Mockito.times(1)).login();
+        verify(server, times(1)).login();
     }
 
     @Test
@@ -316,12 +316,12 @@ abstract class ControllerServerIntegTest {
             assertEquals(Status.OK, login.getStatus());
         });
 
-        Mockito.verify(server, Mockito.times(2)).login();
+        verify(server, times(2)).login();
     }
 
     @Test
     @DisplayName("Actions are executed in order")
-    void testActionsInOrder() throws Exception {
+    void testActionsInOrder() {
         startServer();
         client = getClient(port);
         client.login(password);
@@ -331,8 +331,8 @@ abstract class ControllerServerIntegTest {
         responses.add(client.doAction(new KeyReleaseAction(1)));
         responses.add(client.doAction(new KeyReleaseAction(2)));
 
-        responses.forEach(i -> assertOK(i));
-        InOrder inOrder = Mockito.inOrder(robot);
+        responses.forEach(this::assertOK);
+        InOrder inOrder = inOrder(robot);
         inOrder.verify(robot).keyPress(1);
         inOrder.verify(robot).keyPress(2);
         inOrder.verify(robot).keyRelease(1);
@@ -341,19 +341,18 @@ abstract class ControllerServerIntegTest {
 
     @Test
     @DisplayName("State in UI is updated")
-    void testUpdateStateInUI() throws Exception {
+    void testUpdateStateInUI() {
         startServer();
         waitForState(ServerState.WAITING);
-        Mockito.verify(window).updateUI(ServerState.WAITING);
+        verify(window).updateUI(ServerState.WAITING);
     }
 
     /**
      * Starts server with default settings.
      *
-     * @throws InterruptedException the InterruptedException
      */
 
-    private void startServer() throws InterruptedException {
+    private void startServer() {
         serverRunner.start();
         waitForState(ServerState.WAITING);
     }
@@ -362,9 +361,8 @@ abstract class ControllerServerIntegTest {
      * Waits for server to change state.
      *
      * @param state target state
-     * @throws InterruptedException
      */
-    private void waitForState(ServerState state) throws InterruptedException {
+    private void waitForState(ServerState state) {
         Awaitility.await().atMost(2, TimeUnit.SECONDS).until(() -> {
             System.out.println(String.format("Waiting for state %s, current %s", state, serverRunner.getStatus()));
             return serverRunner.getStatus() == state;

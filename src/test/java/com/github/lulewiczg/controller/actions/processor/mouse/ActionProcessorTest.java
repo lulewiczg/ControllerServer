@@ -1,26 +1,5 @@
 package com.github.lulewiczg.controller.actions.processor.mouse;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.io.IOException;
-import java.util.stream.Stream;
-
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
-
 import com.github.lulewiczg.controller.MockPropertiesConfiguration;
 import com.github.lulewiczg.controller.MockServerConfiguration;
 import com.github.lulewiczg.controller.TestUtilConfiguration;
@@ -35,6 +14,27 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
 import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.exception.ServerExitException;
 import com.github.lulewiczg.controller.server.ControllerServer;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.io.IOException;
+import java.util.stream.Stream;
+
+import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests ActionProcessor class.
@@ -68,26 +68,26 @@ class ActionProcessorTest {
     @Test
     @DisplayName("Action is invoked")
     void testActionIsInvoked() throws Exception {
-        Mockito.when(connection.getNext()).thenReturn(action);
+        when(connection.getNext()).thenReturn(action);
         Response response = new Response(Status.OK);
-        Mockito.when(action.run(Mockito.any(), Mockito.any())).thenReturn(response);
+        when(action.run(any(), any())).thenReturn(response);
 
         processor.processAction(server);
 
-        Mockito.verify(action).run(server, controllingService);
-        Mockito.verify(connection).write(response);
+        verify(action).run(server, controllingService);
+        verify(connection).write(response);
     }
 
     @Test
     @DisplayName("Response callback is invoked")
     void testCallbackIsInvoked() throws Exception {
-        Mockito.when(connection.getNext()).thenReturn(action);
-        Response response = new Response(Status.OK, i -> i.getStatus());
-        Mockito.when(action.run(Mockito.any(), Mockito.any())).thenReturn(response);
+        when(connection.getNext()).thenReturn(action);
+        Response response = new Response(Status.OK, ControllerServer::getStatus);
+        when(action.run(any(), any())).thenReturn(response);
 
         processor.processAction(server);
 
-        InOrder inOrder = Mockito.inOrder(action, connection, server);
+        InOrder inOrder = inOrder(action, connection, server);
         inOrder.verify(action).run(server, controllingService);
         inOrder.verify(connection).write(response);
         inOrder.verify(server).getStatus();
@@ -97,38 +97,38 @@ class ActionProcessorTest {
     @DisplayName("Action throws unexpected exception")
     void testActionUnhandledException() throws Exception {
         Exception expected = new RuntimeException(TEST);
-        Mockito.when(connection.getNext()).thenReturn(action);
-        Mockito.when(action.run(Mockito.any(), Mockito.any())).thenThrow(expected);
+        when(connection.getNext()).thenReturn(action);
+        when(action.run(any(), any())).thenThrow(expected);
 
         Exception actual = assertThrows(expected.getClass(), () -> processor.processAction(server));
 
         assertThat(actual, Matchers.equalTo(expected));
-        Mockito.verify(connection).write(new Response(Status.NOT_OK));
+        verify(connection).write(new Response(Status.NOT_OK));
     }
 
     @Test
     @DisplayName("Action throws ServerStopException")
     void testActionServerStopException() throws Exception {
         Exception expected = new ServerExitException();
-        Mockito.when(connection.getNext()).thenReturn(action);
-        Mockito.when(action.run(Mockito.any(), Mockito.any())).thenThrow(expected);
+        when(connection.getNext()).thenReturn(action);
+        when(action.run(any(), any())).thenThrow(expected);
 
         Exception actual = assertThrows(expected.getClass(), () -> processor.processAction(server));
 
         assertThat(actual, Matchers.equalTo(expected));
-        Mockito.verify(connection, Mockito.never()).write(Mockito.any());
+        verify(connection, never()).write(any());
     }
 
     @MethodSource
     @DisplayName("Exceptions return proper status")
     @ParameterizedTest(name = "''{0}'' should return status ''{1}''")
     void testActionHandledException(Exception expected, Status status) throws Exception {
-        Mockito.when(connection.getNext()).thenReturn(action);
-        Mockito.when(action.run(Mockito.any(), Mockito.any())).thenThrow(expected);
+        when(connection.getNext()).thenReturn(action);
+        when(action.run(any(), any())).thenThrow(expected);
 
         processor.processAction(server);
 
-        Mockito.verify(connection).write(new Response(status));
+        verify(connection).write(new Response(status));
     }
 
     @Test
@@ -136,20 +136,20 @@ class ActionProcessorTest {
     void testClose() throws Exception {
         processor.close();
 
-        Mockito.verify(connection).close();
+        verify(connection).close();
     }
 
     @Test
     @DisplayName("Error when sending response to client")
     void testConnectionError() throws Exception {
-        Mockito.when(connection.getNext()).thenReturn(action);
-        Mockito.doThrow(IOException.class).when(connection).write(Mockito.any());
+        when(connection.getNext()).thenReturn(action);
+        doThrow(IOException.class).when(connection).write(any());
         Response response = new Response(Status.OK);
-        Mockito.when(action.run(Mockito.any(), Mockito.any())).thenReturn(response);
+        when(action.run(any(), any())).thenReturn(response);
 
         processor.processAction(server);
 
-        Mockito.verify(connection).write(response);
+        verify(connection).write(response);
     }
 
     /**

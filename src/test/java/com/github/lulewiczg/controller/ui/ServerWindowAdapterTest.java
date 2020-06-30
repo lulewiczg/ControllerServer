@@ -1,11 +1,14 @@
 package com.github.lulewiczg.controller.ui;
 
-import javax.swing.JOptionPane;
-
+import com.github.lulewiczg.controller.AWTTestConfiguration;
+import com.github.lulewiczg.controller.MockPropertiesConfiguration;
+import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
+import com.github.lulewiczg.controller.server.ControllerServerManager;
+import com.github.lulewiczg.controller.server.ExceptionLoggingService;
+import com.github.lulewiczg.controller.server.SettingsComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,12 +16,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.github.lulewiczg.controller.AWTTestConfiguration;
-import com.github.lulewiczg.controller.MockPropertiesConfiguration;
-import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
-import com.github.lulewiczg.controller.server.ControllerServerManager;
-import com.github.lulewiczg.controller.server.ExceptionLoggingService;
-import com.github.lulewiczg.controller.server.SettingsComponent;
+import javax.swing.*;
+
+import static org.mockito.Mockito.*;
 
 /**
  * Tests ServerWindowAdapter.
@@ -45,42 +45,42 @@ class ServerWindowAdapterTest {
 
     @BeforeEach
     public void before() {
-        Mockito.doNothing().when(adapter).exit();
+        doNothing().when(adapter).exit();
     }
 
     @Test
     @DisplayName("App exit when server is not running")
-    void testExitServerStopped() throws InterruptedException {
-        Mockito.when(manager.isRunning()).thenReturn(false);
+    void testExitServerStopped() {
+        when(manager.isRunning()).thenReturn(false);
 
         adapter.windowClosing(null);
 
-        Mockito.verify(settings).saveSettings();
-        Mockito.verify(adapter).exit();
+        verify(settings).saveSettings();
+        verify(adapter).exit();
     }
 
     @Test
     @DisplayName("App exit when server is running")
-    void testExitServerRunning() throws InterruptedException {
-        Mockito.when(manager.isRunning()).thenReturn(true);
-        Mockito.when(popup.showExitConfirm()).thenReturn(JOptionPane.YES_OPTION);
+    void testExitServerRunning() {
+        when(manager.isRunning()).thenReturn(true);
+        when(popup.showExitConfirm()).thenReturn(JOptionPane.YES_OPTION);
 
         adapter.windowClosing(null);
 
-        Mockito.verify(settings).saveSettings();
-        Mockito.verify(adapter).exit();
+        verify(settings).saveSettings();
+        verify(adapter).exit();
     }
 
     @Test
     @DisplayName("App exit when server is running and cancel")
-    void testExitServerRunningCancel() throws InterruptedException {
-        Mockito.when(manager.isRunning()).thenReturn(true);
-        Mockito.when(popup.showExitConfirm()).thenReturn(JOptionPane.NO_OPTION);
+    void testExitServerRunningCancel() {
+        when(manager.isRunning()).thenReturn(true);
+        when(popup.showExitConfirm()).thenReturn(JOptionPane.NO_OPTION);
 
         adapter.windowClosing(null);
 
-        Mockito.verify(settings, Mockito.never()).saveSettings();
-        Mockito.verify(adapter, Mockito.never()).exit();
+        verify(settings, never()).saveSettings();
+        verify(adapter, never()).exit();
     }
 
 }

@@ -38,8 +38,8 @@ public class ControllerServer {
     private ServerState status = ServerState.SHUTDOWN;
     private Socket socket;
     private ServerSocket server;
-    private Object startLock = new Object();
-    private Object stopLock = new Object();
+    private final Object startLock = new Object();
+    private final Object stopLock = new Object();
 
     @Autowired
     private SettingsComponent config;
@@ -63,7 +63,7 @@ public class ControllerServer {
 
     private Thread serverThread = new Thread();// dummy thread
 
-    private ScheduledExecutorService timeoutExecutor = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService timeoutExecutor = Executors.newScheduledThreadPool(1);
 
     @PostConstruct
     public void createTimeoutThread() {
@@ -117,8 +117,7 @@ public class ControllerServer {
     /**
      * Sets up socket.
      *
-     * @throws IOException
-     *             when socket could not be set up
+     * @throws IOException when socket could not be set up
      */
     private void setupSocket() throws IOException {
         server = context.getBean(ServerSocket.class);
@@ -132,8 +131,7 @@ public class ControllerServer {
     /**
      * Listens for incoming connections.
      *
-     * @throws Exception
-     *             the Exception
+     * @throws Exception the Exception
      */
     private void doActions() throws Exception {
         InputStream inputStream = socket.getInputStream();
@@ -155,7 +153,7 @@ public class ControllerServer {
      */
     public void updateLastTime() {
         lastAcionTime = System.currentTimeMillis();
-        log.info("Time update {}", lastAcionTime);
+        log.trace("Time update {}", lastAcionTime);
     }
 
     /**

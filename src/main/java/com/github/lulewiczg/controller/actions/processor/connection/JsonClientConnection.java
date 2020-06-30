@@ -14,6 +14,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Scanner;
 
+/**
+ * JSON implementation of connection.
+ */
 @Lazy
 @Scope("prototype")
 @Component("jsonConnection")
@@ -44,7 +47,7 @@ public class JsonClientConnection implements ClientConnection {
     }
 
     /**
-     * @see com.github.lulewiczg.controller.actions.processor.ActionProcessor#write(com.github.lulewiczg.controller.common.Response)
+     * @see com.github.lulewiczg.controller.actions.processor.connection.ClientConnection#write(com.github.lulewiczg.controller.common.Response)
      */
     @Override
     public void write(Response r) throws IOException {
@@ -54,12 +57,12 @@ public class JsonClientConnection implements ClientConnection {
     }
 
     /**
-     * @see com.github.lulewiczg.controller.actions.processor.ActionProcessor#getNext()
+     * @see com.github.lulewiczg.controller.actions.processor.connection.ClientConnection#getNext()
      */
     @Override
     public Action getNext() throws Exception {
         String next = sc.next();
-        next = next.replaceAll("<//>", DELIM);
+        next = next.replace("<//>", DELIM);
         return mapper.readValue(next, Action.class);
     }
 }

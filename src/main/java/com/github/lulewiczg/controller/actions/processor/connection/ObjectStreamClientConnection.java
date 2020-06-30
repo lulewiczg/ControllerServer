@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 
 /**
- * @author Grzegurz
+ * Object stream implementation of connection.
  */
 @Lazy
 @Scope("prototype")
@@ -42,7 +42,7 @@ public class ObjectStreamClientConnection implements ClientConnection {
     }
 
     /**
-     * @see com.github.lulewiczg.controller.actions.processor.ActionProcessor#write(com.github.lulewiczg.controller.common.Response)
+     * @see com.github.lulewiczg.controller.actions.processor.connection.ClientConnection#write(com.github.lulewiczg.controller.common.Response)
      */
     @Override
     public void write(Response r) throws IOException {
@@ -51,7 +51,7 @@ public class ObjectStreamClientConnection implements ClientConnection {
     }
 
     /**
-     * @see com.github.lulewiczg.controller.actions.processor.ActionProcessor#getNext()
+     * @see com.github.lulewiczg.controller.actions.processor.connection.ClientConnection#getNext()
      */
     @Override
     public Action getNext() throws Exception {

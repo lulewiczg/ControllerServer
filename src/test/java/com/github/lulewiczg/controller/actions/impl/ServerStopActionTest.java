@@ -1,12 +1,11 @@
 package com.github.lulewiczg.controller.actions.impl;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.exception.AuthorizationException;
 import com.github.lulewiczg.controller.exception.ServerExitException;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests ServerStopAction.
@@ -28,7 +27,7 @@ class ServerStopActionTest extends ActionTestTemplate {
     }
 
     @Override
-    protected void doTestInConencted() throws Exception {
+    protected void doTestInConnected() throws Exception {
         assertThrows(ServerExitException.class, () -> processor.processAction(server));
         assertStatusOK();
     }

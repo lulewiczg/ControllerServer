@@ -4,9 +4,10 @@ import com.github.lulewiczg.controller.actions.KeyAction;
 import com.github.lulewiczg.controller.actions.processor.ControllingService;
 import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
-import com.github.lulewiczg.controller.exception.ActionException;
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * Action for key press event.
@@ -16,6 +17,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class KeyPressAction extends KeyAction {
 
     private static final long serialVersionUID = 1L;
@@ -23,11 +25,16 @@ public class KeyPressAction extends KeyAction {
     protected int key;
 
     /**
-     * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)
+     * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.actions.processor.ControllingService)
      */
     @Override
-    protected Response doAction(ControllingService controllingService) throws ActionException {
+    protected Response doAction(ControllingService controllingService) {
         controllingService.getRobot().keyPress(key);
         return new Response(Status.OK);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + key;
     }
 }

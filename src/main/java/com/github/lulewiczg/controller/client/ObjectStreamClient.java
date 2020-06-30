@@ -2,8 +2,6 @@
 package com.github.lulewiczg.controller.client;
 
 import com.github.lulewiczg.controller.actions.Action;
-import com.github.lulewiczg.controller.actions.impl.DisconnectAction;
-import com.github.lulewiczg.controller.actions.impl.LoginAction;
 import com.github.lulewiczg.controller.common.Response;
 import lombok.SneakyThrows;
 
@@ -33,20 +31,6 @@ public class ObjectStreamClient implements Client {
         }
         out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
-    }
-
-    @Override
-    @SneakyThrows
-    public Response login(String password) {
-        Response res = doAction(new LoginAction(password, "Client", "localhost"));
-        Thread.sleep(100);
-        return res;
-    }
-
-    @Override
-    @SneakyThrows
-    public Response logout() {
-        return doAction(new DisconnectAction());
     }
 
     @Override

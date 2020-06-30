@@ -1,33 +1,15 @@
 package com.github.lulewiczg.controller.ui;
 
-import static org.junit.Assert.assertThat;
-
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.event.FocusEvent;
-import java.net.InetAddress;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-
+import com.github.lulewiczg.controller.AWTTestConfiguration;
+import com.github.lulewiczg.controller.EagerConfiguration;
+import com.github.lulewiczg.controller.UIConfiguration;
+import com.github.lulewiczg.controller.server.ControllerServerManager;
+import com.github.lulewiczg.controller.server.ExceptionLoggingService;
+import com.github.lulewiczg.controller.server.ServerState;
+import com.github.lulewiczg.controller.server.SettingsComponent;
 import org.apache.logging.log4j.Level;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,13 +18,19 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.github.lulewiczg.controller.AWTTestConfiguration;
-import com.github.lulewiczg.controller.EagerConfiguration;
-import com.github.lulewiczg.controller.UIConfiguration;
-import com.github.lulewiczg.controller.server.ControllerServerManager;
-import com.github.lulewiczg.controller.server.ExceptionLoggingService;
-import com.github.lulewiczg.controller.server.ServerState;
-import com.github.lulewiczg.controller.server.SettingsComponent;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.net.InetAddress;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests application UI.
@@ -122,11 +110,11 @@ class ServerWindowComponentsTest {
 
     @BeforeEach
     void before() {
-        Mockito.when(settings.isAutostart()).thenReturn(true);
-        Mockito.when(settings.getPassword()).thenReturn("password");
-        Mockito.when(settings.getTimeout()).thenReturn(1122);
-        Mockito.when(settings.getPort()).thenReturn(151515);
-        Mockito.when(settings.getLogLevel()).thenReturn(Level.FATAL);
+        when(settings.isAutostart()).thenReturn(true);
+        when(settings.getPassword()).thenReturn("password");
+        when(settings.getTimeout()).thenReturn(1122);
+        when(settings.getPort()).thenReturn(151515);
+        when(settings.getLogLevel()).thenReturn(Level.FATAL);
         startButton.setEnabled(true);
         if (frame.getComponentCount() == 1) {
             JPanel jPanel = new JPanel(new GridLayout(5, 5));
@@ -152,7 +140,7 @@ class ServerWindowComponentsTest {
 
     @Test
     @DisplayName("Clear logs button")
-    void testClearLogsButton() throws Exception {
+    void testClearLogsButton() {
         assertThat(clearLogsButton.getText(), Matchers.equalTo("Clear logs"));
         textArea.setText("test text");
         clearLogsButton.doClick();
@@ -175,7 +163,7 @@ class ServerWindowComponentsTest {
     void testStopButton() {
         assertThat(stopButton.getText(), Matchers.equalTo("Stop"));
         stopButton.doClick();
-        Mockito.verify(manager).stop();
+        verify(manager).stop();
     }
 
     @Test
@@ -183,7 +171,7 @@ class ServerWindowComponentsTest {
     void testStartButton() {
         assertThat(startButton.getText(), Matchers.equalTo("Start"));
         startButton.doClick();
-        Mockito.verify(manager).start();
+        verify(manager).start();
     }
 
     @Test
@@ -194,11 +182,11 @@ class ServerWindowComponentsTest {
 
         autostart.doClick();
         selected ^= true;
-        Mockito.verify(settings).setAutostart(selected);
+        verify(settings).setAutostart(selected);
 
         autostart.doClick();
         selected ^= true;
-        Mockito.verify(settings).setAutostart(selected);
+        verify(settings).setAutostart(selected);
     }
 
     @Test
@@ -210,8 +198,8 @@ class ServerWindowComponentsTest {
         portInput.dispatchEvent(new FocusEvent(portInput, FocusEvent.FOCUS_LOST));
 
         waitForAwt();
-        Mockito.verify(popup, Mockito.never()).invalidValuePopup(Mockito.anyString(), Mockito.any());
-        Mockito.verify(settings).setPort(12345);
+        verify(popup, never()).invalidValuePopup(anyString(), any());
+        verify(settings).setPort(12345);
         assertThat(startButton.isEnabled(), Matchers.equalTo(true));
     }
 
@@ -224,8 +212,8 @@ class ServerWindowComponentsTest {
         portInput.dispatchEvent(new FocusEvent(portInput, FocusEvent.FOCUS_LOST));
 
         waitForAwt();
-        Mockito.verify(popup).invalidValuePopup("Invalid port!", startButton);
-        Mockito.verify(settings, Mockito.never()).setPort(Mockito.anyInt());
+        verify(popup).invalidValuePopup("Invalid port!", startButton);
+        verify(settings, never()).setPort(anyInt());
     }
 
     @Test
@@ -237,8 +225,8 @@ class ServerWindowComponentsTest {
         portInput.dispatchEvent(new FocusEvent(portInput, FocusEvent.FOCUS_LOST));
 
         waitForAwt();
-        Mockito.verify(popup).invalidValuePopup("Invalid port!", startButton);
-        Mockito.verify(settings, Mockito.never()).setPort(Mockito.anyInt());
+        verify(popup).invalidValuePopup("Invalid port!", startButton);
+        verify(settings, never()).setPort(anyInt());
     }
 
     @Test
@@ -250,8 +238,8 @@ class ServerWindowComponentsTest {
         passwordInput.dispatchEvent(new FocusEvent(passwordInput, FocusEvent.FOCUS_LOST));
 
         waitForAwt();
-        Mockito.verify(popup, Mockito.never()).invalidValuePopup(Mockito.anyString(), Mockito.any());
-        Mockito.verify(settings).setPassword(TEST);
+        verify(popup, never()).invalidValuePopup(anyString(), any());
+        verify(settings).setPassword(TEST);
         assertThat(startButton.isEnabled(), Matchers.equalTo(true));
     }
 
@@ -264,8 +252,8 @@ class ServerWindowComponentsTest {
         passwordInput.dispatchEvent(new FocusEvent(passwordInput, FocusEvent.FOCUS_LOST));
 
         waitForAwt();
-        Mockito.verify(popup).invalidValuePopup("Invalid password!", startButton);
-        Mockito.verify(settings, Mockito.never()).setPassword(Mockito.anyString());
+        verify(popup).invalidValuePopup("Invalid password!", startButton);
+        verify(settings, never()).setPassword(anyString());
     }
 
     @Test
@@ -277,8 +265,8 @@ class ServerWindowComponentsTest {
         timeoutInput.dispatchEvent(new FocusEvent(timeoutInput, FocusEvent.FOCUS_LOST));
 
         waitForAwt();
-        Mockito.verify(popup, Mockito.never()).invalidValuePopup(Mockito.anyString(), Mockito.any());
-        Mockito.verify(settings).setTimeout(12345);
+        verify(popup, never()).invalidValuePopup(anyString(), any());
+        verify(settings).setTimeout(12345);
         assertThat(startButton.isEnabled(), Matchers.equalTo(true));
     }
 
@@ -291,8 +279,8 @@ class ServerWindowComponentsTest {
         timeoutInput.dispatchEvent(new FocusEvent(timeoutInput, FocusEvent.FOCUS_LOST));
 
         waitForAwt();
-        Mockito.verify(popup).invalidValuePopup("Invalid timeout!", startButton);
-        Mockito.verify(settings, Mockito.never()).setTimeout(Mockito.anyInt());
+        verify(popup).invalidValuePopup("Invalid timeout!", startButton);
+        verify(settings, never()).setTimeout(anyInt());
     }
 
     @Test
@@ -304,8 +292,8 @@ class ServerWindowComponentsTest {
         timeoutInput.dispatchEvent(new FocusEvent(passwordInput, FocusEvent.FOCUS_LOST));
 
         waitForAwt();
-        Mockito.verify(popup).invalidValuePopup("Invalid timeout!", startButton);
-        Mockito.verify(settings, Mockito.never()).setTimeout(Mockito.anyInt());
+        verify(popup).invalidValuePopup("Invalid timeout!", startButton);
+        verify(settings, never()).setTimeout(anyInt());
     }
 
     @Test
@@ -318,8 +306,8 @@ class ServerWindowComponentsTest {
                 .forEach(i -> assertThat(logLevelsCombobox.getModel().getElementAt(i), Matchers.equalTo(levels[i])));
 
         logLevelsCombobox.setSelectedItem(Level.WARN);
-        Mockito.verify(settings).setLogLevel(Level.WARN);
-        Mockito.verify(appender).updateFilter(Level.WARN);
+        verify(settings).setLogLevel(Level.WARN);
+        verify(appender).updateFilter(Level.WARN);
     }
 
     @Test
@@ -363,22 +351,22 @@ class ServerWindowComponentsTest {
 
     @Test
     @DisplayName("UI configuration")
-    void testUIConfig() throws InterruptedException {
+    void testUIConfig() {
         window.startUI();
 
-        Mockito.verify(appender).setEnableOutput(true);
-        Mockito.verify(window).setTitle("Controller server");
-        Mockito.verify(window).setSize(400, 600);
-        Mockito.verify(window).setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        Mockito.verify(window).setVisible(true);
-        Mockito.verify(window).setLayout(Mockito.any(BorderLayout.class));
-        Mockito.verify(window).add(settingsPanel, BorderLayout.NORTH);
-        Mockito.verify(window).add(logPanel);
-        Mockito.verify(window).setLocationRelativeTo(null);
-        Mockito.verify(window).addWindowListener(Mockito.any(ServerWindowAdapter.class));
+        verify(appender).setEnableOutput(true);
+        verify(window).setTitle("Controller server");
+        verify(window).setSize(400, 600);
+        verify(window).setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        verify(window).setVisible(true);
+        verify(window).setLayout(any(BorderLayout.class));
+        verify(window).add(settingsPanel, BorderLayout.NORTH);
+        verify(window).add(logPanel);
+        verify(window).setLocationRelativeTo(null);
+        verify(window).addWindowListener(any(ServerWindowAdapter.class));
 
-        Mockito.verify(window).revalidate();
-        Mockito.verify(appender).flush();
+        verify(window).revalidate();
+        verify(appender).flush();
     }
 
     /**

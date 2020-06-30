@@ -1,10 +1,8 @@
 package com.github.lulewiczg.controller.ui;
 
-import java.nio.charset.Charset;
-
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-
+import com.github.lulewiczg.controller.server.SettingsComponent;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Filter.Result;
@@ -20,10 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.github.lulewiczg.controller.server.SettingsComponent;
-
-import lombok.Getter;
-import lombok.Setter;
+import javax.swing.*;
+import java.nio.charset.Charset;
 
 /**
  * Component for displaying logs.
@@ -34,9 +30,9 @@ import lombok.Setter;
 @Plugin(name = "JTextAreaAppender", category = "Core", elementType = "appender", printObject = true)
 public class JTextAreaAppender extends AbstractAppender {
 
-    private JTextArea textArea;
+    private final JTextArea textArea;
 
-    private StringBuffer buffer = new StringBuffer();
+    private final StringBuffer buffer = new StringBuffer();
 
     @Getter
     @Setter
@@ -44,7 +40,7 @@ public class JTextAreaAppender extends AbstractAppender {
 
     @Autowired
     public JTextAreaAppender(JTextArea textArea, SettingsComponent settings,
-            @Value("${com.github.lulewiczg.logging.pattern}") String logPattern) {
+                             @Value("${com.github.lulewiczg.logging.pattern}") String logPattern) {
         super("SWING_APPENDER", null,
                 PatternLayout.newBuilder().withPattern(logPattern).withCharset(Charset.defaultCharset()).build(), false, null);
         this.textArea = textArea;
@@ -58,12 +54,17 @@ public class JTextAreaAppender extends AbstractAppender {
         ctx.updateLoggers(config);
     }
 
+    /**
+     * Updates filter with given level
+     *
+     * @param level logging level
+     */
     public void updateFilter(Level level) {
         removeFilter(getFilter());
         addFilter(ThresholdFilter.createFilter(level, Result.ACCEPT, Result.DENY));
     }
 
-    /*
+    /**
      * @see org.apache.logging.log4j.core.Appender#append(org.apache.logging.log4j.core.LogEvent)
      */
     @Override

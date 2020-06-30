@@ -1,13 +1,5 @@
 package com.github.lulewiczg.controller.actions.processor;
 
-import java.io.Closeable;
-import java.io.IOException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Service;
-
 import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
 import com.github.lulewiczg.controller.common.Response;
@@ -18,8 +10,14 @@ import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.exception.ServerExitException;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
-
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+
+import java.io.Closeable;
+import java.io.IOException;
 
 /**
  * Class for processing client actions.
@@ -48,10 +46,8 @@ public class ActionProcessor implements Closeable {
     /**
      * Processes action
      *
-     * @param server
-     *            server
-     * @throws Exception
-     *
+     * @param server server
+     * @throws Exception the Exception
      */
     public void processAction(ControllerServer server) throws Exception {
         Action action = connection.getNext();
@@ -70,10 +66,8 @@ public class ActionProcessor implements Closeable {
     /**
      * Handles exceptions.
      *
-     * @param e
-     *            exception to handle
-     * @throws Exception
-     *             the Exception
+     * @param e exception to handle
+     * @throws Exception the Exception
      */
     private void handleException(Exception e) throws Exception {
         Status status = Status.NOT_OK;
@@ -101,10 +95,7 @@ public class ActionProcessor implements Closeable {
     /**
      * Sends response to client.
      *
-     * @param output
-     *            output
-     * @param res
-     *            response
+     * @param res response
      */
     private void sendResponse(Response res) {
         boolean error = false;

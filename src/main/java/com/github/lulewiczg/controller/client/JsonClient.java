@@ -2,8 +2,6 @@ package com.github.lulewiczg.controller.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lulewiczg.controller.actions.Action;
-import com.github.lulewiczg.controller.actions.impl.DisconnectAction;
-import com.github.lulewiczg.controller.actions.impl.LoginAction;
 import com.github.lulewiczg.controller.actions.processor.connection.JsonClientConnection;
 import com.github.lulewiczg.controller.common.Response;
 import lombok.SneakyThrows;
@@ -34,6 +32,7 @@ public class JsonClient implements Client {
     private final ObjectMapper mapper = new ObjectMapper();
     private final Scanner sc;
 
+
     @SneakyThrows
     public JsonClient(int port) {
         socket = new Socket();
@@ -46,20 +45,6 @@ public class JsonClient implements Client {
         in = socket.getInputStream();
         sc = new Scanner(in);
         sc.useDelimiter(JsonClientConnection.DELIM);
-    }
-
-    @Override
-    @SneakyThrows
-    public Response login(String password) {
-        Response res = doAction(new LoginAction(password, "Client", "localhost"));
-        Thread.sleep(100);
-        return res;
-    }
-
-    @Override
-    @SneakyThrows
-    public Response logout() {
-        return doAction(new DisconnectAction());
     }
 
     @Override

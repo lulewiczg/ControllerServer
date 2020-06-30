@@ -8,3 +8,5 @@ target/
 *.dat
 log*.txt
 application.properties
+.idea/
+Controller.iml

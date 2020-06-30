@@ -1,23 +1,5 @@
 package com.github.lulewiczg.controller.actions.impl;
 
-import static org.junit.Assert.assertThat;
-
-import java.awt.Robot;
-import java.awt.datatransfer.Clipboard;
-import java.io.IOException;
-
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
-
 import com.github.lulewiczg.controller.MockPropertiesConfiguration;
 import com.github.lulewiczg.controller.MockServerConfiguration;
 import com.github.lulewiczg.controller.TestUtilConfiguration;
@@ -29,6 +11,25 @@ import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ServerState;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.io.IOException;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests template for actions.
@@ -68,17 +69,15 @@ abstract class ActionTestTemplate {
 
     @BeforeEach
     void before() throws Exception {
-        Mockito.when(connection.getNext()).thenReturn(getAction());
+        when(connection.getNext()).thenReturn(getAction());
         additionalBefore();
     }
 
     /**
      * Additional setup logic;
      *
-     * @throws Exception
-     *             the Exception
      */
-    protected void additionalBefore() throws Exception {
+    protected void additionalBefore() {
     }
 
     /**
@@ -95,7 +94,7 @@ abstract class ActionTestTemplate {
      * @throws Exception
      *             the Exception
      */
-    protected abstract void doTestInConencted() throws Exception;
+    protected abstract void doTestInConnected() throws Exception;
 
     /**
      * Tests action in SHUTDOWN state.
@@ -108,22 +107,22 @@ abstract class ActionTestTemplate {
     @Test
     @DisplayName("Test action in WAITING state")
     void testInWaitingState() throws Exception {
-        Mockito.when(server.getStatus()).thenReturn(ServerState.WAITING);
+        when(server.getStatus()).thenReturn(ServerState.WAITING);
         doTestInWaiting();
     }
 
     @Test
     @DisplayName("Test action in SHUTDOWN state")
     void testInShutdownState() throws Exception {
-        Mockito.when(server.getStatus()).thenReturn(ServerState.SHUTDOWN);
+        when(server.getStatus()).thenReturn(ServerState.SHUTDOWN);
         doTestInShutdown();
     }
 
     @Test
     @DisplayName("Test action in CONNECTED state")
-    void testinConnectedState() throws Exception {
-        Mockito.when(server.getStatus()).thenReturn(ServerState.CONNECTED);
-        doTestInConencted();
+    void testInConnectedState() throws Exception {
+        when(server.getStatus()).thenReturn(ServerState.CONNECTED);
+        doTestInConnected();
     }
 
     /**
@@ -148,9 +147,9 @@ abstract class ActionTestTemplate {
      */
     protected void assertStatus(Status status, Class<? extends Exception> ex) throws IOException {
         ArgumentCaptor<Response> argument = ArgumentCaptor.forClass(Response.class);
-        Mockito.verify(connection).write(argument.capture());
-        assertThat(argument.getValue().getStatus(), Matchers.is(status));
-        assertThat(argument.getValue().getException(), Matchers.is(ex.getSimpleName()));
+        verify(connection).write(argument.capture());
+        assertThat(argument.getValue().getStatus(), is(status));
+        assertThat(argument.getValue().getException(), is(ex.getSimpleName()));
     }
 
     /**
@@ -161,8 +160,8 @@ abstract class ActionTestTemplate {
      */
     protected void assertStatusOK() throws IOException {
         ArgumentCaptor<Response> argument = ArgumentCaptor.forClass(Response.class);
-        Mockito.verify(connection).write(argument.capture());
-        assertThat(argument.getValue().getStatus(), Matchers.is(Status.OK));
-        assertThat(argument.getValue().getException(), Matchers.equalTo(null));
+        verify(connection).write(argument.capture());
+        assertThat(argument.getValue().getStatus(), is(Status.OK));
+        assertThat(argument.getValue().getException(), equalTo(null));
     }
 }

@@ -2,10 +2,7 @@ package com.github.lulewiczg.controller.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.lulewiczg.controller.server.ControllerServer;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.function.Consumer;
@@ -19,6 +16,7 @@ import java.util.function.Consumer;
 @Setter
 @ToString
 @NoArgsConstructor
+@EqualsAndHashCode(of = "status")
 public class Response implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -47,17 +45,5 @@ public class Response implements Serializable {
         this.status = status;
     }
 
-    @Override
-    public int hashCode() {
-        return status.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Response)) {
-            return false;
-        }
-        return ((Response) obj).status == status;
-    }
 
 }

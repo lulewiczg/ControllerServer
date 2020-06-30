@@ -22,8 +22,7 @@ public interface ClientConnection extends Closeable {
      * Reads next action.
      *
      * @return action action
-     * @throws Exception
-     *             the Exception
+     * @throws Exception the Exception
      */
     Action getNext() throws Exception;
 

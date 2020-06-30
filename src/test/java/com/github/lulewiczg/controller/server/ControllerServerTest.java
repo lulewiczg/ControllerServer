@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +26,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests controller server.
@@ -71,7 +71,7 @@ class ControllerServerTest {
     @Mock
     private OutputStream out;
 
-    private Executor exec = Executors.newCachedThreadPool();
+    private final Executor exec = Executors.newCachedThreadPool();
 
     @BeforeEach
     void before() throws Exception {
@@ -98,10 +98,10 @@ class ControllerServerTest {
         when(input.available()).thenReturn(1);
         when(socket.isClosed()).thenReturn(true);
 
-        startAndWait(true);
+        startAndWait();
 
-        Mockito.verify(server).closeServer();
-        Mockito.verify(processor, Mockito.never()).processAction(server);
+        verify(server).closeServer();
+        verify(processor, never()).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
     }
 
@@ -110,7 +110,7 @@ class ControllerServerTest {
     void testConnectWait() throws Exception {
         when(socket.isConnected()).thenReturn(false);
 
-        startAndWait(true);
+        startAndWait();
 
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.WAITING));
     }
@@ -122,10 +122,10 @@ class ControllerServerTest {
         when(input.available()).thenReturn(0);
         when(socket.isClosed()).thenReturn(true);
 
-        startAndWait(true);
+        startAndWait();
 
-        Mockito.verify(server).closeServer();
-        Mockito.verify(processor, Mockito.never()).processAction(server);
+        verify(server).closeServer();
+        verify(processor, never()).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
     }
 
@@ -136,10 +136,10 @@ class ControllerServerTest {
         when(input.available()).thenReturn(1);
         when(socket.isClosed()).thenReturn(false, true);
 
-        startAndWait(true);
+        startAndWait();
 
-        Mockito.verify(server).closeServer();
-        Mockito.verify(processor).processAction(server);
+        verify(server).closeServer();
+        verify(processor).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
     }
 
@@ -151,10 +151,10 @@ class ControllerServerTest {
         when(socket.isClosed()).thenReturn(false);
         when(server.getStatus()).thenReturn(ServerState.CONNECTED, ServerState.SHUTDOWN);
 
-        startAndWait(true);
+        startAndWait();
 
-        Mockito.verify(server).closeServer();
-        Mockito.verify(processor).processAction(server);
+        verify(server).closeServer();
+        verify(processor).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
     }
 
@@ -165,10 +165,10 @@ class ControllerServerTest {
         when(input.available()).thenReturn(1);
         when(socket.isClosed()).thenReturn(false, false, false, true);
 
-        startAndWait(true);
+        startAndWait();
 
-        Mockito.verify(server).closeServer();
-        Mockito.verify(processor, Mockito.times(3)).processAction(server);
+        verify(server).closeServer();
+        verify(processor, times(3)).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
     }
 
@@ -180,10 +180,10 @@ class ControllerServerTest {
         when(input.available()).thenReturn(1);
         when(socket.isClosed()).thenReturn(false);
 
-        startAndWait(false);
+        startAndWait();
 
-        Mockito.verify(server).stop();
-        Mockito.verify(socket, Mockito.never()).getInputStream();
+        verify(server).stop();
+        verify(socket, never()).getInputStream();
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.FORCED_SHUTDOWN));
     }
 
@@ -193,29 +193,29 @@ class ControllerServerTest {
         when(socket.isConnected()).thenReturn(true);
         when(input.available()).thenReturn(1);
         when(socket.isClosed()).thenReturn(false);
-        Mockito.doThrow(Exception.class).when(processor).processAction(server);
+        doThrow(Exception.class).when(processor).processAction(server);
 
-        startAndWait(true);
+        startAndWait();
 
-        Mockito.verify(server).closeServer();
-        Mockito.verify(processor).processAction(server);
+        verify(server).closeServer();
+        verify(processor).processAction(server);
         assertThat(server.getStatus(), Matchers.equalTo(ServerState.SHUTDOWN));
     }
 
     @Test
     @DisplayName("User login")
-    void testLogin() throws Exception {
+    void testLogin() {
         server.login();
 
-        Mockito.verify(server).setStatus(ServerState.CONNECTED);
+        verify(server).setStatus(ServerState.CONNECTED);
     }
 
     @Test
     @DisplayName("User logout")
-    void testLogout() throws Exception {
+    void testLogout() {
         server.logout();
-        Mockito.verify(server).closeServer();
-        Mockito.verify(server).setStatus(ServerState.SHUTDOWN);
+        verify(server).closeServer();
+        verify(server).setStatus(ServerState.SHUTDOWN);
     }
 
     @Test
@@ -228,20 +228,18 @@ class ControllerServerTest {
 
         exec.execute(server::start);
 
-        Mockito.verify(watcher, Mockito.timeout(1000)).watch(Mockito.any());// Mockito bug
-        Mockito.verify(server, Mockito.atLeast(1)).updateLastTime();
+        verify(watcher, timeout(1000)).watch(any());// Mockito bug
+        verify(server, atLeast(1)).updateLastTime();
         assertThat(server.getLastAcionTime(), Matchers.greaterThan(time));
     }
 
     /**
      * Starts server and waits for start.
      *
-     * @param started
-     *            should start
      * @throws InterruptedException
      *             the InterruptedException
      */
-    private void startAndWait(boolean started) throws InterruptedException {
+    private void startAndWait() throws InterruptedException {
         exec.execute(server::start);
         Thread.sleep(100);
     }

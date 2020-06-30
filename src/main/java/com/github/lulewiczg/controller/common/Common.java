@@ -1,12 +1,11 @@
 package com.github.lulewiczg.controller.common;
 
-import java.io.Closeable;
-import java.io.IOException;
-
-import org.apache.logging.log4j.Level;
-
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Level;
+
+import java.io.Closeable;
+import java.io.IOException;
 
 /**
  * Common utility class.
@@ -20,8 +19,7 @@ public class Common {
     /**
      * Closes resources.
      *
-     * @param c
-     *            resource
+     * @param c resource
      */
     public void close(Closeable c) {
         if (c != null) {

@@ -1,19 +1,11 @@
 package com.github.lulewiczg.controller.ui;
 
-import static org.junit.Assert.assertThat;
-
-import java.util.Properties;
-
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JViewport;
-
+import com.github.lulewiczg.controller.AWTTestConfiguration;
+import com.github.lulewiczg.controller.EagerConfiguration;
+import com.github.lulewiczg.controller.UIConfiguration;
+import com.github.lulewiczg.controller.server.ControllerServerManager;
+import com.github.lulewiczg.controller.server.ExceptionLoggingService;
+import com.github.lulewiczg.controller.server.SettingsComponent;
 import org.apache.logging.log4j.Level;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -25,12 +17,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.github.lulewiczg.controller.AWTTestConfiguration;
-import com.github.lulewiczg.controller.EagerConfiguration;
-import com.github.lulewiczg.controller.UIConfiguration;
-import com.github.lulewiczg.controller.server.ControllerServerManager;
-import com.github.lulewiczg.controller.server.ExceptionLoggingService;
-import com.github.lulewiczg.controller.server.SettingsComponent;
+import javax.swing.*;
+import java.util.Properties;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Grzegorz
@@ -125,7 +115,7 @@ class ServerWindowPanelsTest {
 
     @Test
     @DisplayName("Settings panel is created properly")
-    void testSettingsPanel() throws Exception {
+    void testSettingsPanel() {
         assertThat(settingsPanel.getComponentCount(), Matchers.equalTo(14));
 
         JLabel label = (JLabel) settingsPanel.getComponent(0);

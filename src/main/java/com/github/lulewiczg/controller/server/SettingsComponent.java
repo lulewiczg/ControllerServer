@@ -95,8 +95,8 @@ public class SettingsComponent {
         this.logLevel = logLevel;
     }
 
-    public void setConnectionType(String type) {
-        userProperties.setProperty("com.github.lulewiczg.setting.connectionType", type);
+    public void setConnectionType(String connectionType) {
+        userProperties.setProperty("com.github.lulewiczg.setting.connectionType", connectionType);
         this.connectionType = connectionType;
     }
 

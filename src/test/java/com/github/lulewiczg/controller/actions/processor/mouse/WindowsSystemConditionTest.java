@@ -1,6 +1,5 @@
 package com.github.lulewiczg.controller.actions.processor.mouse;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -8,6 +7,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.test.context.ActiveProfiles;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests WindowsSystemCondition class.
@@ -38,7 +40,7 @@ class WindowsSystemConditionTest {
     @ValueSource(strings = { "Windows 10", "windows 8.1", "WINDOWS XD", "wInDoWs 69" })
     void testOnWindows(String os) {
         System.setProperty(OS_NAME, os);
-        Assert.assertTrue(new WindowsSystemCondition().matches(null, null));
+        assertTrue(new WindowsSystemCondition().matches(null, null));
     }
 
     @DisplayName("Test bean on other systems")
@@ -46,7 +48,7 @@ class WindowsSystemConditionTest {
     @ValueSource(strings = { "linux 3.14", "unix 123", "MAC X", "Android" })
     void testOnOtherSystems(String os) {
         System.setProperty(OS_NAME, os);
-        Assert.assertFalse(new WindowsSystemCondition().matches(null, null));
+        assertFalse(new WindowsSystemCondition().matches(null, null));
     }
 
 }

@@ -2,7 +2,7 @@ package com.github.lulewiczg.controller.exception;
 
 /**
  * Exception for client connection errors.
- * 
+ *
  * @author Grzegurz
  */
 public class ConnectionException extends RuntimeException {

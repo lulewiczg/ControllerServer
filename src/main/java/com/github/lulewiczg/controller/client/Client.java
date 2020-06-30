@@ -1,7 +1,10 @@
 package com.github.lulewiczg.controller.client;
 
 import com.github.lulewiczg.controller.actions.Action;
+import com.github.lulewiczg.controller.actions.impl.DisconnectAction;
+import com.github.lulewiczg.controller.actions.impl.LoginAction;
 import com.github.lulewiczg.controller.common.Response;
+import lombok.SneakyThrows;
 
 import java.io.Closeable;
 
@@ -18,14 +21,22 @@ public interface Client extends Closeable {
      * @param password password
      * @return server response
      */
-    Response login(String password);
+    @SneakyThrows
+    default Response login(String password) {
+        Response res = doAction(new LoginAction(password, "Client", "localhost"));
+        Thread.sleep(100);
+        return res;
+    }
 
     /**
      * Disconnects from server.
      *
      * @return server response
      */
-    Response logout();
+    @SneakyThrows
+    default Response logout() {
+        return doAction(new DisconnectAction());
+    }
 
     /**
      * Executes server action.

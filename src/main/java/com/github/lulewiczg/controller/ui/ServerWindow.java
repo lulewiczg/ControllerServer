@@ -1,24 +1,14 @@
 package com.github.lulewiczg.controller.ui;
 
-import java.awt.BorderLayout;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-
+import com.github.lulewiczg.controller.server.ExceptionLoggingService;
+import com.github.lulewiczg.controller.server.ServerState;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import com.github.lulewiczg.controller.server.ExceptionLoggingService;
-import com.github.lulewiczg.controller.server.ServerState;
-
-import lombok.extern.log4j.Log4j2;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * GUI for server.
@@ -101,8 +91,7 @@ public class ServerWindow extends JFrame {
     /**
      * Updates components depending on server state.
      *
-     * @param enabled
-     *            enabled
+     * @param state server state
      */
     public void updateUI(ServerState state) {
         SwingUtilities.invokeLater(() -> {

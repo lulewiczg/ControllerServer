@@ -18,13 +18,13 @@ import java.util.EnumSet;
  * @author Grzegurz
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
-@JsonSubTypes({ @JsonSubTypes.Type(value = LoginAction.class), @JsonSubTypes.Type(value = LoginRequiredAction.class),
+@JsonSubTypes({@JsonSubTypes.Type(value = LoginAction.class), @JsonSubTypes.Type(value = LoginRequiredAction.class),
         @JsonSubTypes.Type(value = PingAction.class), @JsonSubTypes.Type(value = DisconnectAction.class),
         @JsonSubTypes.Type(value = KeyAction.class), @JsonSubTypes.Type(value = MouseButtonAction.class),
         @JsonSubTypes.Type(value = MouseButtonPressAction.class), @JsonSubTypes.Type(value = MouseButtonReleaseAction.class),
         @JsonSubTypes.Type(value = MouseMoveAction.class), @JsonSubTypes.Type(value = MouseScrollAction.class),
         @JsonSubTypes.Type(value = ServerStopAction.class), @JsonSubTypes.Type(value = TextAction.class),
-        @JsonSubTypes.Type(value = KeyPressAction.class), @JsonSubTypes.Type(value = KeyReleaseAction.class) })
+        @JsonSubTypes.Type(value = KeyPressAction.class), @JsonSubTypes.Type(value = KeyReleaseAction.class)})
 public abstract class Action implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -41,33 +41,26 @@ public abstract class Action implements Serializable {
     /**
      * Executes action.
      *
-     * @param controllingService
-     *            controlling service
-     *
+     * @param controllingService controlling service
      * @return action result
-     * @throws ActionException
-     *             the ActionException
+     * @throws ActionException the ActionException
      */
     protected abstract Response doAction(ControllingService controllingService) throws ActionException;
 
     /**
      * Throws exception when action can not be run.
      *
-     * @throws ActionException
-     *             the ActionException
+     * @throws ActionException the ActionException
      */
     protected abstract void doThrowException() throws ActionException;
 
     /**
      * Checks server state and runs action
      *
-     * @param server
-     *            server
-     * @param controllingService
-     *            controlling service
+     * @param server             server
+     * @param controllingService controlling service
      * @return action response
-     * @throws ActionException
-     *             the ActionException
+     * @throws ActionException the ActionException
      */
     public Response run(ControllerServer server, ControllingService controllingService) throws ActionException {
         if (getProperStates().contains(server.getStatus())) {
@@ -80,9 +73,7 @@ public abstract class Action implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append("Action: ").append(this.getClass().getSimpleName());
-        return str.toString();
+        return "Action: " + this.getClass().getSimpleName();
     }
 
 }

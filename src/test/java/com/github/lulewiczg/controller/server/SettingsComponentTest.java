@@ -1,12 +1,7 @@
 package com.github.lulewiczg.controller.server;
 
-import static org.junit.Assert.assertThat;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
-
+import com.github.lulewiczg.controller.MockUtilConfiguration;
+import com.github.lulewiczg.controller.TestPropertiesConfiguration;
 import org.apache.logging.log4j.Level;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
@@ -20,8 +15,12 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.github.lulewiczg.controller.MockUtilConfiguration;
-import com.github.lulewiczg.controller.TestPropertiesConfiguration;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests SettingsComponent class.
@@ -120,7 +119,7 @@ class SettingsComponentTest {
 
     @Test
     @DisplayName("Modify properties but don't save")
-    void testNoSave() throws Exception {
+    void testNoSave() {
         removeIfExists();
         settings.setAutostart(true);
         settings.setLogLevel(Level.FATAL);
@@ -170,7 +169,7 @@ class SettingsComponentTest {
 
     @Test
     @DisplayName("Properties are not saved when there is nothing to save")
-    void testSaveNoProps() throws Exception {
+    void testSaveNoProps() {
         removeIfExists();
 
         settings.saveSettings();

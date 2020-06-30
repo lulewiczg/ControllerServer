@@ -9,12 +9,9 @@ public abstract class KeyAction extends LoginRequiredAction {
 
     private static final long serialVersionUID = 1L;
 
-    // @Override
-    // public String toString() {
-    // StringBuilder str = new StringBuilder();
-    // str.append(super.toString());
-    // str.append(", ").append(key);
-    // return str.toString();
-    // }
+    @Override
+    public String toString() {
+        return super.toString() + ", ";
+    }
 
 }

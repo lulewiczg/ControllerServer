@@ -12,10 +12,13 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ServerState {
-    CONNECTED("Connected", true), WAITING("Wating", true), SHUTDOWN("Shutdown", false), FORCED_SHUTDOWN("Shutdown", false);
+    CONNECTED("Connected", true),
+    WAITING("Waiting", true),
+    SHUTDOWN("Shutdown", false),
+    FORCED_SHUTDOWN("Shutdown", false);
 
-    private String msg;
+    private final String msg;
 
-    private boolean running;
+    private final boolean running;
 
 }
