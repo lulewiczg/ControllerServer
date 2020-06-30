@@ -80,7 +80,7 @@ class ControllerServerTest {
 
         when(socketServer.accept()).thenReturn(socket);
 
-        when(settings.getConnectionType()).thenReturn("objectStreamConnection");
+        when(settings.getConnectionType()).thenReturn(ObjectStreamClientConnection.NAME);
     }
 
     @AfterEach

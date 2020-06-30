@@ -4,7 +4,7 @@
 
 Server for Controller app, see Android application that allows to control PC mouse and keyboard (and more). Requires client application to use - [Controller Client](https://github.com/lulewiczg/ControllerClient), or can be used with custom client that complies with server API.
 
-<img alt="Server window" src="https://i.imgur.com/e9FNXrR.png"></a>
+<img alt="Server window" src="https://i.imgur.com/93J4k74.png"></a>
 
 ## Getting Started
 
@@ -63,6 +63,7 @@ java -jar server.jar console
 - Logs displayed also in window
 - Configurable log level in window (ALL in log file)
 - Clearing logs
+- Switching implementation between object stream and JSON
 
 #### Supported actions
 - Mouse button press & release
@@ -78,7 +79,6 @@ java -jar server.jar console
 - Alt key not working on Windows (accessibility limitations)
 
 ## TODO
-- Change java serialization to JSON
 - I18n
 - Add action keys like volume up, etc.
 - CMD?

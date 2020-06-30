@@ -19,6 +19,7 @@ import java.io.*;
 @Component("objectStreamConnection")
 public class ObjectStreamClientConnection implements ClientConnection {
 
+    public static final String NAME = "objectStreamConnection";
     private final ObjectInputStream in;
     private final ObjectOutputStream out;
 

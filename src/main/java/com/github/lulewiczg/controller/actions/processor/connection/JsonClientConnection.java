@@ -22,6 +22,7 @@ import java.util.Scanner;
 @Component("jsonConnection")
 public class JsonClientConnection implements ClientConnection {
 
+    public static final String NAME = "jsonConnection";
     public static final String DELIM = "<>";
     private final InputStream in;
     private final OutputStream out;

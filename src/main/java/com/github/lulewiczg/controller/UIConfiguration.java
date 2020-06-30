@@ -1,5 +1,7 @@
 package com.github.lulewiczg.controller;
 
+import com.github.lulewiczg.controller.actions.processor.connection.JsonClientConnection;
+import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
 import com.github.lulewiczg.controller.server.ControllerServerManager;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.SettingsComponent;
@@ -122,7 +124,7 @@ public class UIConfiguration {
     @Bean
     public JComboBox<ComboboxEntry> connectionTypeCombobox(SettingsComponent settings) {
         JComboBox<ComboboxEntry> connectionTypes = new JComboBox<>(new ComboboxEntry[]{
-                new ComboboxEntry("objectStreamConnection", "Object stream"), new ComboboxEntry("jsonConnection", "JSON")});
+                new ComboboxEntry(ObjectStreamClientConnection.NAME, "Object stream"), new ComboboxEntry(JsonClientConnection.NAME, "JSON")});
         connectionTypes.setSelectedItem(settings.getConnectionType());
         connectionTypes.addActionListener(e -> {
             ComboboxEntry type = (ComboboxEntry) connectionTypes.getSelectedItem();
@@ -179,8 +181,11 @@ public class UIConfiguration {
     }
 
     @Bean
-    public JPanel settingsPanel(JComboBox<String> ipCombobox, JComboBox<ComboboxEntry> connectionTypeCombobox, JTextField portInput, JTextField passwordInput,
-                                JTextField timeoutInput, JCheckBox autostart, JLabel stateIndicator, JButton startButton, JButton stopButton) {
+    public JPanel settingsPanel
+            (JComboBox<String> ipCombobox, JComboBox<ComboboxEntry> connectionTypeCombobox, JTextField
+                    portInput, JTextField passwordInput,
+             JTextField timeoutInput, JCheckBox autostart, JLabel stateIndicator, JButton startButton, JButton
+                     stopButton) {
         JPanel panel = new JPanel(new GridLayout(8, 3));
         panel.setBorder(BorderFactory.createTitledBorder("Server settings"));
         JLabel ip = new JLabel("IP");

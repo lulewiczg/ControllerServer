@@ -3,6 +3,8 @@ package com.github.lulewiczg.controller.ui;
 import com.github.lulewiczg.controller.AWTTestConfiguration;
 import com.github.lulewiczg.controller.EagerConfiguration;
 import com.github.lulewiczg.controller.UIConfiguration;
+import com.github.lulewiczg.controller.actions.processor.connection.JsonClientConnection;
+import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
 import com.github.lulewiczg.controller.server.ControllerServerManager;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.ServerState;
@@ -40,8 +42,8 @@ import static org.mockito.Mockito.*;
  */
 @DirtiesContext
 @ActiveProfiles("test")
-@SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, UIConfiguration.class, ServerWindow.class,
-        ServerWindowAdapter.class })
+@SpringBootTest(classes = {AWTTestConfiguration.class, EagerConfiguration.class, UIConfiguration.class, ServerWindow.class,
+        ServerWindowAdapter.class})
 @EnableAutoConfiguration
 class ServerWindowComponentsTest {
 
@@ -303,9 +305,9 @@ class ServerWindowComponentsTest {
     @Test
     @DisplayName("Connection type combobox")
     void testConnectionTypeCombobox() {
-        UIConfiguration.ComboboxEntry entry = new UIConfiguration.ComboboxEntry("jsonConnection", "JSON");
+        UIConfiguration.ComboboxEntry entry = new UIConfiguration.ComboboxEntry(JsonClientConnection.NAME, "JSON");
         assertThat(connectionTypeCombobox.getModel().getSize(), equalTo(2));
-        assertThat(connectionTypeCombobox.getModel().getElementAt(0), is(new UIConfiguration.ComboboxEntry("objectStreamConnection", "Object stream")));
+        assertThat(connectionTypeCombobox.getModel().getElementAt(0), is(new UIConfiguration.ComboboxEntry(ObjectStreamClientConnection.NAME, "Object stream")));
         assertThat(connectionTypeCombobox.getModel().getElementAt(1), is(entry));
 
         connectionTypeCombobox.setSelectedItem(entry);
@@ -402,8 +404,7 @@ class ServerWindowComponentsTest {
     /**
      * Waits a while for AWT.
      *
-     * @throws InterruptedException
-     *             the InterruptedException
+     * @throws InterruptedException the InterruptedException
      */
     private void waitForAwt() throws InterruptedException {
         Thread.sleep(50);
@@ -412,8 +413,7 @@ class ServerWindowComponentsTest {
     /**
      * Waits for server to change state.
      *
-     * @throws InterruptedException
-     *             InterruptedException
+     * @throws InterruptedException InterruptedException
      */
     private void waitForState() throws InterruptedException {
         Thread.sleep(500);
