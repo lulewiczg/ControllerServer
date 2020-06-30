@@ -36,7 +36,8 @@ Settings are stored in *application.properties*, file is created in jar file dir
 - *com.github.lulewiczg.setting.userFile* - user settings file name
 - *com.github.lulewiczg.setting.logLevel* - logging level
 - *com.github.lulewiczg.setting.serverTimeout* - max idle time in miliseconds
-
+- *com.github.lulewiczg.setting.serverTimeout* - max idle time in miliseconds
+- *com.github.lulewiczg.setting.connectionType* - type of communication
 
 ### Running application
 -  **Window mode**

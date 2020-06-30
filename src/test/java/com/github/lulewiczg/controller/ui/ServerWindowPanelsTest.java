@@ -20,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import javax.swing.*;
 import java.util.Properties;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -73,6 +74,9 @@ class ServerWindowPanelsTest {
     private JComboBox<String> ipCombobox;
 
     @Autowired
+    private JComboBox<UIConfiguration.ComboboxEntry> connectionTypeCombobox;
+
+    @Autowired
     private JTextArea textArea;
 
     @Autowired
@@ -99,49 +103,53 @@ class ServerWindowPanelsTest {
     @Test
     @DisplayName("Logs panel is created properly")
     void testLogsPanel() throws Exception {
-        assertThat(logPanel.getComponentCount(), Matchers.equalTo(2));
+        assertThat(logPanel.getComponentCount(), equalTo(2));
 
         JPanel panel = (JPanel) logPanel.getComponent(0);
-        assertThat(panel.getComponentCount(), Matchers.equalTo(2));
-        assertThat(panel.getComponent(0), Matchers.equalTo(clearLogsButton));
-        assertThat(panel.getComponent(1), Matchers.equalTo(logLevelsCombobox));
+        assertThat(panel.getComponentCount(), equalTo(2));
+        assertThat(panel.getComponent(0), equalTo(clearLogsButton));
+        assertThat(panel.getComponent(1), equalTo(logLevelsCombobox));
 
         JScrollPane panel2 = (JScrollPane) logPanel.getComponent(1);
         assertThat(panel2.getComponentCount(), Matchers.greaterThanOrEqualTo(1));
         JViewport view = (JViewport) panel2.getComponent(0);
-        assertThat(view.getComponentCount(), Matchers.equalTo(1));
-        assertThat(view.getComponent(0), Matchers.equalTo(textArea));
+        assertThat(view.getComponentCount(), equalTo(1));
+        assertThat(view.getComponent(0), equalTo(textArea));
     }
 
     @Test
     @DisplayName("Settings panel is created properly")
     void testSettingsPanel() {
-        assertThat(settingsPanel.getComponentCount(), Matchers.equalTo(14));
+        assertThat(settingsPanel.getComponentCount(), equalTo(16));
 
         JLabel label = (JLabel) settingsPanel.getComponent(0);
-        assertThat(label.getText(), Matchers.equalTo("IP"));
-        assertThat(settingsPanel.getComponent(1), Matchers.equalTo(ipCombobox));
+        assertThat(label.getText(), equalTo("IP"));
+        assertThat(settingsPanel.getComponent(1), equalTo(ipCombobox));
 
         JLabel label2 = (JLabel) settingsPanel.getComponent(2);
-        assertThat(label2.getText(), Matchers.equalTo("Port"));
-        assertThat(settingsPanel.getComponent(3), Matchers.equalTo(portInput));
+        assertThat(label2.getText(), equalTo("Port"));
+        assertThat(settingsPanel.getComponent(3), equalTo(portInput));
 
         JLabel label3 = (JLabel) settingsPanel.getComponent(4);
-        assertThat(label3.getText(), Matchers.equalTo("Password"));
-        assertThat(settingsPanel.getComponent(5), Matchers.equalTo(passwordInput));
+        assertThat(label3.getText(), equalTo("Password"));
+        assertThat(settingsPanel.getComponent(5), equalTo(passwordInput));
 
         JLabel label4 = (JLabel) settingsPanel.getComponent(6);
-        assertThat(label4.getText(), Matchers.equalTo("Timeout"));
-        assertThat(settingsPanel.getComponent(7), Matchers.equalTo(timeoutInput));
+        assertThat(label4.getText(), equalTo("Timeout"));
+        assertThat(settingsPanel.getComponent(7), equalTo(timeoutInput));
 
-        assertThat(settingsPanel.getComponent(8), Matchers.equalTo(autostart));
+        JLabel label5 = (JLabel) settingsPanel.getComponent(8);
+        assertThat(label5.getText(), equalTo("Connection Type"));
+        assertThat(settingsPanel.getComponent(9), equalTo(connectionTypeCombobox));
 
-        JLabel label5 = (JLabel) settingsPanel.getComponent(10);
-        assertThat(label5.getText(), Matchers.equalTo("Server state"));
-        assertThat(settingsPanel.getComponent(11), Matchers.equalTo(stateIndicator));
+        assertThat(settingsPanel.getComponent(10), equalTo(autostart));
 
-        assertThat(settingsPanel.getComponent(12), Matchers.equalTo(stopButton));
-        assertThat(settingsPanel.getComponent(13), Matchers.equalTo(startButton));
+        JLabel label6 = (JLabel) settingsPanel.getComponent(12);
+        assertThat(label6.getText(), equalTo("Server state"));
+        assertThat(settingsPanel.getComponent(13), equalTo(stateIndicator));
+
+        assertThat(settingsPanel.getComponent(14), equalTo(stopButton));
+        assertThat(settingsPanel.getComponent(15), equalTo(startButton));
     }
 
 }

@@ -8,7 +8,6 @@ import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.ServerState;
 import com.github.lulewiczg.controller.server.SettingsComponent;
 import org.apache.logging.log4j.Level;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -28,6 +27,8 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -86,6 +87,9 @@ class ServerWindowComponentsTest {
     private JComboBox<String> ipCombobox;
 
     @Autowired
+    private JComboBox<UIConfiguration.ComboboxEntry> connectionTypeCombobox;
+
+    @Autowired
     private JTextArea textArea;
 
     @Autowired
@@ -141,27 +145,27 @@ class ServerWindowComponentsTest {
     @Test
     @DisplayName("Clear logs button")
     void testClearLogsButton() {
-        assertThat(clearLogsButton.getText(), Matchers.equalTo("Clear logs"));
+        assertThat(clearLogsButton.getText(), equalTo("Clear logs"));
         textArea.setText("test text");
         clearLogsButton.doClick();
-        assertThat(textArea.getText(), Matchers.equalTo(""));
+        assertThat(textArea.getText(), equalTo(""));
     }
 
     @Test
     @DisplayName("IP combobox")
     void testIpCombobox() throws Exception {
-        assertThat(ipCombobox.isEditable(), Matchers.equalTo(false));
+        assertThat(ipCombobox.isEditable(), equalTo(false));
         InetAddress[] ips = InetAddress.getAllByName(InetAddress.getLocalHost().getHostName());
         List<String> localIps = Arrays.stream(ips).map(InetAddress::getHostAddress).sorted().collect(Collectors.toList());
-        assertThat(ipCombobox.getModel().getSize(), Matchers.equalTo(localIps.size()));
+        assertThat(ipCombobox.getModel().getSize(), equalTo(localIps.size()));
         IntStream.range(0, localIps.size())
-                .forEach(i -> assertThat(ipCombobox.getModel().getElementAt(i), Matchers.equalTo(localIps.get(i))));
+                .forEach(i -> assertThat(ipCombobox.getModel().getElementAt(i), equalTo(localIps.get(i))));
     }
 
     @Test
     @DisplayName("Stop button")
     void testStopButton() {
-        assertThat(stopButton.getText(), Matchers.equalTo("Stop"));
+        assertThat(stopButton.getText(), equalTo("Stop"));
         stopButton.doClick();
         verify(manager).stop();
     }
@@ -169,7 +173,7 @@ class ServerWindowComponentsTest {
     @Test
     @DisplayName("Start button")
     void testStartButton() {
-        assertThat(startButton.getText(), Matchers.equalTo("Start"));
+        assertThat(startButton.getText(), equalTo("Start"));
         startButton.doClick();
         verify(manager).start();
     }
@@ -177,7 +181,7 @@ class ServerWindowComponentsTest {
     @Test
     @DisplayName("Autostart checkbox")
     void testAutostartCheckbox() {
-        assertThat(autostart.getText(), Matchers.equalTo("Auto start server on startup"));
+        assertThat(autostart.getText(), equalTo("Auto start server on startup"));
         boolean selected = autostart.isSelected();
 
         autostart.doClick();
@@ -200,7 +204,7 @@ class ServerWindowComponentsTest {
         waitForAwt();
         verify(popup, never()).invalidValuePopup(anyString(), any());
         verify(settings).setPort(12345);
-        assertThat(startButton.isEnabled(), Matchers.equalTo(true));
+        assertThat(startButton.isEnabled(), equalTo(true));
     }
 
     @Test
@@ -240,7 +244,7 @@ class ServerWindowComponentsTest {
         waitForAwt();
         verify(popup, never()).invalidValuePopup(anyString(), any());
         verify(settings).setPassword(TEST);
-        assertThat(startButton.isEnabled(), Matchers.equalTo(true));
+        assertThat(startButton.isEnabled(), equalTo(true));
     }
 
     @Test
@@ -267,7 +271,7 @@ class ServerWindowComponentsTest {
         waitForAwt();
         verify(popup, never()).invalidValuePopup(anyString(), any());
         verify(settings).setTimeout(12345);
-        assertThat(startButton.isEnabled(), Matchers.equalTo(true));
+        assertThat(startButton.isEnabled(), equalTo(true));
     }
 
     @Test
@@ -297,18 +301,32 @@ class ServerWindowComponentsTest {
     }
 
     @Test
+    @DisplayName("Connection type combobox")
+    void testConnectionTypeCombobox() {
+        UIConfiguration.ComboboxEntry entry = new UIConfiguration.ComboboxEntry("jsonConnection", "JSON");
+        assertThat(connectionTypeCombobox.getModel().getSize(), equalTo(2));
+        assertThat(connectionTypeCombobox.getModel().getElementAt(0), is(new UIConfiguration.ComboboxEntry("objectStreamConnection", "Object stream")));
+        assertThat(connectionTypeCombobox.getModel().getElementAt(1), is(entry));
+
+        connectionTypeCombobox.setSelectedItem(entry);
+
+        verify(settings).setConnectionType(entry.getValue());
+    }
+
+    @Test
     @DisplayName("Logs levels combobox")
     void testLogLevelsCombobox() {
         Level[] levels = Level.values();
         Arrays.sort(levels);
-        assertThat(logLevelsCombobox.getModel().getSize(), Matchers.equalTo(levels.length));
+        assertThat(logLevelsCombobox.getModel().getSize(), equalTo(levels.length));
         IntStream.range(0, levels.length)
-                .forEach(i -> assertThat(logLevelsCombobox.getModel().getElementAt(i), Matchers.equalTo(levels[i])));
+                .forEach(i -> assertThat(logLevelsCombobox.getModel().getElementAt(i), equalTo(levels[i])));
 
         logLevelsCombobox.setSelectedItem(Level.WARN);
         verify(settings).setLogLevel(Level.WARN);
         verify(appender).updateFilter(Level.WARN);
     }
+
 
     @Test
     @DisplayName("Update server status - SHUTDOWN")
@@ -317,10 +335,11 @@ class ServerWindowComponentsTest {
         verifyNotChangedComponents();
 
         waitForState();
-        assertThat(startButton.isEnabled(), Matchers.equalTo(true));
-        assertThat(stopButton.isEnabled(), Matchers.equalTo(false));
-        assertThat(portInput.isEnabled(), Matchers.equalTo(true));
-        assertThat(passwordInput.isEnabled(), Matchers.equalTo(true));
+        assertThat(startButton.isEnabled(), equalTo(true));
+        assertThat(stopButton.isEnabled(), equalTo(false));
+        assertThat(portInput.isEnabled(), equalTo(true));
+        assertThat(passwordInput.isEnabled(), equalTo(true));
+        assertThat(connectionTypeCombobox.isEnabled(), equalTo(true));
     }
 
     @Test
@@ -330,10 +349,11 @@ class ServerWindowComponentsTest {
         verifyNotChangedComponents();
 
         waitForState();
-        assertThat(startButton.isEnabled(), Matchers.equalTo(false));
-        assertThat(stopButton.isEnabled(), Matchers.equalTo(true));
-        assertThat(portInput.isEnabled(), Matchers.equalTo(false));
-        assertThat(passwordInput.isEnabled(), Matchers.equalTo(false));
+        assertThat(startButton.isEnabled(), equalTo(false));
+        assertThat(stopButton.isEnabled(), equalTo(true));
+        assertThat(portInput.isEnabled(), equalTo(false));
+        assertThat(passwordInput.isEnabled(), equalTo(false));
+        assertThat(connectionTypeCombobox.isEnabled(), equalTo(false));
     }
 
     @Test
@@ -343,10 +363,11 @@ class ServerWindowComponentsTest {
         verifyNotChangedComponents();
 
         waitForState();
-        assertThat(startButton.isEnabled(), Matchers.equalTo(false));
-        assertThat(stopButton.isEnabled(), Matchers.equalTo(true));
-        assertThat(portInput.isEnabled(), Matchers.equalTo(false));
-        assertThat(passwordInput.isEnabled(), Matchers.equalTo(false));
+        assertThat(startButton.isEnabled(), equalTo(false));
+        assertThat(stopButton.isEnabled(), equalTo(true));
+        assertThat(portInput.isEnabled(), equalTo(false));
+        assertThat(passwordInput.isEnabled(), equalTo(false));
+        assertThat(connectionTypeCombobox.isEnabled(), equalTo(false));
     }
 
     @Test
@@ -373,9 +394,9 @@ class ServerWindowComponentsTest {
      * Verifies components not affected by server state.
      */
     private void verifyNotChangedComponents() {
-        assertThat(autostart.isEnabled(), Matchers.equalTo(true));
-        assertThat(ipCombobox.isEnabled(), Matchers.equalTo(true));
-        assertThat(logLevelsCombobox.isEnabled(), Matchers.equalTo(true));
+        assertThat(autostart.isEnabled(), equalTo(true));
+        assertThat(ipCombobox.isEnabled(), equalTo(true));
+        assertThat(logLevelsCombobox.isEnabled(), equalTo(true));
     }
 
     /**

@@ -5,6 +5,9 @@ import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.SettingsComponent;
 import com.github.lulewiczg.controller.ui.JTextAreaAppender;
 import com.github.lulewiczg.controller.ui.SwingPopup;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -117,6 +120,20 @@ public class UIConfiguration {
     }
 
     @Bean
+    public JComboBox<ComboboxEntry> connectionTypeCombobox(SettingsComponent settings) {
+        JComboBox<ComboboxEntry> connectionTypes = new JComboBox<>(new ComboboxEntry[]{
+                new ComboboxEntry("objectStreamConnection", "Object stream"), new ComboboxEntry("jsonConnection", "JSON")});
+        connectionTypes.setSelectedItem(settings.getConnectionType());
+        connectionTypes.addActionListener(e -> {
+            ComboboxEntry type = (ComboboxEntry) connectionTypes.getSelectedItem();
+            settings.setConnectionType(type.getValue());
+            log.info("Conenction type change to {}", type);
+        });
+        connectionTypes.setMaximumSize(new Dimension(50, 20));
+        return connectionTypes;
+    }
+
+    @Bean
     public JLabel stateIndicator() {
         JLabel stateIndicator = new JLabel();
         Font font = stateIndicator.getFont();
@@ -162,9 +179,9 @@ public class UIConfiguration {
     }
 
     @Bean
-    public JPanel settingsPanel(JComboBox<String> ipCombobox, JTextField portInput, JTextField passwordInput,
+    public JPanel settingsPanel(JComboBox<String> ipCombobox, JComboBox<ComboboxEntry> connectionTypeCombobox, JTextField portInput, JTextField passwordInput,
                                 JTextField timeoutInput, JCheckBox autostart, JLabel stateIndicator, JButton startButton, JButton stopButton) {
-        JPanel panel = new JPanel(new GridLayout(7, 3));
+        JPanel panel = new JPanel(new GridLayout(8, 3));
         panel.setBorder(BorderFactory.createTitledBorder("Server settings"));
         JLabel ip = new JLabel("IP");
         ip.setToolTipText("Server IP, list contains all IPs that host PC has");
@@ -185,6 +202,11 @@ public class UIConfiguration {
         timeout.setToolTipText("Timeout in miliseconds after idle");
         panel.add(timeout);
         panel.add(timeoutInput);
+
+        JLabel connections = new JLabel("Connection Type");
+        connections.setToolTipText("Type of connection, which server uses to communicate");
+        panel.add(connections);
+        panel.add(connectionTypeCombobox);
 
         panel.add(autostart);
         panel.add(new JLabel());
@@ -252,4 +274,18 @@ public class UIConfiguration {
         };
     }
 
+    @Getter
+    @EqualsAndHashCode
+    @AllArgsConstructor
+    public static class ComboboxEntry {
+
+        private final String value;
+
+        private final String displayValue;
+
+        @Override
+        public String toString() {
+            return displayValue;
+        }
+    }
 }

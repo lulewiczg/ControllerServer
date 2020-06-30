@@ -1,5 +1,6 @@
 package com.github.lulewiczg.controller.ui;
 
+import com.github.lulewiczg.controller.UIConfiguration;
 import com.github.lulewiczg.controller.server.ExceptionLoggingService;
 import com.github.lulewiczg.controller.server.ServerState;
 import lombok.extern.log4j.Log4j2;
@@ -45,6 +46,9 @@ public class ServerWindow extends JFrame {
 
     @Autowired
     private JTextField timeoutInput;
+
+    @Autowired
+    private JComboBox<UIConfiguration.ComboboxEntry> connectionTypeCombobox;
 
     @Autowired
     private JPanel settingsPanel;
@@ -99,6 +103,7 @@ public class ServerWindow extends JFrame {
             portInput.setEnabled(!running);
             passwordInput.setEnabled(!running);
             timeoutInput.setEnabled(!running);
+            connectionTypeCombobox.setEnabled(!running);
             startButton.setEnabled(!running);
             stopButton.setEnabled(running);
             stateIndicator.setText(state.getMsg());
