@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.awt.*;
@@ -45,7 +44,6 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Grzegurz
  */
-@ActiveProfiles("testInteg")
 @ContextConfiguration(loader = AWTSpringApplicationContextLoader.class)
 abstract class ControllerServerIntegTest {
 

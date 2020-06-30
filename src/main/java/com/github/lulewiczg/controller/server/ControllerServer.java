@@ -1,5 +1,19 @@
 package com.github.lulewiczg.controller.server;
 
+import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
+import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
+import com.github.lulewiczg.controller.common.Common;
+import com.github.lulewiczg.controller.exception.ServerExitException;
+import com.github.lulewiczg.controller.ui.ServerWindow;
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,23 +23,6 @@ import java.net.SocketException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
-import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
-import com.github.lulewiczg.controller.actions.processor.connection.ClientConnection;
-import com.github.lulewiczg.controller.common.Common;
-import com.github.lulewiczg.controller.exception.ServerExitException;
-import com.github.lulewiczg.controller.ui.ServerWindow;
-
-import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
 
 /**
  * Server implementation.
@@ -145,7 +142,7 @@ public class ControllerServer {
             Thread.sleep(500);
         }
         log.info("Trying to connect...");
-        ClientConnection clientConnection = context.getBean(ClientConnection.class, inputStream, outputStream);
+        ClientConnection clientConnection = (ClientConnection) context.getBean(config.getConnectionType(), inputStream, outputStream);
         processor = context.getBean(ActionProcessor.class, clientConnection);
         while (!socket.isClosed() && getStatus() != ServerState.SHUTDOWN) {
             processor.processAction(this);

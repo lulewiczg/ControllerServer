@@ -7,7 +7,7 @@ import com.github.lulewiczg.controller.common.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,8 +16,8 @@ import java.util.Scanner;
 
 @Lazy
 @Scope("prototype")
-@Service("jsonConnection")
-public class JSONClientConnection implements ClientConnection {
+@Component("jsonConnection")
+public class JsonClientConnection implements ClientConnection {
 
     public static final String DELIM = "<>";
     private final InputStream in;
@@ -26,7 +26,7 @@ public class JSONClientConnection implements ClientConnection {
     private final Scanner sc;
 
     @Autowired
-    public JSONClientConnection(InputStream in, OutputStream out) {
+    public JsonClientConnection(InputStream in, OutputStream out) {
         this.in = in;
         this.out = out;
         sc = new Scanner(in);

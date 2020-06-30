@@ -7,7 +7,7 @@ import com.github.lulewiczg.controller.exception.ConnectionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 
@@ -16,7 +16,7 @@ import java.io.*;
  */
 @Lazy
 @Scope("prototype")
-@Service("objectStreamConnection")
+@Component("objectStreamConnection")
 public class ObjectStreamClientConnection implements ClientConnection {
 
     private final ObjectInputStream in;

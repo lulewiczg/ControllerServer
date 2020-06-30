@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
-class JSONClientConnectionTest {
+class JsonClientConnectionTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -25,7 +25,7 @@ class JSONClientConnectionTest {
     void testClose() throws IOException {
         InputStream in = mock(InputStream.class);
         OutputStream out = mock(OutputStream.class);
-        JSONClientConnection connection = new JSONClientConnection(in, out);
+        JsonClientConnection connection = new JsonClientConnection(in, out);
 
         connection.close();
 
@@ -37,7 +37,7 @@ class JSONClientConnectionTest {
     @DisplayName("Read action")
     void testReadAction() throws Exception {
         ByteArrayInputStream in = new ByteArrayInputStream(mapper.writeValueAsBytes(new TextAction("abc")));
-        JSONClientConnection connection = new JSONClientConnection(in, new ByteArrayOutputStream());
+        JsonClientConnection connection = new JsonClientConnection(in, new ByteArrayOutputStream());
 
         Action action = connection.getNext();
 
@@ -50,7 +50,7 @@ class JSONClientConnectionTest {
         String data = mapper.writeValueAsString(new TextAction("abc")) + "<>" + mapper.writeValueAsString(new TextAction("123")) + "<>" +
                 mapper.writeValueAsString(new MouseMoveAction(20, 30));
         ByteArrayInputStream in = new ByteArrayInputStream(data.getBytes());
-        JSONClientConnection connection = new JSONClientConnection(in, new ByteArrayOutputStream());
+        JsonClientConnection connection = new JsonClientConnection(in, new ByteArrayOutputStream());
 
         Action action = connection.getNext();
         Action action2 = connection.getNext();
@@ -65,7 +65,7 @@ class JSONClientConnectionTest {
     @DisplayName("Read action with delimiter")
     void testReadActionDelimiter() throws Exception {
         ByteArrayInputStream in = new ByteArrayInputStream(mapper.writeValueAsBytes(new TextAction("a<//>b")));
-        JSONClientConnection connection = new JSONClientConnection(in, new ByteArrayOutputStream());
+        JsonClientConnection connection = new JsonClientConnection(in, new ByteArrayOutputStream());
 
         Action action = connection.getNext();
 
@@ -77,7 +77,7 @@ class JSONClientConnectionTest {
     void testWriteResponse() throws Exception {
         ByteArrayInputStream in = new ByteArrayInputStream(new byte[]{});
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        JSONClientConnection connection = new JSONClientConnection(in, out);
+        JsonClientConnection connection = new JsonClientConnection(in, out);
         Response response = new Response(Status.NOT_OK, new AuthorizationException("aaa"));
 
         connection.write(response);

@@ -5,7 +5,7 @@ import com.github.lulewiczg.controller.actions.Action;
 import com.github.lulewiczg.controller.actions.impl.DisconnectAction;
 import com.github.lulewiczg.controller.actions.impl.LoginAction;
 import com.github.lulewiczg.controller.actions.impl.ServerStopAction;
-import com.github.lulewiczg.controller.actions.processor.connection.JSONClientConnection;
+import com.github.lulewiczg.controller.actions.processor.connection.JsonClientConnection;
 import com.github.lulewiczg.controller.common.Response;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Lazy;
@@ -45,7 +45,7 @@ public class JsonClient implements Client {
         out = socket.getOutputStream();
         in = socket.getInputStream();
         sc = new Scanner(in);
-        sc.useDelimiter(JSONClientConnection.DELIM);
+        sc.useDelimiter(JsonClientConnection.DELIM);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class JsonClient implements Client {
     @Override
     @SneakyThrows
     public Response doAction(Action action) {
-        out.write((mapper.writeValueAsString(action) + JSONClientConnection.DELIM).getBytes());
+        out.write((mapper.writeValueAsString(action) + JsonClientConnection.DELIM).getBytes());
         out.flush();
         return mapper.readValue(sc.next(), Response.class);
     }
