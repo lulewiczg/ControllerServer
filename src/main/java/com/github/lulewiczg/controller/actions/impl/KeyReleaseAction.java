@@ -6,19 +6,22 @@ import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
 
+import lombok.*;
+
 /**
  * Action for key release event.
  *
  * @author Grzegurz
  *
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class KeyReleaseAction extends KeyAction {
 
     private static final long serialVersionUID = 1L;
 
-    public KeyReleaseAction(int key) {
-        super(key);
-    }
+    protected int key;
 
     /**
      * @see com.github.lulewiczg.controller.actions.Action#doAction(com.github.lulewiczg.controller.server.ControllerServer)

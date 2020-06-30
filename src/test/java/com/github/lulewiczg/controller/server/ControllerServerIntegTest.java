@@ -1,19 +1,23 @@
 package com.github.lulewiczg.controller.server;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-
-import java.awt.Robot;
-import java.awt.event.InputEvent;
-import java.net.ConnectException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
+import com.github.lulewiczg.controller.*;
+import com.github.lulewiczg.controller.actions.impl.KeyPressAction;
+import com.github.lulewiczg.controller.actions.impl.KeyReleaseAction;
+import com.github.lulewiczg.controller.actions.impl.MouseButtonPressAction;
+import com.github.lulewiczg.controller.actions.impl.ServerStopAction;
+import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
+import com.github.lulewiczg.controller.actions.processor.connection.JsonClientConnection;
+import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
+import com.github.lulewiczg.controller.actions.processor.mouse.JNAMouseMovingService;
+import com.github.lulewiczg.controller.client.Client;
+import com.github.lulewiczg.controller.client.JsonClient;
+import com.github.lulewiczg.controller.common.Response;
+import com.github.lulewiczg.controller.common.Status;
+import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
+import com.github.lulewiczg.controller.exception.AuthorizationException;
+import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
+import com.github.lulewiczg.controller.ui.JTextAreaAppender;
+import com.github.lulewiczg.controller.ui.ServerWindow;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,47 +28,33 @@ import org.mockito.Mockito;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.github.lulewiczg.controller.AWTSpringApplicationContextLoader;
-import com.github.lulewiczg.controller.AWTTestConfiguration;
-import com.github.lulewiczg.controller.EagerConfiguration;
-import com.github.lulewiczg.controller.MainConfiguration;
-import com.github.lulewiczg.controller.TestUtilConfiguration;
-import com.github.lulewiczg.controller.actions.impl.KeyPressAction;
-import com.github.lulewiczg.controller.actions.impl.KeyReleaseAction;
-import com.github.lulewiczg.controller.actions.impl.MouseButtonPressAction;
-import com.github.lulewiczg.controller.actions.impl.ServerStopAction;
-import com.github.lulewiczg.controller.actions.processor.ActionProcessor;
-import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
-import com.github.lulewiczg.controller.actions.processor.mouse.JNAMouseMovingService;
-import com.github.lulewiczg.controller.client.Client;
-import com.github.lulewiczg.controller.common.Response;
-import com.github.lulewiczg.controller.common.Status;
-import com.github.lulewiczg.controller.exception.AlreadyLoggedInException;
-import com.github.lulewiczg.controller.exception.AuthorizationException;
-import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
-import com.github.lulewiczg.controller.ui.JTextAreaAppender;
-import com.github.lulewiczg.controller.ui.ServerWindow;
+import java.awt.*;
+import java.awt.event.InputEvent;
+import java.net.ConnectException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests controller server.
  *
  * @author Grzegurz
- *
  */
-@ActiveProfiles("testInteg")
-@EnableAutoConfiguration
-@ContextConfiguration(loader = AWTSpringApplicationContextLoader.class)
-@SpringBootTest(classes = { AWTTestConfiguration.class, EagerConfiguration.class, MainConfiguration.class,
+@SpringBootTest(classes = {AWTTestConfiguration.class, EagerConfiguration.class, MainConfiguration.class,
         ControllerServerManager.class, TestUtilConfiguration.class, JNAMouseMovingService.class, JTextAreaAppender.class,
-        ControllerServer.class, ObjectStreamClientConnection.class, ActionProcessor.class, TimeoutWatcher.class })
-class ControllerServerIntegTest {
+        ControllerServer.class, JsonClientConnection.class, ObjectStreamClientConnection.class, ActionProcessor.class, TimeoutWatcher.class,})
+@ContextConfiguration(loader = AWTSpringApplicationContextLoader.class)
+abstract class ControllerServerIntegTest {
 
     private Client client;
 
@@ -88,11 +78,20 @@ class ControllerServerIntegTest {
     @MockBean
     private ServerWindow window;
 
+    @Autowired
+    protected ApplicationContext context;
+
+    /**
+     * Gets client.
+     *
+     * @return client
+     */
+    protected abstract Client getClient(int port);
+
     /**
      * Stops server after test.
      *
-     * @throws Exception
-     *             the Exception
+     * @throws Exception the Exception
      */
     @AfterEach
     void after() throws Exception {
@@ -119,7 +118,7 @@ class ControllerServerIntegTest {
     @DisplayName("Server restart after logout")
     void testStateAfterLogout() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         client.login(password);
         client.logout();
 
@@ -149,7 +148,7 @@ class ControllerServerIntegTest {
     @DisplayName("Server loses connection to client")
     void testServerConnectionLost() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         client.login(password);
         client.close();
         waitForState(ServerState.WAITING);
@@ -158,7 +157,7 @@ class ControllerServerIntegTest {
     @Test
     @DisplayName("Connect to server in down state")
     void testConnectToDownServer() throws Exception {
-        assertThrows(ConnectException.class, () -> new Client(port));
+        assertThrows(ConnectException.class, () -> new JsonClient(port));
         waitForState(ServerState.FORCED_SHUTDOWN);
     }
 
@@ -166,16 +165,16 @@ class ControllerServerIntegTest {
     @DisplayName("Connect to server in up state")
     void testLoginToUpServer() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         Response response = client.login(password);
         assertOK(response);
     }
 
     @Test
-    @DisplayName("Connect to server wiith invalid password")
+    @DisplayName("Connect to server with invalid password")
     void testLoginWithInvalidPassword() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         Response response = client.login("qwerty");
 
         assertEquals(Status.INVALID_PASSWORD, response.getStatus());
@@ -185,7 +184,7 @@ class ControllerServerIntegTest {
     @DisplayName("Log in when already logged in")
     void testLoginWhenLoggedIn() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         client.login(password);
         Response response = client.login(password);
 
@@ -197,7 +196,7 @@ class ControllerServerIntegTest {
     @DisplayName("Disconnects when not connected")
     void testDisconnectWhenNotConnected() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         Response response = client.logout();
 
         assertError(response, AuthorizationException.class);
@@ -208,13 +207,13 @@ class ControllerServerIntegTest {
     @DisplayName("Relog")
     void testRelogin() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         Response response = client.login(password);
         assertOK(response);
         Response response2 = client.logout();
         assertEquals(Status.OK, response2.getStatus());
         waitForState(ServerState.WAITING);
-        client2 = new Client(port);
+        client2 = getClient(port);
         Response response3 = client2.login(password);
 
         assertOK(response3);
@@ -224,14 +223,14 @@ class ControllerServerIntegTest {
     @DisplayName("Connects to server using invalid port")
     void testConnectToInvalidPort() throws Exception {
         startServer();
-        assertThrows(ConnectException.class, () -> client = new Client(4321));
+        assertThrows(ConnectException.class, () -> client = new JsonClient(4321));
     }
 
     @Test
     @DisplayName("Sends action without login")
     void testSendActionWithoutLogin() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         Response response = client.doAction(new MouseButtonPressAction(1));
         assertError(response, AuthorizationException.class);
         waitForState(ServerState.WAITING);
@@ -241,11 +240,11 @@ class ControllerServerIntegTest {
     @DisplayName("Send action after logout")
     void testSendActionAfterLogout() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         client.login(password);
         client.logout();
         waitForState(ServerState.WAITING);
-        client2 = new Client(port);
+        client2 = getClient(port);
         Response response = client2.doAction(new MouseButtonPressAction(1));
         assertError(response, AuthorizationException.class);
         waitForState(ServerState.WAITING);
@@ -255,7 +254,7 @@ class ControllerServerIntegTest {
     @DisplayName("Sends action")
     void testSendAction() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         client.login(password);
         Response response = client.doAction(new MouseButtonPressAction(InputEvent.BUTTON1_DOWN_MASK));
         assertOK(response);
@@ -265,7 +264,7 @@ class ControllerServerIntegTest {
     @DisplayName("Send multiple actions")
     void testSendMultipleActions() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         client.login(password);
         Instant then = Instant.now();
         for (int i = 0; i < 10000; i++) {
@@ -282,10 +281,10 @@ class ControllerServerIntegTest {
     @DisplayName("Two clients connect")
     void testConnectTwoClients() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         client.login(password);
         assertThrows(AssertionFailedError.class, () -> assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
-            client2 = new Client(port);
+            client2 = getClient(port);
             client2.login(password);
         }));
         Mockito.verify(server, Mockito.times(1)).login();
@@ -295,7 +294,7 @@ class ControllerServerIntegTest {
     @DisplayName("Server does not restart after stop action")
     void testStopAction() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         client.login(password);
         Response response = client.doAction(new ServerStopAction());
         assertOKDisconnected(response);
@@ -308,11 +307,11 @@ class ControllerServerIntegTest {
     @DisplayName("Reconnect after connection lost")
     void testReconnectAfterConnectionLost() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         client.login(password);
         client.close();
         assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
-            client2 = new Client(port);
+            client2 = getClient(port);
             Response login = client2.login(password);
             assertEquals(Status.OK, login.getStatus());
         });
@@ -324,7 +323,7 @@ class ControllerServerIntegTest {
     @DisplayName("Actions are executed in order")
     void testActionsInOrder() throws Exception {
         startServer();
-        client = new Client(port);
+        client = getClient(port);
         client.login(password);
         List<Response> responses = new ArrayList<>();
         responses.add(client.doAction(new KeyPressAction(1)));
@@ -351,8 +350,7 @@ class ControllerServerIntegTest {
     /**
      * Starts server with default settings.
      *
-     * @throws InterruptedException
-     *             the InterruptedException
+     * @throws InterruptedException the InterruptedException
      */
 
     private void startServer() throws InterruptedException {
@@ -363,8 +361,7 @@ class ControllerServerIntegTest {
     /**
      * Waits for server to change state.
      *
-     * @param state
-     *            target state
+     * @param state target state
      * @throws InterruptedException
      */
     private void waitForState(ServerState state) throws InterruptedException {
@@ -378,22 +375,19 @@ class ControllerServerIntegTest {
     /**
      * Checks if response was invalid.
      *
-     * @param response
-     *            response
-     * @param e
-     *            expected exception
+     * @param response response
+     * @param e        expected exception
      */
     private void assertError(Response response, Class<? extends Exception> e) {
         assertEquals(Status.NOT_OK, response.getStatus());
         assertNotNull(response.getException());
-        assertEquals(e, response.getException().getClass());
+        assertEquals(e.getSimpleName(), response.getException());
     }
 
     /**
      * Checks if response and server state are OK.
      *
-     * @param response
-     *            server response
+     * @param response server response
      */
     private void assertOK(Response response) {
         assertEquals(Status.OK, response.getStatus());
@@ -403,8 +397,7 @@ class ControllerServerIntegTest {
     /**
      * Checks if response is OK
      *
-     * @param response
-     *            server response
+     * @param response server response
      */
     private void assertOKDisconnected(Response response) {
         assertEquals(Status.OK, response.getStatus());

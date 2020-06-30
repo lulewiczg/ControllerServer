@@ -11,12 +11,17 @@ import com.github.lulewiczg.controller.exception.ActionException;
  *
  * @author Grzegurz
  */
+
 public class MouseButtonPressAction extends MouseButtonAction {
 
     private static final long serialVersionUID = 1L;
 
     public MouseButtonPressAction(int key) {
         super(key);
+    }
+
+    public MouseButtonPressAction() {
+        super(0);
     }
 
     /**

@@ -8,6 +8,7 @@ import com.github.lulewiczg.controller.exception.AuthorizationException;
  *
  * @author Grzegurz
  */
+
 public abstract class LoginRequiredAction extends Action {
     private static final long serialVersionUID = 1L;
 

@@ -12,7 +12,10 @@ import com.github.lulewiczg.controller.exception.LoginException;
 import com.github.lulewiczg.controller.server.ControllerServer;
 import com.github.lulewiczg.controller.server.ServerState;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 /**
@@ -21,7 +24,9 @@ import lombok.extern.log4j.Log4j2;
  * @author Grzegurz
  */
 @Log4j2
+@Getter
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoginAction extends Action {
 
     private static final long serialVersionUID = 1L;

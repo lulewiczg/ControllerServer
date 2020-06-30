@@ -1,11 +1,11 @@
 package com.github.lulewiczg.controller.server;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-
+import com.github.lulewiczg.controller.MockPropertiesConfiguration;
+import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
+import com.github.lulewiczg.controller.MockServerConfiguration;
+import com.github.lulewiczg.controller.TestUtilConfiguration;
+import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
+import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
 import org.awaitility.Awaitility;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,13 +21,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.github.lulewiczg.controller.MockPropertiesConfiguration;
-import com.github.lulewiczg.controller.MockRequiredUIConfiguration;
-import com.github.lulewiczg.controller.MockServerConfiguration;
-import com.github.lulewiczg.controller.TestUtilConfiguration;
-import com.github.lulewiczg.controller.actions.processor.connection.ObjectStreamClientConnection;
-import com.github.lulewiczg.controller.exception.ServerAlreadyRunningException;
-import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
+import java.io.ObjectOutputStream;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
+
+import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests controller ControllerServerManager.
@@ -37,7 +36,7 @@ import com.github.lulewiczg.controller.exception.ServerAlreadyStoppedException;
  */
 @ActiveProfiles("test")
 @SpringBootTest(classes = { MockServerConfiguration.class, MockRequiredUIConfiguration.class, MockPropertiesConfiguration.class,
-        TestUtilConfiguration.class, ControllerServerManager.class, ObjectStreamClientConnection.class })
+        TestUtilConfiguration.class, ControllerServerManager.class, ObjectOutputStream.class })
 @EnableAutoConfiguration
 class ControllerServerManagerTest {
 

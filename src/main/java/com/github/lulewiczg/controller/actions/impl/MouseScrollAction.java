@@ -6,13 +6,15 @@ import com.github.lulewiczg.controller.common.Response;
 import com.github.lulewiczg.controller.common.Status;
 import com.github.lulewiczg.controller.exception.ActionException;
 
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 /**
  * Action for mouse scroll event.
  *
  * @author Grzegurz
  */
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class MouseScrollAction extends LoginRequiredAction {
 
